@@ -1,0 +1,42 @@
+# CLion 
+.idea/
+
+# Visual Studio
+.vs/
+
+# Build Folders
+[Bb]uild/
+[Ii]ntermediate/
+out/
+
+*.d
+
+*.slo
+*.lo
+*.o
+*.obj
+
+*.gch
+*.pch
+
+*.so
+*.dylib
+*.dll
+
+*.mod
+*.smod
+
+*.lai
+*.la
+*.a
+*.lib
+
+*.exe
+*.out
+*.app
+
+# CMake
+cmake-build-*/
+
+# other
+ROADMAP.md
