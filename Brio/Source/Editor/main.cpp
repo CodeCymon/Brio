@@ -1,8 +1,18 @@
 
-#include <Core/Log/Logger.h>
+#include <Platform/Platform.h>
 
 int main() {
-    LOG_DEBUG(LogTemp, "Hello World.");
+  Platform platform;
+  platform.initialize();
 
-    return 0;
+  while (true) {
+    platform.update();
+
+    if (platform.closeRequested())
+      break;
+  }
+
+  platform.shutdown();
+
+  return 0;
 }

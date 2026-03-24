@@ -37,6 +37,7 @@ out/
 
 # CMake
 cmake-build-*/
+compile_commands.json
 
 # other
 ROADMAP.md

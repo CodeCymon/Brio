@@ -25,9 +25,4 @@ target_include_directories(Engine
         ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-find_package(Vulkan REQUIRED)
-
-target_link_libraries(Engine
-        PUBLIC
-        Vulkan::Vulkan
-)
+include(dependencies.cmake)
