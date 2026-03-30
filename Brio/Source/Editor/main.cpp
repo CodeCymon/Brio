@@ -1,18 +1,16 @@
 
-#include <Platform/Platform.h>
+#include <Engine/Engine.h>
 
 int main() {
-  Platform platform;
-  platform.initialize();
+    Engine::Config config = {
+        .width = 1280,
+        .height = 720,
+        .title = "Brio"
+    };
+    Engine engine(config);
+    engine.init();
+    engine.run();
+    engine.shutdown();
 
-  while (true) {
-    platform.update();
-
-    if (platform.closeRequested())
-      break;
-  }
-
-  platform.shutdown();
-
-  return 0;
+    return 0;
 }

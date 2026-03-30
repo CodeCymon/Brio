@@ -1,13 +1,32 @@
 #pragma once
 #include "Common/Defines.h"
+#include "Core/Containers/Array.h"
 
-class Platform
-{
+class Platform {
 public:
-    BAPI void initialize();
-    BAPI void shutdown();
+    struct Config {
+        u32 width{1280};
+        u32 height{720};
+        const char *title{"Engine"};
+        bool resizable{true};
+    };
 
-    BAPI void update();
+    Platform(Platform const &) = delete;
+    Platform &operator=(Platform const &) = delete;
 
-    BAPI [[nodiscard]] bool closeRequested() const;
+    Platform();
+    ~Platform();
+
+    void init(Config const &config);
+    void shutdown();
+
+    void pollEvents();
+    [[nodiscard]] bool shouldClose() const;
+
+    void *getSurface(void *instance);
+    static TArray<const char*> getExtensions();
+
+private:
+    struct Impl;
+    Impl *data{nullptr};
 };
