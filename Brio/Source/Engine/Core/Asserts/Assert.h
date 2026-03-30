@@ -12,11 +12,11 @@
 #endif
 
 #if RELEASE_BUILD
-#define ASSERT(condition, msg)
+#define ASSERT(condition, msg, ...)
 #else
-#define ASSERT(condition, msg) \
+#define ASSERT(condition, msg, ...) \
     do { if (!(condition)) { \
-        LOG_FATAL(LogAssertion, "Assert failed! [{}:{}]: {}", __FILE__, __LINE__, msg); \
+        LOG_FATAL(LogAssertion, "Assert failed! [{}:{}]: {}", __FILE__, __LINE__, msg, ##__VA_ARGS__); \
         DEBUG_BREAK(); \
     }} while(0)
 #endif
