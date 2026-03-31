@@ -28,4 +28,5 @@ private:
 
     std::unique_ptr<class Platform> platform;
     std::unique_ptr<class VulkanDevice> rhiDevice;
+    std::unique_ptr<class VulkanSwapchain> swapchain;
 };

@@ -2,11 +2,13 @@
 
 #include "Platform/Platform.h"
 #include "RHI/Vulkan/VulkanDevice.h"
+#include "RHI/Vulkan/VulkanSwapchain.h"
 
 Engine::Engine(Config const &config)
     : config(config)
     , platform(std::make_unique<Platform>())
     , rhiDevice(std::make_unique<VulkanDevice>())
+    , swapchain(std::make_unique<VulkanSwapchain>())
 {}
 
 Engine::~Engine() = default;
@@ -28,9 +30,17 @@ void Engine::init() {
         .validation = true
     };
     rhiDevice->init(deviceConfig);
+
+    VulkanSwapchain::Config swapchainConfig = {
+        .device = rhiDevice.get(),
+        .width = config.width,
+        .height = config.height
+    };
+    swapchain->init(swapchainConfig);
 }
 
 void Engine::shutdown() {
+    swapchain->shutdown();
     rhiDevice->shutdown();
     platform->shutdown();
 }
@@ -49,5 +59,5 @@ void Engine::tick(f32 deltaTime) {
 }
 
 void Engine::render() {
-    
+
 }
