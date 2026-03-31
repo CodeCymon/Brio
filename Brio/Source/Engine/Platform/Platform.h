@@ -23,7 +23,7 @@ public:
     void pollEvents();
     [[nodiscard]] bool shouldClose() const;
 
-    void *getSurface(void *instance);
+    void* getSurface(void *instance);
     static TArray<const char*> getExtensions();
 
 private:

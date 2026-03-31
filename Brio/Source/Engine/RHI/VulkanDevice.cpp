@@ -1,12 +1,13 @@
 #include "VulkanDevice.h"
 
 #include <cstring>
-#include <queue>
 #include <unordered_set>
 
 #include "VulkanCheck.h"
 #include "Core/Asserts/Assert.h"
-#include "RHI/VulkanUtils.h"
+
+#define INSTANCE_FUNCTION(function) \
+    reinterpret_cast<PFN_##function>(vkGetInstanceProcAddr(instance_, #function))
 
 VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
                                              VkDebugUtilsMessageTypeFlagsEXT messageTypes,
@@ -23,56 +24,55 @@ VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugUtilsMessageSeverityFlagBits
     return VK_FALSE;
 }
 
-bool VulkanDevice::GPU::supportsSwapchain() const {
-    ASSERT(handle, "GPU handle must be valid!");
-
-    u32 count = 0;
-    vkEnumerateDeviceExtensionProperties(handle, nullptr, &count, nullptr);
-    TArray<VkExtensionProperties> properties(count);
-    vkEnumerateDeviceExtensionProperties(handle, nullptr, &count, properties.data());
-
-    for (auto const &extension : properties) {
-        if (strcmp(extension.extensionName, VK_KHR_SWAPCHAIN_EXTENSION_NAME) == 0) {
-            return true;
-        }
+void VulkanDevice::init(Config const &config) {
+    if (config.validation && checkValidationSupport()) {
+        use_validation_ = true;
     }
 
-    return false;
-}
+    createInstance(config);
 
-VulkanDevice::VulkanDevice() = default;
-
-VulkanDevice::~VulkanDevice() = default;
-
-void VulkanDevice::init(Config const &config) {
-    createInstance(config.getExtensions, config.useValidation);
-    if (config.useValidation) {
+    if (use_validation_) {
         createDebugger();
     }
-    createSurface(config.getSurface);
-    pickGPU();
+
+    createSurface(config);
+
+    pickPhysicalDevice();
     createDevice();
 }
 
 void VulkanDevice::shutdown() {
     destroyDevice();
+
     destroySurface();
-    if (debugger) destroyDebugger();
+
+    if (use_validation_) {
+        destroyDebugger();
+    }
+
     destroyInstance();
 }
 
-void VulkanDevice::createInstance(getPlatformExtensionsFn const &getPlatformExtensions, bool useValidation) {
+void VulkanDevice::createInstance(Config const &config) {
     constexpr VkApplicationInfo appInfo = {
         .sType = VK_STRUCTURE_TYPE_APPLICATION_INFO,
-        .pApplicationName = "Brio",
-        .applicationVersion = VK_MAKE_VERSION(1, 0, 0),
+        .pApplicationName = "BrioApp",
+        .applicationVersion = VK_MAKE_VERSION(1,0,0),
         .pEngineName = "BrioEngine",
-        .engineVersion = VK_MAKE_VERSION(1, 0, 0),
+        .engineVersion = VK_MAKE_VERSION(1,0,0),
         .apiVersion = VK_API_VERSION_1_4
     };
 
-    const TArray<const char *> extensions = getInstanceExtensions(getPlatformExtensions, useValidation);
-    const TArray<const char *> layers = getInstanceLayers(useValidation);
+    TArray<const char*> layers = {};
+    if (use_validation_) {
+        layers.push_back("VK_LAYER_KHRONOS_validation");
+    }
+
+    TArray<const char*> extensions = config.platformExtensionsFn();
+    ASSERT(!extensions.empty(), "platform must provide at minimum the surface extensions!");
+    if (use_validation_) {
+        extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+    }
 
     const VkInstanceCreateInfo createInfo = {
         .sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,
@@ -80,41 +80,16 @@ void VulkanDevice::createInstance(getPlatformExtensionsFn const &getPlatformExte
         .enabledLayerCount = static_cast<u32>(layers.size()),
         .ppEnabledLayerNames = layers.data(),
         .enabledExtensionCount = static_cast<u32>(extensions.size()),
-        .ppEnabledExtensionNames = extensions.data()
+        .ppEnabledExtensionNames = extensions.data(),
     };
 
-    VkResult result = vkCreateInstance(&createInfo, nullptr, &instance);
-    VK_CHECK(result);
+    VkResult result = vkCreateInstance(&createInfo, nullptr, &instance_);
+    VK_CHECK(result, "Instance creation failed!");
     LOG_INFO(LogRHI, "Instance created.");
 }
 
-void VulkanDevice::destroyInstance() {
-    ASSERT(instance, "Instance must be valid to be destroyed!");
-    vkDestroyInstance(instance, nullptr);
-    instance = nullptr;
-    LOG_INFO(LogRHI, "Instance destroyed.");
-}
-
-TArray<const char *> VulkanDevice::getInstanceExtensions(getPlatformExtensionsFn const &getPlatformExtensions, bool useValidation) {
-    TArray<const char *> extensions = getPlatformExtensions();
-    ASSERT(!extensions.empty(), "Platform extensions must not be empty!");
-
-    if (useValidation) {
-        extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
-    }
-
-    return extensions;
-}
-
-TArray<const char *> VulkanDevice::getInstanceLayers(bool useValidation) {
-    if (useValidation) {
-        return {"VK_LAYER_KHRONOS_validation"};
-    }
-    return {};
-}
-
 void VulkanDevice::createDebugger() {
-    VkDebugUtilsMessengerCreateInfoEXT createInfo = {
+    constexpr VkDebugUtilsMessengerCreateInfoEXT createInfo = {
         .sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT,
         .messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT |
                            VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT,
@@ -125,114 +100,63 @@ void VulkanDevice::createDebugger() {
         .pUserData = nullptr,
     };
 
-    VkResult result = INSTANCE_FUNCTION(vkCreateDebugUtilsMessengerEXT)(instance, &createInfo, nullptr, &debugger);
-    VK_CHECK(result);
+    VkResult result = INSTANCE_FUNCTION(vkCreateDebugUtilsMessengerEXT)(instance_, &createInfo, nullptr, &debugger_);
+    VK_CHECK(result, "Debugger creation failed!");
     LOG_INFO(LogRHI, "Debugger created.");
 }
 
-void VulkanDevice::destroyDebugger() {
-    ASSERT(debugger, "Debugger must be valid to be destroyed!");
-    INSTANCE_FUNCTION(vkDestroyDebugUtilsMessengerEXT)(instance, debugger, nullptr);
-    debugger = nullptr;
-    LOG_INFO(LogRHI, "Debugger destroyed.");
-}
-
-void VulkanDevice::createSurface(getPlatformSurfaceFn const &getSurface) {
-    surface = static_cast<VkSurfaceKHR>(getSurface(instance));
-    ASSERT(surface, "Surface must be valid!");
+void VulkanDevice::createSurface(Config const &config) {
+    surface_ = static_cast<VkSurfaceKHR>(config.platformSurfaceFn(instance_));
+    ASSERT(surface_, "Surface creation failed!");
     LOG_INFO(LogRHI, "Surface created.");
 }
 
-void VulkanDevice::destroySurface() {
-    ASSERT(surface, "Surface must be valid to be destroyed!");
-    vkDestroySurfaceKHR(instance, surface, nullptr);
-    surface = nullptr;
-    LOG_INFO(LogRHI, "Surface destroyed.");
-}
-
-void VulkanDevice::pickGPU() {
+void VulkanDevice::pickPhysicalDevice() {
     u32 deviceCount = 0;
-    vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr);
+    vkEnumeratePhysicalDevices(instance_, &deviceCount, nullptr);
+
     if (deviceCount == 0) {
-        LOG_FATAL(LogRHI, "No Vulkan-compatible GPUs found!");
+        LOG_FATAL(LogRHI, "No compatible GPUs found!");
         return;
     }
 
-    TArray<VkPhysicalDevice> physicalDevices(deviceCount);
-    vkEnumeratePhysicalDevices(instance, &deviceCount, physicalDevices.data());
+    TArray<VkPhysicalDevice> devices(deviceCount);
+    vkEnumeratePhysicalDevices(instance_, &deviceCount, devices.data());
 
-    GPU fallback {};
-    for (VkPhysicalDevice physicalDevice : physicalDevices) {
-        GPU current {};
-        current.handle = physicalDevice;
+    VkPhysicalDevice fallback{};
+    for (VkPhysicalDevice device : devices) {
+        if (isDeviceSuitable(device) && findQueueFamilies(device)) {
+            VkPhysicalDeviceProperties properties{};
+            vkGetPhysicalDeviceProperties(device, &properties);
 
-        vkGetPhysicalDeviceMemoryProperties(physicalDevice, &current.memoryProperties);
-
-        queryQueueFamilies(physicalDevice);
-
-        bool supportsGraphics = graphicsQueue.hasFamilyIndex;
-        bool supportsPresentation = presentQueue.hasFamilyIndex;
-        bool supportsSwapchain = current.supportsSwapchain();
-        if (supportsGraphics && supportsPresentation && supportsSwapchain) {
-            VkPhysicalDeviceProperties properties {};
-            vkGetPhysicalDeviceProperties(physicalDevice, &properties);
             if (properties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU) {
-                gpu = current;
+                physical_device_ = device;
+                vkGetPhysicalDeviceMemoryProperties(physical_device_, &memory_properties_);
                 LOG_INFO(LogRHI, "Selected GPU: {}", properties.deviceName);
                 return;
             }
 
-            fallback = current;
+            fallback = device;
         }
     }
 
-    if (fallback.handle) {
-        VkPhysicalDeviceProperties properties {};
-        vkGetPhysicalDeviceProperties(fallback.handle, &properties);
-        LOG_INFO(LogRHI, "Selected Fallback GPU: {}", properties.deviceName);
+    if (fallback) {
+        VkPhysicalDeviceProperties properties{};
+        vkGetPhysicalDeviceProperties(fallback, &properties);
+        vkGetPhysicalDeviceMemoryProperties(fallback, &memory_properties_);
+        LOG_INFO(LogRHI, "Selected GPU: {}", properties.deviceName);
         return;
     }
 
     LOG_FATAL(LogRHI, "Found {} GPUs but none met the requirements.", deviceCount);
 }
 
-
-void VulkanDevice::queryQueueFamilies(VkPhysicalDevice physicalDevice) {
-    ASSERT(physicalDevice, "Physical device must be valid!");
-    ASSERT(surface, "Surface must be valid!");
-
-    graphicsQueue.hasFamilyIndex = false;
-    presentQueue.hasFamilyIndex = false;
-
-    u32 queueFamilyCount = 0;
-    vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueFamilyCount, nullptr);
-
-    TArray<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
-    vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueFamilyCount, queueFamilies.data());
-
-    for (u32 i = 0; i < queueFamilyCount; i++) {
-        if (!graphicsQueue.hasFamilyIndex && queueFamilies[i].queueFlags & VK_QUEUE_GRAPHICS_BIT) {
-            graphicsQueue.hasFamilyIndex = true;
-            graphicsQueue.familyIndex = i;
-        }
-
-        VkBool32 canPresent = VK_FALSE;
-        vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice, i, surface, &canPresent);
-        if (!presentQueue.hasFamilyIndex && canPresent == VK_TRUE) {
-            presentQueue.hasFamilyIndex = true;
-            presentQueue.familyIndex = i;
-        }
-    }
-}
-
 void VulkanDevice::createDevice() {
-    ASSERT(gpu.handle, "GPU must be valid!");
-    ASSERT(graphicsQueue.hasFamilyIndex, "Graphics queue must be available!");
-    ASSERT(presentQueue.hasFamilyIndex, "Present queue must be available!");
+    ASSERT(physical_device_, "physical device must be valid!");
 
     std::unordered_set<u32> uniqueFamilies;
-    uniqueFamilies.insert(graphicsQueue.familyIndex);
-    uniqueFamilies.insert(presentQueue.familyIndex);
+    uniqueFamilies.insert(graphics_family_);
+    uniqueFamilies.insert(present_family_);
 
     f32 priority = 1.0f;
     TArray<VkDeviceQueueCreateInfo> queueCreateInfos;
@@ -264,35 +188,113 @@ void VulkanDevice::createDevice() {
         .features = {0}
     };
 
-    TArray<const char*> deviceExtensions = getDeviceExtensions();
+    TArray<const char*> extensions = { VK_KHR_SWAPCHAIN_EXTENSION_NAME };
 
-    VkDeviceCreateInfo deviceInfo = {
+    const VkDeviceCreateInfo createInfo = {
         .sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,
         .pNext = &features2,
         .queueCreateInfoCount = static_cast<u32>(queueCreateInfos.size()),
         .pQueueCreateInfos = queueCreateInfos.data(),
-        .enabledLayerCount = 0,
-        .ppEnabledLayerNames = nullptr,
-        .enabledExtensionCount = static_cast<u32>(deviceExtensions.size()),
-        .ppEnabledExtensionNames = deviceExtensions.data(),
+        .enabledExtensionCount = static_cast<u32>(extensions.size()),
+        .ppEnabledExtensionNames = extensions.data(),
     };
 
-    VkResult result = vkCreateDevice(gpu.handle, &deviceInfo, nullptr, &device);
-    VK_CHECK(result);
+    VkResult result = vkCreateDevice(physical_device_, &createInfo, nullptr, &device_);
+    VK_CHECK(result, "Device creation failed!");
+    LOG_INFO(LogRHI, "Device created.");
 
-    vkGetDeviceQueue(device, graphicsQueue.familyIndex, 0, &graphicsQueue.handle);
-    vkGetDeviceQueue(device, presentQueue.familyIndex, 0, &presentQueue.handle);
+    vkGetDeviceQueue(device_, graphics_family_, 0, &graphics_queue_);
+    LOG_INFO(LogRHI, "acquired graphics queue.");
+    vkGetDeviceQueue(device_, present_family_, 0, &present_queue_);
+    LOG_INFO(LogRHI, "acquired present queue.");
+}
 
-    LOG_INFO(LogRHI, "Logical Device created.");
+void VulkanDevice::destroyInstance() {
+    vkDestroyInstance(instance_, nullptr);
+    instance_ = nullptr;
+    LOG_INFO(LogRHI, "Instance destroyed.");
+}
+
+void VulkanDevice::destroyDebugger() {
+    INSTANCE_FUNCTION(vkDestroyDebugUtilsMessengerEXT)(instance_, debugger_, nullptr);
+    debugger_ = nullptr;
+    LOG_INFO(LogRHI, "Debugger destroyed.");
+}
+
+void VulkanDevice::destroySurface() {
+    vkDestroySurfaceKHR(instance_, surface_, nullptr);
+    surface_ = nullptr;
+    LOG_INFO(LogRHI, "Surface destroyed.");
 }
 
 void VulkanDevice::destroyDevice() {
-    ASSERT(device, "Device must be valid!");
-    vkDestroyDevice(device, nullptr);
-    device = nullptr;
-    LOG_INFO(LogRHI, "Logical Device destroyed.");
+    vkDestroyDevice(device_, nullptr);
+    device_ = nullptr;
+    LOG_INFO(LogRHI, "Device destroyed.");
 }
 
-TArray<const char *> VulkanDevice::getDeviceExtensions() {
-    return {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
+bool VulkanDevice::checkValidationSupport() {
+    u32 count = 0;
+    vkEnumerateInstanceLayerProperties(&count, nullptr);
+
+    TArray<VkLayerProperties> properties(count);
+    vkEnumerateInstanceLayerProperties(&count, properties.data());
+
+    for (auto const& property : properties) {
+        if (strcmp(property.layerName, "VK_LAYER_KHRONOS_validation") == 0) {
+            LOG_DEBUG(LogRHI, "System supports validation layers.");
+            return true;
+        }
+    }
+
+    LOG_WARN(LogRHI, "Validation was requested by application, but system does not support validation layers!");
+    return false;
+}
+
+bool VulkanDevice::isDeviceSuitable(VkPhysicalDevice physical_device) {
+    ASSERT(physical_device, "physical device must be valid!");
+
+    u32 extensionCount = 0;
+    vkEnumerateDeviceExtensionProperties(physical_device, nullptr, &extensionCount, nullptr);
+
+    TArray<VkExtensionProperties> extensions(extensionCount);
+    vkEnumerateDeviceExtensionProperties(physical_device, nullptr, &extensionCount, extensions.data());
+
+    for (auto const& extension : extensions) {
+        if (strcmp(extension.extensionName, VK_KHR_SWAPCHAIN_EXTENSION_NAME) == 0) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+bool VulkanDevice::findQueueFamilies(VkPhysicalDevice physical_device) {
+    ASSERT(physical_device, "physical device must be valid!");
+    ASSERT(surface_, "surface must be valid!");
+
+    bool hasGraphics = false;
+    bool hasPresent = false;
+
+    u32 familyCount = 0;
+    vkGetPhysicalDeviceQueueFamilyProperties(physical_device, &familyCount, nullptr);
+
+    TArray<VkQueueFamilyProperties> families(familyCount);
+    vkGetPhysicalDeviceQueueFamilyProperties(physical_device, &familyCount, families.data());
+
+    for (u32 i = 0; i < familyCount; i++) {
+        if (!hasGraphics && families[i].queueFlags & VK_QUEUE_GRAPHICS_BIT) {
+            graphics_family_ = i;
+            hasGraphics = true;
+        }
+
+        VkBool32 canPresent = VK_FALSE;
+        vkGetPhysicalDeviceSurfaceSupportKHR(physical_device, i, surface_, &canPresent);
+        if (!hasPresent && canPresent == VK_TRUE) {
+            present_family_ = i;
+            hasPresent = true;
+        }
+    }
+
+    return hasGraphics && hasPresent;
 }

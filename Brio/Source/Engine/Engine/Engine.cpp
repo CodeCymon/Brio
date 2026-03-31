@@ -21,11 +21,11 @@ void Engine::init() {
     platform->init(platformConfig);
 
     VulkanDevice::Config deviceConfig = {
-        .getExtensions = Platform::getExtensions,
-        .getSurface = [&](void* instance) -> void* {
+        .platformSurfaceFn = [&](void* instance) -> void* {
             return platform->getSurface(instance);
         },
-        .useValidation = true
+        .platformExtensionsFn = Platform::getExtensions,
+        .validation = true
     };
     rhiDevice->init(deviceConfig);
 }

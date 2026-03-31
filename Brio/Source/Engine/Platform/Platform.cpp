@@ -43,7 +43,7 @@ bool Platform::shouldClose() const {
     return glfwWindowShouldClose(data->window);
 }
 
-void * Platform::getSurface(void *instance) {
+void* Platform::getSurface(void *instance) {
     VkSurfaceKHR surface {};
     glfwCreateWindowSurface(
         static_cast<VkInstance>(instance),
