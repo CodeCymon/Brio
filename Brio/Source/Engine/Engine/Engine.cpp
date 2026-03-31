@@ -1,7 +1,7 @@
 #include "Engine/Engine.h"
 
 #include "Platform/Platform.h"
-#include "RHI/VulkanDevice.h"
+#include "RHI/Vulkan/VulkanDevice.h"
 
 Engine::Engine(Config const &config)
     : config(config)
