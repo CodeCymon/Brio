@@ -21,7 +21,7 @@ Platform::~Platform() {
 void Platform::init(Config const &config) {
     glfwInit();
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-    glfwWindowHint(GLFW_RESIZABLE, config.resizable);
+    glfwWindowHint(GLFW_RESIZABLE, config.resizable == true ? GLFW_TRUE : GLFW_FALSE);
     data->window = glfwCreateWindow(
         static_cast<i32>(config.width),
         static_cast<i32>(config.height),
@@ -43,7 +43,7 @@ bool Platform::shouldClose() const {
     return glfwWindowShouldClose(data->window);
 }
 
-void* Platform::getSurface(void *instance) {
+void* Platform::getSurface(void *instance) const {
     VkSurfaceKHR surface {};
     glfwCreateWindowSurface(
         static_cast<VkInstance>(instance),
