@@ -23,15 +23,15 @@ public:
 
     void resize(u32 width, u32 height);
 
-    VkResult acquireNextImage(VkSemaphore image_available);
+    VkResult acquireNextImage(VkSemaphore acquireSemaphore);
     VkResult present();
 
-    [[nodiscard]] VkSwapchainKHR swapchain() const { return swapchain_; }
-    [[nodiscard]] VkFormat format() const { return surface_format_.format; }
-    [[nodiscard]] VkExtent2D extent() const { return extent_; }
-    [[nodiscard]] VkImage image() const { return images_[image_index_]; }
-    [[nodiscard]] VkImageView view() const { return views_[image_index_]; }
-    [[nodiscard]] VkSemaphore semaphore() const { return render_finished_semaphores_[image_index_]; }
+    [[nodiscard]] VkSwapchainKHR    swapchain() const { return swapchain_; }
+    [[nodiscard]] VkFormat          format()    const { return surface_format_.format; }
+    [[nodiscard]] VkExtent2D        extent()    const { return extent_; }
+    [[nodiscard]] VkImage           image()     const { return images_[image_index_]; }
+    [[nodiscard]] VkImageView       view()      const { return views_[image_index_]; }
+    [[nodiscard]] VkSemaphore       submitSemaphore() const { return submit_semaphores_[image_index_]; }
 
 private:
     void createSwapchain(u32 width, u32 height);
@@ -48,8 +48,13 @@ private:
     u32 image_index_ { 0 };
     TArray<VkImage> images_{};
     TArray<VkImageView> views_{};
-    TArray<VkSemaphore> render_finished_semaphores_{};
     VkExtent2D extent_{};
+    /* See https://docs.vulkan.org/guide/latest/swapchain_semaphore_reuse.html
+     * for info on why one set of semaphores is FRAMES_IN_FLIGHT
+     * and the other semaphore set is SWAPCHAIN_IMAGE_COUNT
+     * @brief: Naming convention from said document's example code.
+     */
+    TArray<VkSemaphore> submit_semaphores_{};
 
     VkSurfaceCapabilitiesKHR surface_capabilities_{};
     VkSurfaceFormatKHR surface_format_{};

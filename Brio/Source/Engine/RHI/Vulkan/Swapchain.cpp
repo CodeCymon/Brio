@@ -1,6 +1,6 @@
-#include "VulkanSwapchain.h"
+#include "Swapchain.h"
 
-#include "VulkanDevice.h"
+#include "Device.h"
 #include "VulkanCheck.h"
 #include "Core/Asserts/Assert.h"
 
@@ -62,10 +62,10 @@ void VulkanSwapchain::resize(u32 width, u32 height) {
         }
         views_.clear();
 
-        for (auto semaphore : render_finished_semaphores_) {
+        for (auto semaphore : submit_semaphores_) {
             vkDestroySemaphore(device_->device(), semaphore, nullptr);
         }
-        render_finished_semaphores_.clear();
+        submit_semaphores_.clear();
 
         vkDestroySwapchainKHR(device_->device(), old_swapchain, nullptr);
     }
@@ -74,7 +74,7 @@ void VulkanSwapchain::resize(u32 width, u32 height) {
     images_.resize(image_count_);
     vkGetSwapchainImagesKHR(device_->device(), swapchain_, &image_count_, images_.data());
 
-    render_finished_semaphores_.resize(image_count_);
+    submit_semaphores_.resize(image_count_);
     views_.resize(image_count_);
     for (u32 i = 0; i < image_count_; i++) {
         VkImageViewCreateInfo viewInfo = {
@@ -92,19 +92,19 @@ void VulkanSwapchain::resize(u32 width, u32 height) {
         vkCreateImageView(device_->device(), &viewInfo, nullptr, &views_[i]);
 
         VkSemaphoreCreateInfo semaphoreInfo = { VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO };
-        vkCreateSemaphore(device_->device(), &semaphoreInfo, nullptr, &render_finished_semaphores_[i]);
+        vkCreateSemaphore(device_->device(), &semaphoreInfo, nullptr, &submit_semaphores_[i]);
     }
 }
 
-VkResult VulkanSwapchain::acquireNextImage(VkSemaphore image_available) {
-    return vkAcquireNextImageKHR(device_->device(), swapchain_, UINT64_MAX, image_available, VK_NULL_HANDLE, &image_index_);
+VkResult VulkanSwapchain::acquireNextImage(VkSemaphore acquireSemaphore) {
+    return vkAcquireNextImageKHR(device_->device(), swapchain_, UINT64_MAX, acquireSemaphore, VK_NULL_HANDLE, &image_index_);
 }
 
 VkResult VulkanSwapchain::present() {
     VkPresentInfoKHR presentInfo = {
         .sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
         .waitSemaphoreCount = 1,
-        .pWaitSemaphores = &render_finished_semaphores_[image_index_],
+        .pWaitSemaphores = &submit_semaphores_[image_index_],
         .swapchainCount = 1,
         .pSwapchains = &swapchain_,
         .pImageIndices = &image_index_
@@ -151,9 +151,10 @@ void VulkanSwapchain::createSwapchain(u32 width, u32 height) {
 
     vkGetSwapchainImagesKHR(device_->device(), swapchain_, &image_count_, nullptr);
     images_.resize(image_count_);
+    LOG_INFO(LogRHI, "Swapchain image count: {}", image_count_);
     vkGetSwapchainImagesKHR(device_->device(), swapchain_, &image_count_, images_.data());
 
-    render_finished_semaphores_.resize(image_count_);
+    submit_semaphores_.resize(image_count_);
     views_.resize(image_count_);
     for (u32 i = 0; i < image_count_; i++) {
         VkImageViewCreateInfo viewInfo = {
@@ -171,7 +172,7 @@ void VulkanSwapchain::createSwapchain(u32 width, u32 height) {
         vkCreateImageView(device_->device(), &viewInfo, nullptr, &views_[i]);
 
         VkSemaphoreCreateInfo semaphoreInfo = { VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO };
-        vkCreateSemaphore(device_->device(), &semaphoreInfo, nullptr, &render_finished_semaphores_[i]);
+        vkCreateSemaphore(device_->device(), &semaphoreInfo, nullptr, &submit_semaphores_[i]);
     }
 
     LOG_INFO(LogRHI, "Swapchain created.");
@@ -183,10 +184,10 @@ void VulkanSwapchain::destroySwapchain() {
     }
     views_.clear();
 
-    for (auto semaphore : render_finished_semaphores_) {
+    for (auto semaphore : submit_semaphores_) {
         vkDestroySemaphore(device_->device(), semaphore, nullptr);
     }
-    render_finished_semaphores_.clear();
+    submit_semaphores_.clear();
 
     vkDestroySwapchainKHR(device_->device(), swapchain_, nullptr);
     swapchain_ = nullptr;
@@ -206,7 +207,6 @@ VkSurfaceFormatKHR VulkanSwapchain::chooseSurfaceFormat(TArray<VkSurfaceFormatKH
     for (auto const& preferred : preferred_formats) {
         for (auto const& format : formats) {
             if (format.format == preferred.format && format.colorSpace == preferred.colorSpace) {
-                LOG_INFO(LogRHI, "Swapchain format: {}", string_VkFormat(format.format));
                 return preferred;
             }
         }
@@ -228,7 +228,6 @@ VkPresentModeKHR VulkanSwapchain::choosePresentMode(TArray<VkPresentModeKHR> con
     for (auto const& preferred : preferred_modes) {
         for (auto const& mode : modes) {
             if (preferred == mode) {
-                LOG_INFO(LogRHI, "Swapchain mode: {}", string_VkPresentModeKHR(preferred));
                 return preferred;
             }
         }
@@ -266,12 +265,14 @@ void VulkanSwapchain::initPersistentData(VkPhysicalDevice physical_device, VkSur
     TArray<VkSurfaceFormatKHR> formats(format_count);
     vkGetPhysicalDeviceSurfaceFormatsKHR(physical_device, surface, &format_count, formats.data());
     surface_format_ = chooseSurfaceFormat(formats);
+    LOG_INFO(LogRHI, "Swapchain format: {}", string_VkFormat(surface_format_.format));
 
     u32 present_mode_count = 0;
     vkGetPhysicalDeviceSurfacePresentModesKHR(physical_device, surface, &present_mode_count, nullptr);
     TArray<VkPresentModeKHR> present_modes(present_mode_count);
     vkGetPhysicalDeviceSurfacePresentModesKHR(physical_device, surface, &present_mode_count, present_modes.data());
     present_mode_ = choosePresentMode(present_modes);
+    LOG_INFO(LogRHI, "Swapchain mode: {}", string_VkPresentModeKHR(present_mode_));
 
     image_count_ = surface_capabilities_.minImageCount + 1;
     if (surface_capabilities_.maxImageCount > 0 && image_count_ > surface_capabilities_.maxImageCount) {
