@@ -1,7 +1,7 @@
 #pragma once
 
-#include <Common/Defines.h>
-#include <memory>
+#include "Common/Defines.h"
+#include "Core/Memory/Reference.h"
 
 class Engine {
 public:
@@ -24,9 +24,8 @@ private:
     void render();
 
 private:
-    Config const &config;
+    Config const& config_;
 
-    std::unique_ptr<class Platform> platform;
-    std::unique_ptr<class VulkanDevice> rhiDevice;
-    std::unique_ptr<class VulkanSwapchain> swapchain;
+    TRef<class Platform> platform_;
+    TRef<class Renderer> renderer_;
 };

@@ -1,53 +1,41 @@
 #include "Engine/Engine.h"
 
 #include "Platform/Platform.h"
-#include "RHI/Vulkan/VulkanDevice.h"
-#include "RHI/Vulkan/VulkanSwapchain.h"
+#include "Renderer/Renderer.h"
 
 Engine::Engine(Config const &config)
-    : config(config)
-    , platform(std::make_unique<Platform>())
-    , rhiDevice(std::make_unique<VulkanDevice>())
-    , swapchain(std::make_unique<VulkanSwapchain>())
+    : config_(config)
+    , platform_(std::make_unique<Platform>())
+    , renderer_(std::make_unique<Renderer>())
 {}
 
 Engine::~Engine() = default;
 
 void Engine::init() {
     Platform::Config platformConfig = {
-        .width = config.width,
-        .height = config.height,
-        .title = config.title,
+        .width = config_.width,
+        .height = config_.height,
+        .title = config_.title,
         .resizable = true
     };
-    platform->init(platformConfig);
+    platform_->init(platformConfig);
 
-    VulkanDevice::Config deviceConfig = {
-        .platformSurfaceFn = [&](void* instance) -> void* {
-            return platform->getSurface(instance);
-        },
-        .platformExtensionsFn = Platform::getExtensions,
-        .validation = true
+    Renderer::Config renderConfig = {
+        .platform = *platform_,
+        .width = config_.width,
+        .height = config_.height
     };
-    rhiDevice->init(deviceConfig);
-
-    VulkanSwapchain::Config swapchainConfig = {
-        .device = rhiDevice.get(),
-        .width = config.width,
-        .height = config.height
-    };
-    swapchain->init(swapchainConfig);
+    renderer_->init(renderConfig);
 }
 
 void Engine::shutdown() {
-    swapchain->shutdown();
-    rhiDevice->shutdown();
-    platform->shutdown();
+    renderer_->shutdown();
+    platform_->shutdown();
 }
 
 void Engine::run() {
-    while (!platform->shouldClose()) {
-        platform->pollEvents();
+    while (!platform_->shouldClose()) {
+        platform_->pollEvents();
         f32 deltaTime = 0.1666666666666f;
         tick(deltaTime);
         render();
@@ -59,5 +47,5 @@ void Engine::tick(f32 deltaTime) {
 }
 
 void Engine::render() {
-
+    renderer_->render();
 }
