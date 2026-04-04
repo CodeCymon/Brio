@@ -6,6 +6,10 @@
 #include "VulkanCheck.h"
 #include "Core/Asserts/Assert.h"
 
+#if PLATFORM_MACOS
+#include <vulkan/vulkan_beta.h>
+#endif
+
 #define INSTANCE_FUNCTION(function) \
     reinterpret_cast<PFN_##function>(vkGetInstanceProcAddr(instance_, #function))
 
@@ -73,9 +77,16 @@ void VulkanDevice::createInstance(Config const &config) {
     if (use_validation_) {
         extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
     }
+#if PLATFORM_MACOS
+    extensions.push_back(VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME);
+    extensions.push_back(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME);
+#endif
 
     const VkInstanceCreateInfo createInfo = {
         .sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,
+#if PLATFORM_MACOS
+        .flags = VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR,
+#endif
         .pApplicationInfo = &appInfo,
         .enabledLayerCount = static_cast<u32>(layers.size()),
         .ppEnabledLayerNames = layers.data(),
@@ -141,6 +152,7 @@ void VulkanDevice::pickPhysicalDevice() {
     }
 
     if (fallback) {
+        physical_device_ = fallback;
         VkPhysicalDeviceProperties properties{};
         vkGetPhysicalDeviceProperties(fallback, &properties);
         vkGetPhysicalDeviceMemoryProperties(fallback, &memory_properties_);
@@ -189,6 +201,9 @@ void VulkanDevice::createDevice() {
     };
 
     TArray<const char*> extensions = { VK_KHR_SWAPCHAIN_EXTENSION_NAME };
+#if PLATFORM_MACOS
+    extensions.push_back(VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME);
+#endif
 
     const VkDeviceCreateInfo createInfo = {
         .sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,
@@ -260,8 +275,25 @@ bool VulkanDevice::isDeviceSuitable(VkPhysicalDevice physical_device) {
     TArray<VkExtensionProperties> extensions(extensionCount);
     vkEnumerateDeviceExtensionProperties(physical_device, nullptr, &extensionCount, extensions.data());
 
+    bool supportsSwapchain = false;
+    bool supportsPortabilitySubset = false;
+
+#if not PLATFORM_MACOS
+    // portability subset is only required on MacOS because of MoltenVK
+    supportsPortabilitySubset = true;
+#endif
+
     for (auto const& extension : extensions) {
         if (strcmp(extension.extensionName, VK_KHR_SWAPCHAIN_EXTENSION_NAME) == 0) {
+            supportsSwapchain = true;
+        }
+#if PLATFORM_MACOS
+        else if (strcmp(extension.extensionName, VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME) == 0) {
+            supportsPortabilitySubset = true;
+        }
+#endif
+
+        if (supportsSwapchain && supportsPortabilitySubset) {
             return true;
         }
     }
