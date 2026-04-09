@@ -27,7 +27,9 @@ Platform::~Platform() {
 }
 
 void Platform::init(Config const &config) {
-    glfwInit();
+    if (!glfwInit()) {
+        LOG_FATAL(LogPlatform, "Failed to initialize GLFW!");
+    }
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
     glfwWindowHint(GLFW_RESIZABLE, config.resizable == true ? GLFW_TRUE : GLFW_FALSE);
     data->window = glfwCreateWindow(

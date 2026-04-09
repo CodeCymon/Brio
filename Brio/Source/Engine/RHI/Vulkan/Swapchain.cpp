@@ -10,10 +10,12 @@ void VulkanSwapchain::init(Config const &config) {
 
     initPersistentData(device_->physicalDevice(), device_->surface());
     createSwapchain(config.width, config.height);
+    LOG_INFO(LogRHI, "Swapchain initialized.");
 }
 
 void VulkanSwapchain::shutdown() {
     destroySwapchain();
+    LOG_INFO(LogRHI, "Swapchain shutdown.");
 }
 
 // TODO: high code-duplication across create/destroy/resize -> evaluate possible refactor
@@ -175,7 +177,7 @@ void VulkanSwapchain::createSwapchain(u32 width, u32 height) {
         vkCreateSemaphore(device_->device(), &semaphoreInfo, nullptr, &submit_semaphores_[i]);
     }
 
-    LOG_INFO(LogRHI, "Swapchain created.");
+    LOG_DETAIL(LogRHI, "Swapchain created.");
 }
 
 void VulkanSwapchain::destroySwapchain() {
@@ -191,7 +193,7 @@ void VulkanSwapchain::destroySwapchain() {
 
     vkDestroySwapchainKHR(device_->device(), swapchain_, nullptr);
     swapchain_ = nullptr;
-    LOG_INFO(LogRHI, "Swapchain destroyed.");
+    LOG_DETAIL(LogRHI, "Swapchain destroyed.");
 }
 
 VkSurfaceFormatKHR VulkanSwapchain::chooseSurfaceFormat(TArray<VkSurfaceFormatKHR> const &formats) {

@@ -131,7 +131,7 @@ void Renderer::render() {
     vkEndCommandBuffer(frame.cmd());
 
 
-    VkCommandBuffer cmds[] = { frame.cmd() };
+    VkCommandBuffer commands[] = { frame.cmd() };
     VkSemaphore waitSemaphores[] = { frame.acquireSemaphore() };
     VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
     VkSemaphore signalSemaphores[] = { swapchain_.submitSemaphore() };
@@ -141,7 +141,7 @@ void Renderer::render() {
         .pWaitSemaphores = waitSemaphores,
         .pWaitDstStageMask = waitStages,
         .commandBufferCount = 1,
-        .pCommandBuffers = cmds,
+        .pCommandBuffers = commands,
         .signalSemaphoreCount = 1,
         .pSignalSemaphores = signalSemaphores,
     };
@@ -159,7 +159,6 @@ bool Renderer::onResize(u32 width, u32 height) {
     if (width == 0 || height == 0) {
         return true;
     }
-    LOG_DEBUG(LogRenderer, "Resized");
     vkDeviceWaitIdle(device_.device());
     swapchain_.resize(width, height);
     return true;

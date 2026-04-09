@@ -10,12 +10,14 @@ void VulkanFrameContext::init(Config const &config) {
     createCommandPool();
     createCommandBuffer();
     createSyncObjects();
+    LOG_INFO(LogRHI, "Frame Context initialized.");
 }
 
 void VulkanFrameContext::shutdown() {
     destroySyncObjects();
     destroyCommandBuffer();
     destroyCommandPool();
+    LOG_INFO(LogRHI, "Frame Context shutdown.");
 }
 
 void VulkanFrameContext::waitForFence() const {
@@ -34,6 +36,7 @@ void VulkanFrameContext::createCommandPool() {
     };
     VkResult result = vkCreateCommandPool(device_->device(), &createInfo, nullptr, &command_pool_);
     VK_CHECK(result, "Command Pool creation failed!");
+    LOG_DETAIL(LogRHI, "Frame Command Pool created.");
 }
 
 void VulkanFrameContext::createCommandBuffer() {
@@ -45,6 +48,7 @@ void VulkanFrameContext::createCommandBuffer() {
     };
     VkResult result = vkAllocateCommandBuffers(device_->device(), &allocInfo, &command_buffer_);
     VK_CHECK(result, "Failed to allocate command buffer!");
+    LOG_DETAIL(LogRHI, "Frame Command Buffer(s) created.");
 }
 
 void VulkanFrameContext::createSyncObjects() {
@@ -62,16 +66,19 @@ void VulkanFrameContext::createSyncObjects() {
         VkResult result = vkCreateSemaphore(device_->device(), &createInfo, nullptr, &acquire_semaphore_);
         VK_CHECK(result, "Failed to create frame semaphore!");
     }
+    LOG_DETAIL(LogRHI, "Frame Sync Objects created.");
 }
 
 void VulkanFrameContext::destroyCommandPool() {
     vkDestroyCommandPool(device_->device(), command_pool_, nullptr);
     command_pool_ = nullptr;
+    LOG_DETAIL(LogRHI, "Frame Command Pool destroyed.");
 }
 
 void VulkanFrameContext::destroyCommandBuffer() {
     vkFreeCommandBuffers(device_->device(), command_pool_, 1, &command_buffer_);
     command_buffer_ = nullptr;
+    LOG_DETAIL(LogRHI, "Frame Command Buffer destroyed.");
 }
 
 void VulkanFrameContext::destroySyncObjects() {
@@ -80,4 +87,6 @@ void VulkanFrameContext::destroySyncObjects() {
 
     vkDestroyFence(device_->device(), fence_, nullptr);
     fence_ = nullptr;
+
+    LOG_DETAIL(LogRHI, "Frame Sync Objects destroyed.");
 }

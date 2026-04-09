@@ -10,12 +10,17 @@
 #define LOG_WARN_ENABLED 1
 #define LOG_INFO_ENABLED 1
 #define LOG_DEBUG_ENABLED 1
+#define LOG_DETAIL_ENABLED 1
 
 #if RELEASE_BUILD
 #ifdef LOG_DEBUG_ENABLED
 #undef LOG_DEBUG_ENABLED
 #endif
 #define LOG_DEBUG_ENABLED 0
+#ifdef LOG_DETAIL_ENABLED
+#undef LOG_DETAIL_ENABLED
+#endif
+#define LOG_DETAIL_ENABLED 0
 #endif
 
 namespace Log {
@@ -27,6 +32,7 @@ namespace Log {
         Warning,
         Info,
         Debug,
+        Detail,
     };
 
     void Initialize();
@@ -62,4 +68,10 @@ namespace Log {
 #define LOG_DEBUG(category, message, ...) WriteToLog(Log::Level::Debug, category.name, message, ##__VA_ARGS__);
 #else
 #define LOG_DEBUG(category, message, ...)
+#endif
+
+#if LOG_DEBUG_ENABLED
+#define LOG_DETAIL(category, message, ...) WriteToLog(Log::Level::Detail, category.name, message, ##__VA_ARGS__);
+#else
+#define LOG_DETAIL(category, message, ...)
 #endif

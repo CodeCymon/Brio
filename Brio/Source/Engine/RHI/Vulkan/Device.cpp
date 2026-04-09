@@ -43,6 +43,8 @@ void VulkanDevice::init(Config const &config) {
 
     pickPhysicalDevice();
     createDevice();
+
+    LOG_INFO(LogRHI, "Device initialized.");
 }
 
 void VulkanDevice::shutdown() {
@@ -55,6 +57,8 @@ void VulkanDevice::shutdown() {
     }
 
     destroyInstance();
+
+    LOG_INFO(LogRHI, "Device shutdown.");
 }
 
 void VulkanDevice::createInstance(Config const &config) {
@@ -96,7 +100,7 @@ void VulkanDevice::createInstance(Config const &config) {
 
     VkResult result = vkCreateInstance(&createInfo, nullptr, &instance_);
     VK_CHECK(result, "Instance creation failed!");
-    LOG_INFO(LogRHI, "Instance created.");
+    LOG_DETAIL(LogRHI, "Instance created.");
 }
 
 void VulkanDevice::createDebugger() {
@@ -113,13 +117,13 @@ void VulkanDevice::createDebugger() {
 
     VkResult result = INSTANCE_FUNCTION(vkCreateDebugUtilsMessengerEXT)(instance_, &createInfo, nullptr, &debugger_);
     VK_CHECK(result, "Debugger creation failed!");
-    LOG_INFO(LogRHI, "Debugger created.");
+    LOG_DETAIL(LogRHI, "Debugger created.");
 }
 
 void VulkanDevice::createSurface(Config const &config) {
     surface_ = static_cast<VkSurfaceKHR>(config.platformSurfaceFn(instance_));
     ASSERT(surface_, "Surface creation failed!");
-    LOG_INFO(LogRHI, "Surface created.");
+    LOG_DETAIL(LogRHI, "Surface created.");
 }
 
 void VulkanDevice::pickPhysicalDevice() {
@@ -216,36 +220,36 @@ void VulkanDevice::createDevice() {
 
     VkResult result = vkCreateDevice(physical_device_, &createInfo, nullptr, &device_);
     VK_CHECK(result, "Device creation failed!");
-    LOG_INFO(LogRHI, "Device created.");
+    LOG_DETAIL(LogRHI, "Device created.");
 
     vkGetDeviceQueue(device_, graphics_family_, 0, &graphics_queue_);
-    LOG_INFO(LogRHI, "acquired graphics queue.");
+    LOG_DETAIL(LogRHI, "acquired graphics queue.");
     vkGetDeviceQueue(device_, present_family_, 0, &present_queue_);
-    LOG_INFO(LogRHI, "acquired present queue.");
+    LOG_DETAIL(LogRHI, "acquired present queue.");
 }
 
 void VulkanDevice::destroyInstance() {
     vkDestroyInstance(instance_, nullptr);
     instance_ = nullptr;
-    LOG_INFO(LogRHI, "Instance destroyed.");
+    LOG_DETAIL(LogRHI, "Instance destroyed.");
 }
 
 void VulkanDevice::destroyDebugger() {
     INSTANCE_FUNCTION(vkDestroyDebugUtilsMessengerEXT)(instance_, debugger_, nullptr);
     debugger_ = nullptr;
-    LOG_INFO(LogRHI, "Debugger destroyed.");
+    LOG_DETAIL(LogRHI, "Debugger destroyed.");
 }
 
 void VulkanDevice::destroySurface() {
     vkDestroySurfaceKHR(instance_, surface_, nullptr);
     surface_ = nullptr;
-    LOG_INFO(LogRHI, "Surface destroyed.");
+    LOG_DETAIL(LogRHI, "Surface destroyed.");
 }
 
 void VulkanDevice::destroyDevice() {
     vkDestroyDevice(device_, nullptr);
     device_ = nullptr;
-    LOG_INFO(LogRHI, "Device destroyed.");
+    LOG_DETAIL(LogRHI, "Device destroyed.");
 }
 
 bool VulkanDevice::checkValidationSupport() {

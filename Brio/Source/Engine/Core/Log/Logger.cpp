@@ -25,14 +25,34 @@ constexpr const char* LevelToString(Log::Level level) {
         return "INFO";
     case Log::Level::Debug:
         return "DEBUG";
+    case Log::Level::Detail:
+        return "DETAIL";
     }
 
     return "_____";
 }
 
+constexpr const char* LevelToColorCode(Log::Level level) {
+    switch (level) {
+        case Log::Level::Fatal:
+            return "\033[1;31m";
+        case Log::Level::Error:
+            return "\033[31m";
+        case Log::Level::Warning:
+            return "\033[33m";
+        case Log::Level::Info:
+            return "\033[39m";
+        case Log::Level::Debug:
+            return "\033[36m";
+        case Log::Level::Detail:
+            return "\033[35m";
+    }
+    return "\033[0m";
+}
+
 void Log::WriteToLog_Internal(Level level, std::string_view categoryName, std::string_view message)
 {
-    std::string output = std::format("[{}] [{}] : {}\n", LevelToString(level), categoryName, message);
+    std::string output = std::format("{}[{}] [{}] : {}\033[0m\n", LevelToColorCode(level), LevelToString(level), categoryName, message);
 
     if (level <= Log::Level::Error)
     {
