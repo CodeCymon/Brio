@@ -19,8 +19,9 @@ public:
 
     void render();
 
-private:
+    bool onResize(u32 width, u32 height);
 
+private:
 
 private:
     static constexpr u32 FRAMES_IN_FLIGHT = 2;

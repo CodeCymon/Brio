@@ -23,6 +23,9 @@ public:
     void pollEvents();
     [[nodiscard]] bool shouldClose() const;
 
+    // TODO: replace with event system
+    [[deprecated]] bool resizeEvent(u32* width, u32* height);
+
     void* getSurface(void *instance) const;
     static TArray<const char*> getExtensions();
 

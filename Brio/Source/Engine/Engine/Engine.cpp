@@ -36,6 +36,12 @@ void Engine::shutdown() {
 void Engine::run() {
     while (!platform_->shouldClose()) {
         platform_->pollEvents();
+        // TODO: temporary code for handling a resize event
+        u32 width, height;
+        if (platform_->resizeEvent(&width, &height)) {
+            renderer_->onResize(width, height);
+        }
+        // temporary code end
         f32 deltaTime = 0.1666666666666f;
         tick(deltaTime);
         render();
