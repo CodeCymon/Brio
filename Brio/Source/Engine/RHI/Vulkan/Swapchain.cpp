@@ -42,7 +42,7 @@ void VulkanSwapchain::resize(u32 width, u32 height) {
     };
 
     // TODO: improve the way this is handled
-    std::array<u32, 2> indices = {
+    TStaticArray indices = {
         device_->graphicsFamily(),
         device_->presentFamily()
     };
@@ -136,7 +136,7 @@ void VulkanSwapchain::createSwapchain(u32 width, u32 height) {
     };
 
     // TODO: improve the way this is handled
-    std::array<u32, 2> indices = {
+    TStaticArray indices = {
         device_->graphicsFamily(),
         device_->presentFamily()
     };
@@ -199,7 +199,7 @@ void VulkanSwapchain::destroySwapchain() {
 VkSurfaceFormatKHR VulkanSwapchain::chooseSurfaceFormat(TArray<VkSurfaceFormatKHR> const &formats) {
     ASSERT(!formats.empty(), "Format list cannot be empty!");
 
-    constexpr std::array<VkSurfaceFormatKHR, 4> preferred_formats = {
+    constexpr TStaticArray preferred_formats = {
         VkSurfaceFormatKHR{VK_FORMAT_R8G8B8A8_SRGB, VK_COLOR_SPACE_SRGB_NONLINEAR_KHR},
         VkSurfaceFormatKHR{VK_FORMAT_B8G8R8A8_SRGB, VK_COLOR_SPACE_SRGB_NONLINEAR_KHR},
         VkSurfaceFormatKHR{VK_FORMAT_R8G8B8_SRGB, VK_COLOR_SPACE_SRGB_NONLINEAR_KHR},
@@ -221,7 +221,7 @@ VkSurfaceFormatKHR VulkanSwapchain::chooseSurfaceFormat(TArray<VkSurfaceFormatKH
 VkPresentModeKHR VulkanSwapchain::choosePresentMode(TArray<VkPresentModeKHR> const &modes) {
     ASSERT(!modes.empty(), "Mode list cannot be empty!");
 
-    constexpr std::array<VkPresentModeKHR, 3> preferred_modes = {
+    constexpr TStaticArray preferred_modes = {
         VK_PRESENT_MODE_MAILBOX_KHR,
         VK_PRESENT_MODE_IMMEDIATE_KHR,
         VK_PRESENT_MODE_FIFO_RELAXED_KHR
