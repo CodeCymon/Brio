@@ -1,0 +1,31 @@
+{
+  "version": 3,
+  "configurePresets": [
+    {
+      "name": "debug",
+      "binaryDir": "${sourceDir}/Intermediate/Debug",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_RUNTIME_OUTPUT_DIRECTORY": "${sourceDir}/Build/Debug",
+        "CMAKE_LIBRARY_OUTPUT_DIRECTORY": "${sourceDir}/Build/Debug",
+        "CMAKE_ARCHIVE_OUTPUT_DIRECTORY": "${sourceDir}/Build/Debug",
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
+      }
+    },
+    {
+      "name": "release",
+      "binaryDir": "${sourceDir}/Intermediate/Release",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "CMAKE_RUNTIME_OUTPUT_DIRECTORY": "${sourceDir}/Build/Release",
+        "CMAKE_LIBRARY_OUTPUT_DIRECTORY": "${sourceDir}/Build/Release",
+        "CMAKE_ARCHIVE_OUTPUT_DIRECTORY": "${sourceDir}/Build/Release",
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
+      }
+    }
+  ],
+  "buildPresets": [
+    { "name": "debug",   "configurePreset": "debug" },
+    { "name": "release", "configurePreset": "release" }
+  ]
+}

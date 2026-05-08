@@ -1,0 +1,8 @@
+# gitignore
+
+.idea
+.vs
+
+[Bb]uild/
+[Ii]ntermediate/
+compile_commands.json
