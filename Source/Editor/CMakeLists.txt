@@ -5,7 +5,7 @@ add_executable(Editor main.cpp)
 target_link_libraries(Editor
     PRIVATE
         Core
-        Platform
+        Engine
 )
 
 target_compile_definitions(Editor PRIVATE
