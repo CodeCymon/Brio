@@ -9,7 +9,9 @@ function(add_engine_module MODULE_NAME)
         PUBLIC 
             ${CMAKE_CURRENT_SOURCE_DIR}/Public
             ${CMAKE_CURRENT_BINARY_DIR}/Public
-        PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/Private
+        PRIVATE
+            ${CMAKE_CURRENT_SOURCE_DIR}/Private
+            ${CMAKE_CURRENT_SOURCE_DIR}/Internal
     )
 
     set_target_properties(${MODULE_NAME} PROPERTIES

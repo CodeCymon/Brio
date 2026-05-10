@@ -8,8 +8,8 @@ add_engine_module(RHI
         Platform
     SOURCES
         Private/DynamicRHI.cpp
-        Private/VulkanRHI/VulkanRHI.cpp
-        Private/VulkanRHI/Device.cpp
-        Private/VulkanRHI/Swapchain.cpp
-        Private/VulkanRHI/FrameContext.cpp
+        Internal/VulkanRHI/VulkanRHI.cpp
+        Internal/VulkanRHI/Device.cpp
+        Internal/VulkanRHI/Swapchain.cpp
+        Internal/VulkanRHI/FrameContext.cpp
 )

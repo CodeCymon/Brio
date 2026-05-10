@@ -1,11 +1,6 @@
 #include "DynamicRHI.h"
 
 #include "VulkanRHI/VulkanRHI.h"
-#include "Log/Log.h"
-#include "Log/Assert.h"
-#include "Memory/References.h"
-
-DEFINE_LOG_CATEGORY(LogRHI);
 
 IDynamicRHI* GDynamicRHI = nullptr;
 

@@ -13,7 +13,7 @@
     #define ASSERT_MSG(condition, msg, ...) \
         do { \
             if (!(condition)) { \
-                LOG_FATAL(LogAssertion, "Assertion failed! [{}:{}]: {}", __FILE__, __LINE__, msg __VA_OPT__(,) __VA_ARGS__); \
+                LOG_FATAL(LogAssert, "Assertion failed! [{}:{}]: {}", __FILE__, __LINE__, msg __VA_OPT__(,) __VA_ARGS__); \
                 DEBUG_BREAK(); \
             } \
         } while (0)
@@ -21,7 +21,7 @@
     #define ASSERT(condition) \
         do { \
             if (!(condition)) { \
-                LOG_FATAL(LogAssertion, "Assertion failed! [{}:{}]", __FILE__, __LINE__); \
+                LOG_FATAL(LogAssert, "Assertion failed! [{}:{}]", __FILE__, __LINE__); \
                 DEBUG_BREAK(); \
             } \
         } while (0)

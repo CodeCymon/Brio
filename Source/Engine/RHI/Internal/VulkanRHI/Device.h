@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Types/CoreTypes.h"
+#include "CoreMinimal.h"
 
 #include <vulkan/vulkan_core.h>
 

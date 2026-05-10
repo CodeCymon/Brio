@@ -2,13 +2,11 @@
 
 #include "RHIAPI.h"
 #include "CoreMinimal.h"
+
 #include "RHIResources.h"
 
-#include "Log/Log.h"
 
 struct FNativeWindowHandle;
-
-DECLARE_LOG_CATEGORY_EXTERN(LogRHI);
 
 constexpr u32 MAX_FRAMES_IN_FLIGHT = 2;
 

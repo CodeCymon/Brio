@@ -1,8 +1,9 @@
 #include "Swapchain.h"
 
-#include "Device.h"
+#include "RHIMinimal.h"
+
 #include "VulkanCheck.h"
-#include "DynamicRHI.h"
+#include "Device.h"
 
 #include "Math/Math.h"
 

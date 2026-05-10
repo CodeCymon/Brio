@@ -1,8 +1,9 @@
 #include "FrameContext.h"
 
 #include "Log/Assert.h"
-#include "VulkanRHI/Device.h"
 #include "VulkanRHI/VulkanCheck.h"
+
+#include "VulkanRHI/Device.h"
 
 void VulkanFrameContext::Initialize(VulkanDevice const* deviceRef) {
     ASSERT(deviceRef);

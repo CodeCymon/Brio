@@ -3,49 +3,49 @@
 #include <iostream>
 
 namespace {
-    constexpr const char* LevelToString(Log::Level level) {
+    constexpr const char* LevelToString(FLog::Level level) {
         switch (level) {
-        case Log::Level::Fatal:
+        case FLog::Level::Fatal:
             return "FATAL";
-        case Log::Level::Error:
+        case FLog::Level::Error:
             return "ERROR";
-        case Log::Level::Warning:
+        case FLog::Level::Warning:
             return "WARNING";
-        case Log::Level::Info:
+        case FLog::Level::Info:
             return "INFO";
-        case Log::Level::Debug:
+        case FLog::Level::Debug:
             return "DEBUG";
-        case Log::Level::Detail:
+        case FLog::Level::Detail:
             return "DETAIL";
         }
 
         return "_____";
     }
 
-    constexpr const char* LevelToColorCode(Log::Level level) {
+    constexpr const char* LevelToColorCode(FLog::Level level) {
         switch (level) {
-            case Log::Level::Fatal:
+            case FLog::Level::Fatal:
                 return "\033[1;31m";
-            case Log::Level::Error:
+            case FLog::Level::Error:
                 return "\033[31m";
-            case Log::Level::Warning:
+            case FLog::Level::Warning:
                 return "\033[33m";
-            case Log::Level::Info:
+            case FLog::Level::Info:
                 return "\033[39m";
-            case Log::Level::Debug:
+            case FLog::Level::Debug:
                 return "\033[36m";
-            case Log::Level::Detail:
+            case FLog::Level::Detail:
                 return "\033[35m";
         }
         return "\033[0m";
     }
 }
 
-void Log::Initialize() {}
+void FLog::Initialize() {}
 
-void Log::Shutdown() {}
+void FLog::Shutdown() {}
 
-void Log::WriteToLog_Implementation(Level level, char const* category, char const* message) {
+void FLog::WriteToLog_Implementation(Level level, char const* category, char const* message) {
     std::string output = std::format("{}[{}] [{}] : {}\033[0m\n", LevelToColorCode(level), LevelToString(level), category, message);
 
     std::cout << output;
@@ -53,4 +53,4 @@ void Log::WriteToLog_Implementation(Level level, char const* category, char cons
 
 DEFINE_LOG_CATEGORY(LogCore);
 DEFINE_LOG_CATEGORY(LogTemp);
-DEFINE_LOG_CATEGORY(LogAssertion)
+DEFINE_LOG_CATEGORY(LogAssert)

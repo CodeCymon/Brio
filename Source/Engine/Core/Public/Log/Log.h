@@ -6,10 +6,10 @@
 
 #include <format>
 
-namespace Log {
+namespace FLog {
     
-    struct CORE_API Category {
-        explicit Category(char const* InName) : name(InName) {}
+    struct CORE_API FCategory {
+        explicit FCategory(char const* InName) : name(InName) {}
         char const* name { nullptr };
     };
 
@@ -30,26 +30,26 @@ namespace Log {
 
     template<typename... Args>
     void WriteToLog(Level level, char const* category, std::format_string<Args...> fmt, Args&&... args) {
-        Log::WriteToLog_Implementation(level, category, std::format(fmt, std::forward<Args>(args)...).c_str());
+        FLog::WriteToLog_Implementation(level, category, std::format(fmt, std::forward<Args>(args)...).c_str());
     }
 }
 
 #define LOG_FATAL(category, message, ...) \
     do { \
-        Log::WriteToLog(Log::Level::Fatal, category.name, message __VA_OPT__(,) __VA_ARGS__); \
+        FLog::WriteToLog(FLog::Level::Fatal, category.name, message __VA_OPT__(,) __VA_ARGS__); \
         exit(1); \
     } while(0);
 
-#define LOG_ERROR(category, message, ...) Log::WriteToLog(Log::Level::Error, category.name, message __VA_OPT__(,) __VA_ARGS__)
+#define LOG_ERROR(category, message, ...) FLog::WriteToLog(FLog::Level::Error, category.name, message __VA_OPT__(,) __VA_ARGS__)
 
-#define LOG_WARNING(category, message, ...) Log::WriteToLog(Log::Level::Warning, category.name, message __VA_OPT__(,) __VA_ARGS__)
+#define LOG_WARNING(category, message, ...) FLog::WriteToLog(FLog::Level::Warning, category.name, message __VA_OPT__(,) __VA_ARGS__)
 
-#define LOG_INFO(category, message, ...) Log::WriteToLog(Log::Level::Info, category.name, message __VA_OPT__(,) __VA_ARGS__)
+#define LOG_INFO(category, message, ...) FLog::WriteToLog(FLog::Level::Info, category.name, message __VA_OPT__(,) __VA_ARGS__)
 
 #if BUILD_DEBUG
-#define LOG_DEBUG(category, message, ...) Log::WriteToLog(Log::Level::Debug, category.name, message __VA_OPT__(,) __VA_ARGS__)
+#define LOG_DEBUG(category, message, ...) FLog::WriteToLog(FLog::Level::Debug, category.name, message __VA_OPT__(,) __VA_ARGS__)
 
-#define LOG_DETAIL(category, message, ...) Log::WriteToLog(Log::Level::Detail, category.name, message __VA_OPT__(,) __VA_ARGS__)
+#define LOG_DETAIL(category, message, ...) FLog::WriteToLog(FLog::Level::Detail, category.name, message __VA_OPT__(,) __VA_ARGS__)
 #else
 #define LOG_DEBUG(category, message, ...)
 
@@ -58,21 +58,28 @@ namespace Log {
 
 
 #define DECLARE_LOG_CATEGORY_EXTERN(CategoryName) \
-    struct CORE_API LogCategory##CategoryName : public Log::Category \
+    struct CORE_API FLogCategory##CategoryName : public FLog::FCategory \
     { \
-        inline LogCategory##CategoryName() : Log::Category(#CategoryName) {} \
+        inline FLogCategory##CategoryName() : FLog::FCategory(#CategoryName) {} \
     }; \
-    extern CORE_API LogCategory##CategoryName CategoryName;
+    extern CORE_API FLogCategory##CategoryName CategoryName;
 
 #define DEFINE_LOG_CATEGORY(CategoryName) \
-    CORE_API LogCategory##CategoryName CategoryName;
+    CORE_API FLogCategory##CategoryName CategoryName;
 
 #define DEFINE_LOG_CATEGORY_STATIC(CategoryName) \
-    static struct LogCategory##CategoryName : public Log::Category \
+    static struct FLogCategory##CategoryName : public FLog::FCategory \
     { \
-        inline LogCategory##CategoryName() : Log::Category(#CategoryName) {} \
+        inline FLogCategory##CategoryName() : FLog::FCategory(#CategoryName) {} \
     } CategoryName;
+
+#define DEFINE_LOG_CATEGORY_MODULE(CategoryName) \
+    struct FLogCategory##CategoryName : public FLog::FCategory \
+    { \
+        inline FLogCategory##CategoryName() : FLog::FCategory(#CategoryName) {} \
+    }; \
+    inline FLogCategory##CategoryName CategoryName;
 
 DECLARE_LOG_CATEGORY_EXTERN(LogCore);
 DECLARE_LOG_CATEGORY_EXTERN(LogTemp);
-DECLARE_LOG_CATEGORY_EXTERN(LogAssertion)
+DECLARE_LOG_CATEGORY_EXTERN(LogAssert)

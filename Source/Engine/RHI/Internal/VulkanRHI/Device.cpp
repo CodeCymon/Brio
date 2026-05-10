@@ -1,14 +1,12 @@
 #include "Device.h"
 
-#include <cstring>
-#include <unordered_set>
+#include "RHIMinimal.h"
+#include "VulkanRHI/VulkanCheck.h"
 
-#include "Log/Log.h"
-#include "DynamicRHI.h"
 #include "NativeWindowHandle.h"
 
-#include "Containers/Array.h"
-#include "VulkanRHI/VulkanCheck.h"
+#include <cstring>
+#include <unordered_set>
 
 #if PLATFORM_LINUX
 #include <vulkan/vulkan_wayland.h>
