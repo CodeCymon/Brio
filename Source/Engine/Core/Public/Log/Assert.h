@@ -10,7 +10,7 @@
 #endif
 
 #if BUILD_DEBUG
-    #define ASSERTMSG(condition, msg, ...) \
+    #define ASSERT_MSG(condition, msg, ...) \
         do { \
             if (!(condition)) { \
                 LOG_FATAL(LogAssertion, "Assertion failed! [{}:{}]: {}", __FILE__, __LINE__, msg __VA_OPT__(,) __VA_ARGS__); \
@@ -26,7 +26,7 @@
             } \
         } while (0)
 #else
-    #define ASSERTMSG(condition, msg, ...)
+    #define ASSERT_MSG(condition, msg, ...)
     #define ASSERT(condition)
 #endif
 

@@ -33,6 +33,14 @@ public:
     [[nodiscard]] constexpr ElementType const* Data() const {
         return ArrayData;
     }
+
+    using Iterator = ElementType*;
+    using ConstIterator = ElementType const*;
+
+    Iterator begin() { return &ArrayData[0]; }
+    Iterator end() { return &ArrayData[NumElements]; }
+    ConstIterator begin() const { return &ArrayData[0]; }
+    ConstIterator end() const { return &ArrayData[NumElements]; }
 };
 
 template<typename T, typename... U>

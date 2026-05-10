@@ -3,42 +3,67 @@
 #include "Platform.h"
 #include "TimeManager.h"
 
+#include "DynamicRHI.h"
+
+#include <thread>
+
+
 Engine::Engine()
-    : Platform(NewUnique<class Platform>())
-    , TimeManager(NewUnique<class TimeManager>())
+    : platform(NewUnique<Platform>())
+    , timeManager(NewUnique<TimeManager>())
 {}
 
 Engine::~Engine() = default;
 
 bool Engine::Initialize(FConfig const &Config) {
-    if (!Platform->Initialize({Config.width, Config.height, Config.title, true}))
+    if (!platform->Initialize({Config.width, Config.height, Config.title, true}))
         return false;
-    Platform->OnCloseDelegate.Add(this, &Engine::Quit);
+    platform->OnCloseDelegate.Add(this, &Engine::OnQuit);
 
-    TimeManager->Initialize();
+    timeManager->Initialize();
+
+    RHI::Create(platform->NativeHandle());
+    platform->OnResizeDelegate.Add(GDynamicRHI, &IDynamicRHI::OnResize);
+
+    platform->OnFocusChangeDelegate.Add(this, &Engine::OnFocused);
 
     return true;
 }
 
 void Engine::Shutdown() {
-    Platform->Shutdown();
+
+    RHI::Destroy();
+
+    platform->Shutdown();
 }
 
 void Engine::Run() {
 
+    f32 DeltaTime = 0;
     while (bRunning) {
-        f32 DeltaTme = TimeManager->DeltaTime();
-        Platform->PollEvents();
-        Tick(DeltaTme);
+        DeltaTime = timeManager->DeltaTime();
+        platform->PollEvents();
+        Tick(DeltaTime);
         Render();
+
+        if (bThrottleMainLoop) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(33));
+        }
     }
 }
 
 void Engine::Tick(f32 DeltaTime) {
 }
 
-void Engine::Render() {}
+void Engine::Render() {
+    FFrameContext frame = GDynamicRHI->BeginFrame();
+    GDynamicRHI->EndFrame();
+}
 
-void Engine::Quit() {
+void Engine::OnQuit() {
     bRunning = false;
+}
+
+void Engine::OnFocused(bool bFocused) {
+    bThrottleMainLoop = !bFocused;
 }

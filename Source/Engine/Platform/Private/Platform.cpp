@@ -37,6 +37,11 @@ bool Platform::Initialize(FConfig const &Config) {
         ptr->OnCloseDelegate.Broadcast();
     });
 
+    glfwSetWindowFocusCallback(window, [](GLFWwindow* window, int focus) {
+        auto* ptr = static_cast<Platform*>(glfwGetWindowUserPointer(window));
+        ptr->OnFocusChangeDelegate.Broadcast(focus == GLFW_TRUE);
+    });
+
     return true;
 }
 

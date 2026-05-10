@@ -83,6 +83,13 @@ public:
         delete[] ArrayData;
     }
 
+    TArray(usize Count) {
+        ASSERT(Count != 0);
+
+        Reallocate(Count);
+        ArrayNum = Count;
+    }
+
     TArray(ElementType const* Pointer, usize Count) {
         ASSERT(Pointer != nullptr && Count != 0);
 
@@ -183,4 +190,12 @@ public:
             Reallocate(NewSize);
         ArrayNum = NewSize;
     }
+
+    using Iterator = ElementType*;
+    using ConstIterator = ElementType const*;
+
+    Iterator begin() { return &ArrayData[0]; }
+    Iterator end() { return &ArrayData[ArrayNum]; }
+    ConstIterator begin() const { return &ArrayData[0]; }
+    ConstIterator end() const { return &ArrayData[ArrayNum]; }
 };

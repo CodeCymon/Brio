@@ -28,11 +28,13 @@ private:
     void Tick(f32 DeltaTime);
     void Render();
 
-    void Quit();
+    void OnQuit();
+    void OnFocused(bool bFocused);
 
 private:
-    Unique<class Platform> Platform;
-    Unique<class TimeManager> TimeManager;
+    Unique<Platform> platform;
+    Unique<TimeManager> timeManager;
 
     bool bRunning {true};
+    bool bThrottleMainLoop {false};
 };

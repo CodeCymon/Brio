@@ -31,6 +31,7 @@ public:
 public:
     TMulticastDelegate<void()>          OnCloseDelegate;
     TMulticastDelegate<void(u32, u32)>  OnResizeDelegate;
+    TMulticastDelegate<void(bool)>      OnFocusChangeDelegate;
 
 private:
     struct GLFWwindow *window{nullptr};
