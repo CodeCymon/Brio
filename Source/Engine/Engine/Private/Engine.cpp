@@ -56,7 +56,7 @@ void Engine::Tick(f32 DeltaTime) {
 }
 
 void Engine::Render() {
-    FFrameContext frame = GDynamicRHI->BeginFrame();
+    FRHIFrameContext frame = GDynamicRHI->BeginFrame();
     GDynamicRHI->EndFrame();
 }
 

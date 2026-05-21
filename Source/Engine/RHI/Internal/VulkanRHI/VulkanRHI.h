@@ -19,7 +19,7 @@ public:
 
     void OnResize(u32 width, u32 height) override;
 
-    FFrameContext BeginFrame() override;
+    FRHIFrameContext BeginFrame() override;
     void EndFrame() override;
 
 private:

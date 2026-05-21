@@ -2,7 +2,7 @@
 
 #include "CoreMinimal.h"
 
-struct FFrameContext {
+struct FRHIFrameContext {
     struct FRHITexture {} swapchainImage;
     u32 frameIndex;
 };

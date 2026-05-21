@@ -19,7 +19,7 @@ public:
 
     virtual void OnResize(u32 width, u32 height) = 0;
 
-    virtual FFrameContext BeginFrame() = 0;
+    virtual FRHIFrameContext BeginFrame() = 0;
     virtual void EndFrame() = 0;
 };
 
