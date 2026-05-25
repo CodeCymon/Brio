@@ -14,13 +14,15 @@ class RHI_API IDynamicRHI {
 public:
     virtual ~IDynamicRHI() = default;
 
-    virtual void Initialize(FNativeWindowHandle const &windowHandle) = 0;
+    virtual void Initialize(FNativeWindowHandle const& windowHandle) = 0;
     virtual void Shutdown() = 0;
 
     virtual void OnResize(u32 width, u32 height) = 0;
 
     virtual FRHIFrameContext BeginFrame() = 0;
     virtual void EndFrame() = 0;
+
+    virtual void ClearTexture(FRHITexture* texture, FClearColor const& color) = 0;
 };
 
 extern RHI_API IDynamicRHI* GDynamicRHI;

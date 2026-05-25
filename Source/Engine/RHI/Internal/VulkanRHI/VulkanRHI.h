@@ -22,6 +22,8 @@ public:
     FRHIFrameContext BeginFrame() override;
     void EndFrame() override;
 
+    void ClearTexture(FRHITexture* texture, FClearColor const &color) override;
+
 private:
     VulkanDevice device;
     VulkanSwapchain swapchain;

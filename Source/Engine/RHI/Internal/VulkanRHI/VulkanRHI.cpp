@@ -42,7 +42,7 @@ void VulkanRHI::OnResize(u32 width, u32 height) {
     swapchain.Resize(width, height);
 }
 
-FFrameContext VulkanRHI::BeginFrame() {
+FRHIFrameContext VulkanRHI::BeginFrame() {
     VulkanFrameContext& frame = frames[frameIndex];
 
     frame.WaitForFence();
@@ -61,90 +61,16 @@ FFrameContext VulkanRHI::BeginFrame() {
     };
     vkBeginCommandBuffer(frame.Cmd(), &beginInfo);
 
-    {
-        // TODO: remove
-        VkImageMemoryBarrier2 imageBarrier = {
-            .sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER_2,
-            .srcStageMask = VK_PIPELINE_STAGE_2_NONE,
-            .srcAccessMask = VK_ACCESS_2_NONE,
-            .dstStageMask = VK_PIPELINE_STAGE_2_TRANSFER_BIT,
-            .dstAccessMask = VK_ACCESS_2_TRANSFER_WRITE_BIT,
-            .oldLayout = VK_IMAGE_LAYOUT_UNDEFINED,
-            .newLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-            .srcQueueFamilyIndex = device.GraphicsFamilyIndex(),
-            .dstQueueFamilyIndex = device.GraphicsFamilyIndex(),
-            .image = swapchain.Image(),
-            .subresourceRange = {
-                .aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
-                .levelCount = 1,
-                .layerCount = 1,
-            }
-        };
+    FVulkanTexture* swapchainTexture = swapchain.GetCurrentTexture();
 
-        VkDependencyInfo dependencyInfo = {
-            .sType = VK_STRUCTURE_TYPE_DEPENDENCY_INFO,
-            .imageMemoryBarrierCount = 1,
-            .pImageMemoryBarriers = &imageBarrier
-        };
-        vkCmdPipelineBarrier2(frame.Cmd(), &dependencyInfo);
-    }
-
-    return FFrameContext{
-        .swapchainImage = {},
+    return FRHIFrameContext{
+        .swapchainImage = swapchainTexture,
         .frameIndex = frameIndex
     };
 }
 
 void VulkanRHI::EndFrame() {
     VulkanFrameContext& frame = frames[frameIndex];
-
-    {
-        // TODO: remove
-        VkClearColorValue clearColor = {
-            0.1, 0.7, 0.7, 1.0
-        };
-        VkImageSubresourceRange subresourceRange = {
-            .aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
-            .levelCount = 1,
-            .layerCount = 1,
-        };
-        vkCmdClearColorImage(
-            frame.Cmd(),
-            swapchain.Image(),
-            VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-            &clearColor,
-            1,
-            &subresourceRange
-        );
-    }
-
-    {
-        // TODO: remove
-        VkImageMemoryBarrier2 imageBarrier = {
-            .sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER_2,
-            .srcStageMask = VK_PIPELINE_STAGE_2_TRANSFER_BIT,
-            .srcAccessMask = VK_ACCESS_2_TRANSFER_WRITE_BIT,
-            .dstStageMask = VK_PIPELINE_STAGE_2_NONE,
-            .dstAccessMask = VK_ACCESS_2_NONE,
-            .oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-            .newLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
-            .srcQueueFamilyIndex = device.GraphicsFamilyIndex(),
-            .dstQueueFamilyIndex = device.GraphicsFamilyIndex(),
-            .image = swapchain.Image(),
-            .subresourceRange = {
-                .aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
-                .levelCount = 1,
-                .layerCount = 1,
-            }
-        };
-
-        VkDependencyInfo dependencyInfo = {
-            .sType = VK_STRUCTURE_TYPE_DEPENDENCY_INFO,
-            .imageMemoryBarrierCount = 1,
-            .pImageMemoryBarriers = &imageBarrier
-        };
-        vkCmdPipelineBarrier2(frame.Cmd(), &dependencyInfo);
-    }
 
     vkEndCommandBuffer(frame.Cmd());
 
@@ -171,4 +97,87 @@ void VulkanRHI::EndFrame() {
     }
 
     frameIndex = (frameIndex + 1) % MAX_FRAMES_IN_FLIGHT;
+}
+
+void VulkanRHI::ClearTexture(FRHITexture* texture, FClearColor const &color) {
+
+    VulkanFrameContext& frame = frames[frameIndex];
+
+    FVulkanTexture* vkTexture = static_cast<FVulkanTexture*>(texture);
+
+    {
+        // TODO: remove
+        VkImageMemoryBarrier2 imageBarrier = {
+            .sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER_2,
+            .srcStageMask = VK_PIPELINE_STAGE_2_NONE,
+            .srcAccessMask = VK_ACCESS_2_NONE,
+            .dstStageMask = VK_PIPELINE_STAGE_2_TRANSFER_BIT,
+            .dstAccessMask = VK_ACCESS_2_TRANSFER_WRITE_BIT,
+            .oldLayout = VK_IMAGE_LAYOUT_UNDEFINED,
+            .newLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+            .srcQueueFamilyIndex = device.GraphicsFamilyIndex(),
+            .dstQueueFamilyIndex = device.GraphicsFamilyIndex(),
+            .image = vkTexture->image,
+            .subresourceRange = {
+                .aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
+                .levelCount = 1,
+                .layerCount = 1,
+            }
+        };
+
+        VkDependencyInfo dependencyInfo = {
+            .sType = VK_STRUCTURE_TYPE_DEPENDENCY_INFO,
+            .imageMemoryBarrierCount = 1,
+            .pImageMemoryBarriers = &imageBarrier
+        };
+        vkCmdPipelineBarrier2(frame.Cmd(), &dependencyInfo);
+    }
+
+    {
+        // TODO: remove
+        VkClearColorValue clearColor = {
+            color.r, color.g, color.b, color.a
+        };
+        VkImageSubresourceRange subresourceRange = {
+            .aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
+            .levelCount = 1,
+            .layerCount = 1,
+        };
+        vkCmdClearColorImage(
+            frame.Cmd(),
+            vkTexture->image,
+            VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+            &clearColor,
+            1,
+            &subresourceRange
+        );
+    }
+
+    {
+        // TODO: remove
+        VkImageMemoryBarrier2 imageBarrier = {
+            .sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER_2,
+            .srcStageMask = VK_PIPELINE_STAGE_2_TRANSFER_BIT,
+            .srcAccessMask = VK_ACCESS_2_TRANSFER_WRITE_BIT,
+            .dstStageMask = VK_PIPELINE_STAGE_2_NONE,
+            .dstAccessMask = VK_ACCESS_2_NONE,
+            .oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+            .newLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
+            .srcQueueFamilyIndex = device.GraphicsFamilyIndex(),
+            .dstQueueFamilyIndex = device.GraphicsFamilyIndex(),
+            .image = vkTexture->image,
+            .subresourceRange = {
+                .aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
+                .levelCount = 1,
+                .layerCount = 1,
+            }
+        };
+
+        VkDependencyInfo dependencyInfo = {
+            .sType = VK_STRUCTURE_TYPE_DEPENDENCY_INFO,
+            .imageMemoryBarrierCount = 1,
+            .pImageMemoryBarriers = &imageBarrier
+        };
+        vkCmdPipelineBarrier2(frame.Cmd(), &dependencyInfo);
+    }
 }

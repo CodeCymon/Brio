@@ -16,6 +16,7 @@ void VulkanSwapchain::Initialize(FConfig const &config) {
 
     CreateSwapchain(config.width, config.height);
     CreateSwapchainResources();
+    BuildTextures();
 }
 
 void VulkanSwapchain::Shutdown() {
@@ -29,6 +30,7 @@ void VulkanSwapchain::Resize(u32 width, u32 height) {
     DestroySwapchainResources();
     DestroySwapchain(oldSwapchain);
     CreateSwapchainResources();
+    BuildTextures();
 }
 
 VkResult VulkanSwapchain::AcquireNextImage(VkSemaphore acquireSemaphore) {
@@ -145,7 +147,7 @@ void VulkanSwapchain::InitializePersistentData() {
 
     imageCount = surfaceCapabilities.minImageCount + 1;
     if (surfaceCapabilities.maxImageCount > 0 && imageCount > surfaceCapabilities.maxImageCount) {
-        imageCount = surfaceCapabilities.maxImageCount;
+        imageCount = surfaceCapabilities.maxImageCount < MAX_IMAGE_COUNT ? surfaceCapabilities.maxImageCount : MAX_IMAGE_COUNT;
     }
 
     LOG_INFO(LogRHI, "Swapchain format: {}", string_VkFormat(surfaceFormat.format));
@@ -154,6 +156,14 @@ void VulkanSwapchain::InitializePersistentData() {
 
 void VulkanSwapchain::UpdateCapabilities() {
     vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device->PhysicalDevice(), device->Surface(), &surfaceCapabilities);
+}
+
+void VulkanSwapchain::BuildTextures() {
+    for (u32 i = 0; i < imageCount; i++) {
+        textures[i].image = images[i];
+        textures[i].view = views[i];
+        textures[i].bExternalMemory = true;
+    }
 }
 
 VkSurfaceFormatKHR VulkanSwapchain::ChooseSurfaceFormat(TArray<VkSurfaceFormatKHR> const &formats) {

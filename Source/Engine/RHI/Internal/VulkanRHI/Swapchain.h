@@ -4,6 +4,9 @@
 
 #include <vulkan/vulkan_core.h>
 
+#include "VulkanRHI/VulkanResources.h"
+
+
 class VulkanDevice;
 
 
@@ -34,6 +37,7 @@ public:
     [[nodiscard]] VkSwapchainKHR Swapchain() const { return swapchain; }
     [[nodiscard]] VkFormat Format() const { return surfaceFormat.format; }
     [[nodiscard]] VkExtent2D Extent() const { return extent; }
+    FVulkanTexture* GetCurrentTexture() { return &textures[imageIndex]; }
     [[nodiscard]] VkImage Image() const { return images[imageIndex]; }
     [[nodiscard]] VkImageView View() const { return views[imageIndex]; }
     [[nodiscard]] VkSemaphore GetSubmitSemaphore() const { return submitSemaphores[imageIndex]; }
@@ -47,6 +51,8 @@ private:
 
     void InitializePersistentData();
     void UpdateCapabilities();
+
+    void BuildTextures();
 
     static VkSurfaceFormatKHR ChooseSurfaceFormat(TArray<VkSurfaceFormatKHR> const& formats);
     static VkPresentModeKHR ChoosePresentMode(TArray<VkPresentModeKHR> const& modes);
@@ -67,6 +73,9 @@ private:
     VkSurfaceFormatKHR surfaceFormat{};
     VkPresentModeKHR presentMode{};
     u32 imageCount{};
+
+    static constexpr u32 MAX_IMAGE_COUNT = 3;
+    FVulkanTexture textures[MAX_IMAGE_COUNT] {FTextureDesc{}, FTextureDesc{}, FTextureDesc{}};
 
     VulkanDevice const* device {nullptr};
 };

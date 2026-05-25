@@ -57,6 +57,7 @@ void Engine::Tick(f32 DeltaTime) {
 
 void Engine::Render() {
     FRHIFrameContext frame = GDynamicRHI->BeginFrame();
+    GDynamicRHI->ClearTexture(frame.swapchainImage, {0,1,0,0});
     GDynamicRHI->EndFrame();
 }
 
