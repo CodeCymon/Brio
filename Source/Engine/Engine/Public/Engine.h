@@ -5,6 +5,7 @@
 #include "Types/CoreTypes.h"
 
 
+class Renderer;
 class Platform;
 class TimeManager;
 
@@ -34,6 +35,7 @@ private:
 private:
     Unique<Platform> platform;
     Unique<TimeManager> timeManager;
+    Unique<Renderer> renderer;
 
     bool bRunning {true};
     bool bThrottleMainLoop {false};

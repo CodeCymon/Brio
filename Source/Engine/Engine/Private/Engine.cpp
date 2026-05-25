@@ -2,8 +2,8 @@
 
 #include "Platform.h"
 #include "TimeManager.h"
-
 #include "DynamicRHI.h"
+#include "Renderer.h"
 
 #include <thread>
 
@@ -11,6 +11,7 @@
 Engine::Engine()
     : platform(NewUnique<Platform>())
     , timeManager(NewUnique<TimeManager>())
+    , renderer(NewUnique<Renderer>())
 {}
 
 Engine::~Engine() = default;
@@ -27,10 +28,14 @@ bool Engine::Initialize(FConfig const &Config) {
 
     platform->OnFocusChangeDelegate.Add(this, &Engine::OnFocused);
 
+    renderer->Initialize();
+
     return true;
 }
 
 void Engine::Shutdown() {
+
+    renderer->Shutdown();
 
     RHI::Destroy();
 
@@ -44,7 +49,7 @@ void Engine::Run() {
         DeltaTime = timeManager->DeltaTime();
         platform->PollEvents();
         Tick(DeltaTime);
-        Render();
+        renderer->RenderFrame();
 
         if (bThrottleMainLoop) {
             std::this_thread::sleep_for(std::chrono::milliseconds(33));
@@ -53,12 +58,6 @@ void Engine::Run() {
 }
 
 void Engine::Tick(f32 DeltaTime) {
-}
-
-void Engine::Render() {
-    FRHIFrameContext frame = GDynamicRHI->BeginFrame();
-    GDynamicRHI->ClearTexture(frame.swapchainImage, {0,1,0,0});
-    GDynamicRHI->EndFrame();
 }
 
 void Engine::OnQuit() {

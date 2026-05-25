@@ -160,6 +160,7 @@ void VulkanSwapchain::UpdateCapabilities() {
 
 void VulkanSwapchain::BuildTextures() {
     for (u32 i = 0; i < imageCount; i++) {
+        textures[i] = FVulkanTexture{FTextureDesc{.width = extent.width, .height = extent.height, .format = EPixelFormat::RGBA8_SRGB}};
         textures[i].image = images[i];
         textures[i].view = views[i];
         textures[i].bExternalMemory = true;

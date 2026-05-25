@@ -8,6 +8,7 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 include(cmake/Module.cmake)
+include(cmake/ShaderCompiler.cmake)
 include(GenerateExportHeader)
 
 add_subdirectory(Source/Engine)

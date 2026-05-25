@@ -12,4 +12,10 @@ add_engine_module(RHI
         Internal/VulkanRHI/Device.cpp
         Internal/VulkanRHI/Swapchain.cpp
         Internal/VulkanRHI/FrameContext.cpp
+        Internal/VulkanRHI/Utils/TranslationUtils.cpp
+)
+
+target_compile_definitions(RHI
+    PUBLIC
+        CompiledShaderDir="${CMAKE_BINARY_DIR}/Shaders"
 )

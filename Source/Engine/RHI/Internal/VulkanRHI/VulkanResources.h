@@ -4,7 +4,6 @@
 
 #include "RHIResources.h"
 
-struct FTextureDesc;
 
 class FVulkanTexture : public FRHITexture {
 public:
@@ -14,4 +13,21 @@ public:
     VkImageView view {VK_NULL_HANDLE};
     VkDeviceMemory memory {VK_NULL_HANDLE};
     bool bExternalMemory {false};
+};
+
+
+class FVulkanShader : public FRHIShader {
+public:
+    FVulkanShader(FShaderDesc const& desc) : FRHIShader(desc) {}
+
+    VkShaderModule module {VK_NULL_HANDLE};
+};
+
+
+class FVulkanGraphicsPipeline : public FRHIGraphicsPipeline {
+public:
+    FVulkanGraphicsPipeline(FGraphicsPipelineDesc const& desc) : FRHIGraphicsPipeline(desc) {}
+
+    VkPipeline pipeline {VK_NULL_HANDLE};
+    VkPipelineLayout layout {VK_NULL_HANDLE};
 };

@@ -2,5 +2,6 @@
 
 add_engine_module(Core
     SOURCES
-    Private/Log/Log.cpp
+        Private/Log/Log.cpp
+        Private/Filesystem/FileRead.cpp
 )

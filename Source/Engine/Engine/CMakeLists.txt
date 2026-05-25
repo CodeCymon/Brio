@@ -6,6 +6,7 @@ add_engine_module(Engine
     PRIVATE_DEPS
         Platform
         RHI
+        Renderer
     SOURCES
         Private/Engine.cpp
         Private/TimeManager.cpp
