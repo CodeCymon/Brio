@@ -128,7 +128,7 @@ public:
     template<typename... Args>
     ElementType& Emplace(Args&&... args) {
         EnsureCapacity();
-        ElementType* slot = ConstructAt(data + count++, std::forward<Args>(args)...);
+        ElementType* slot = ConstructAt(data + count, std::forward<Args>(args)...);
         ++count;
         return *slot;
     }
@@ -185,12 +185,21 @@ public:
 
     void Resize(i32 newCount) {
         ASSERT(newCount >= 0);
+
+        if (newCount < count) {
+            DestroyRange(newCount, count);
+            count = newCount;
+            return;
+        }
+
         if (newCount > capacity)
             Grow(newCount);
-        if (newCount < count)
-            DestroyRange(newCount, count);
 
-        count = newCount;
+        if (newCount > count) {
+            for (i32 i = count; i < newCount; ++i)
+                ConstructAt(data + i);
+            count = newCount;
+        }
     }
 
 private:

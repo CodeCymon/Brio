@@ -114,7 +114,7 @@ public:
             }
         }
 
-        ValueType& operator*() const { return (*buckets)[indexInBucket][indexInBucket]; }
+        ValueType& operator*() const { return (*buckets)[bucketIndex][indexInBucket]; }
 
         Iterator& operator++() {
             ++indexInBucket;

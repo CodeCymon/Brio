@@ -137,8 +137,8 @@ public:
             }
         }
 
-        Entry& operator*() const { return (*buckets)[indexInBucket][indexInBucket]; }
-        Entry* operator->() const { return &(*buckets)[indexInBucket][indexInBucket]; }
+        Entry& operator*() const { return (*buckets)[bucketIndex][indexInBucket]; }
+        Entry* operator->() const { return &(*buckets)[bucketIndex][indexInBucket]; }
 
         Iterator& operator++() {
             ++indexInBucket;
