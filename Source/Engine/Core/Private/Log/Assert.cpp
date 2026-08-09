@@ -1,3 +1,5 @@
+// Copyright (c) Simon Kirsch 2026.
+
 #include "Log/Assert.h"
 
 #include "Log/Log.h"

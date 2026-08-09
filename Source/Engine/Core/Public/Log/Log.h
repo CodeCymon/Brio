@@ -1,3 +1,5 @@
+// Copyright (c) Simon Kirsch 2026.
+
 #pragma once
 
 #include "CoreAPI.h"
@@ -84,3 +86,4 @@ namespace Log {
 
 DECLARE_LOG_CATEGORY_EXTERN(LogCore);
 DECLARE_LOG_CATEGORY_EXTERN(LogTemp);
+DECLARE_LOG_CATEGORY_EXTERN(LogTest);

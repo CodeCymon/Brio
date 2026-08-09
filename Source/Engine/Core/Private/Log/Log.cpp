@@ -1,3 +1,5 @@
+// Copyright (c) Simon Kirsch 2026.
+
 #include "Log/Log.h"
 
 #include <iostream>
@@ -61,3 +63,4 @@ void Log::WriteRaw_Impl(std::string_view message) {
 
 DEFINE_LOG_CATEGORY(LogCore);
 DEFINE_LOG_CATEGORY(LogTemp);
+DEFINE_LOG_CATEGORY(LogTest);

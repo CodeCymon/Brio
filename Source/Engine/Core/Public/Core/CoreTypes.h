@@ -1,3 +1,5 @@
+// Copyright (c) Simon Kirsch 2026.
+
 #pragma once
 
 #include <cmath>
