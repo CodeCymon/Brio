@@ -3,98 +3,104 @@
 #pragma once
 #include "Core/CoreTypes.h"
 #include "Log/Assert.h"
+#include "Math/Math.h"
 
-struct CORE_API Vector2 {
+// 2-Component floating point vector
+struct CORE_API Vec2 {
     f32 x, y;
 
-    static constexpr f32 kEpsilon = 1e-8f;
+public:
+    constexpr Vec2() : x(0), y(0) {}
 
-    // Constructors
+    constexpr explicit Vec2(f32 s) : x(s), y(s) {}
 
-    constexpr Vector2() : x(0), y(0) {}
+    constexpr Vec2(f32 x_, f32 y_) : x(x_), y(y_) {}
 
-    constexpr explicit Vector2(f32 s) : x(s), y(s) {}
+public:
+    constexpr f32& operator[](i32 i) {
+        ASSERT(i >= 0 && i < 2);
+        return *(&x + i);
+    }
 
-    constexpr Vector2(f32 x_, f32 y_) : x(x_), y(y_) {}
+    constexpr f32 operator[](i32 i) const {
+        ASSERT(i >= 0 && i < 2);
+        return *(&x + i);
+    }
 
-    // Operators
-
-    constexpr Vector2 operator+(Vector2 const& v) const {
+    constexpr Vec2 operator+(Vec2 const& v) const {
         return {x + v.x, y + v.y};
     }
 
-    constexpr Vector2 operator-(Vector2 const& v) const {
+    constexpr Vec2 operator-(Vec2 const& v) const {
         return {x - v.x, y - v.y};
     }
 
-    constexpr Vector2 operator*(Vector2 const& v) const {
+    constexpr Vec2 operator*(Vec2 const& v) const {
         return {x * v.x, y * v.y};
     }
 
-    constexpr Vector2 operator*(f32 s) const {
+    constexpr Vec2 operator*(f32 s) const {
         return {x * s, y * s};
     }
 
-    constexpr Vector2 operator/(f32 s) const {
+    constexpr Vec2 operator/(f32 s) const {
         f32 const invS = 1.0f / s;
         return {x * invS, y * invS};
     }
 
-    constexpr Vector2 operator-() const {
+    constexpr Vec2 operator-() const {
         return {-x, -y};
     }
 
 
-    Vector2& operator+=(Vector2 const& v) {
+    Vec2& operator+=(Vec2 const& v) {
         x += v.x;
         y += v.y;
         return *this;
     }
 
-    Vector2& operator-=(Vector2 const& v) {
+    Vec2& operator-=(Vec2 const& v) {
         x -= v.x;
         y -= v.y;
         return *this;
     }
 
-    Vector2& operator*=(Vector2 const& v) {
+    Vec2& operator*=(Vec2 const& v) {
         x *= v.x;
         y *= v.y;
         return *this;
     }
 
-    Vector2& operator*=(f32 s) {
+    Vec2& operator*=(f32 s) {
         x *= s;
         y *= s;
         return *this;
     }
 
-    Vector2& operator/=(f32 s) {
+    Vec2& operator/=(f32 s) {
         f32 const invS = 1.0f / s;
         x *= invS;
         y *= invS;
         return *this;
     }
 
-    // Comparators
-
-    constexpr bool operator==(Vector2 const& v) const {
+public:
+    constexpr bool operator==(Vec2 const& v) const {
         return x == v.x && y == v.y;
     }
 
-    constexpr bool operator!=(Vector2 const& v) const {
+    constexpr bool operator!=(Vec2 const& v) const {
         return !(*this == v);
     }
 
-    // Functions
-
+public:
     [[nodiscard]] constexpr f32 LengthSquared() const {  return x * x + y * y; }
-    [[nodiscard]] constexpr f32 Length() const {  return std::sqrt(LengthSquared()); }
+    [[nodiscard]] constexpr f32 Length() const {  return Math::Sqrt(LengthSquared()); }
 
-    [[nodiscard]] Vector2 Normalized() const {
+    [[nodiscard]] Vec2 Normalized() const {
         f32 const lenSquared = LengthSquared();
-        ASSERT(lenSquared > kEpsilon * kEpsilon);
-        f32 const invLen = 1.0f / std::sqrt(lenSquared);
+        ASSERT(lenSquared > Math::kEpsilonF32 * Math::kEpsilonF32);
+        f32 const invLen = 1.0f / Math::Sqrt(lenSquared);
         return {x * invLen, y * invLen};
     }
 
@@ -102,29 +108,35 @@ struct CORE_API Vector2 {
         *this = Normalized();
     }
 
-    // Static Functions
-
-    static constexpr f32 Dot(Vector2 const& a, Vector2 const& b) {
+public:
+    static constexpr f32 Dot(Vec2 const& a, Vec2 const& b) {
         return a.x * b.x + a.y * b.y;
     }
 
-    static constexpr f32 Distance(Vector2 const& a, Vector2 const& b) {
+    static constexpr f32 Distance(Vec2 const& a, Vec2 const& b) {
         return (b - a).Length();
     }
 
-    static constexpr f32 DistanceSquared(Vector2 const& a, Vector2 const& b) {
+    static constexpr f32 DistanceSquared(Vec2 const& a, Vec2 const& b) {
         return (b - a).LengthSquared();
     }
 
-    // Default Vectors
-
-    static const Vector2 Zero;
-    static const Vector2 One;
-    static const Vector2 UnitX;
-    static const Vector2 UnitY;
+public:
+    static constexpr Vec2 Zero() {
+        return {0.0f, 0.0f};
+    }
+    static constexpr Vec2 One() {
+        return {1.0f, 1.0f};
+    }
+    static constexpr Vec2 UnitX() {
+        return {1.0f, 0.0f};
+    }
+    static constexpr Vec2 UnitY() {
+        return {0.0f, 1.0f};
+    }
 };
 
-constexpr Vector2 operator*(f32 s, Vector2 const& v) {
+CORE_API constexpr Vec2 operator*(f32 s, Vec2 const& v) {
     return v * s;
 }
 

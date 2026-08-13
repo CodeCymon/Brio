@@ -1,58 +1,65 @@
 // Copyright (c) Simon Kirsch 2026.
 
 #pragma once
-#include "Math/Vector.h"
+#include "Math/Vector3.h"
 
-struct Vector4 {
+// 4-Component floating point vector
+struct CORE_API Vec4 {
     f32 x, y, z, w;
 
-    static constexpr f32 kEpsilon = 1e-8f;
+public:
+    constexpr Vec4() : x(0), y(0), z(0), w(0) {}
 
-    // Constructors
+    constexpr explicit Vec4(f32 s) : x(s), y(s), z(s), w(s) {}
 
-    constexpr Vector4() : x(0), y(0), z(0), w(0) {}
+    constexpr Vec4(f32 x_, f32 y_, f32 z_, f32 w_) : x(x_), y(y_), z(z_), w(w_) {}
 
-    constexpr explicit Vector4(f32 s) : x(s), y(s), z(s), w(s) {}
+    constexpr explicit Vec4(Vec2 const& v) : x(v.x), y(v.y), z(0), w(0) {}
 
-    constexpr Vector4(f32 x_, f32 y_, f32 z_, f32 w_) : x(x_), y(y_), z(z_), w(w_) {}
+    constexpr Vec4(Vec2 const& v, f32 z_, f32 w_) : x(v.x), y(v.y), z(z_), w(w_) {}
 
-    constexpr explicit Vector4(Vector2 const& v) : x(v.x), y(v.y), z(0), w(0) {}
+    constexpr explicit Vec4(Vec3 const& v) : x(v.x), y(v.y), z(v.z), w(0) {}
 
-    constexpr Vector4(Vector2 const& v, f32 z_, f32 w_) : x(v.x), y(v.y), z(z_), w(w_) {}
+    constexpr Vec4(Vec3 const& v, f32 w_) : x(v.x), y(v.y), z(v.z), w(w_) {}
 
-    constexpr explicit Vector4(Vector3 const& v) : x(v.x), y(v.y), z(v.z), w(0) {}
+public:
+    constexpr f32& operator[](i32 i) {
+        ASSERT(i >= 0 && i < 4);
+        return *(&x + i);
+    }
 
-    constexpr Vector4(Vector3 const& v, f32 w_) : x(v.x), y(v.y), z(v.z), w(w_) {}
+    constexpr f32 operator[](i32 i) const {
+        ASSERT(i >= 0 && i < 4);
+        return *(&x + i);
+    }
 
-    // Operators
-
-    constexpr Vector4 operator+(Vector4 const& v) const {
+    constexpr Vec4 operator+(Vec4 const& v) const {
         return {x + v.x, y + v.y, z + v.z, w + v.w};
     }
 
-    constexpr Vector4 operator-(Vector4 const& v) const {
+    constexpr Vec4 operator-(Vec4 const& v) const {
         return {x - v.x, y - v.y, z - v.z, w - v.w};
     }
 
-    constexpr Vector4 operator*(Vector4 const& v) const {
+    constexpr Vec4 operator*(Vec4 const& v) const {
         return {x * v.x, y * v.y, z * v.z, w * v.w};
     }
 
-    constexpr Vector4 operator*(f32 s) const {
+    constexpr Vec4 operator*(f32 s) const {
         return {x * s, y * s, z * s, w * s};
     }
 
-    constexpr Vector4 operator/(f32 s) const {
+    constexpr Vec4 operator/(f32 s) const {
         f32 const invS = 1.0f / s;
         return {x * invS, y * invS, z * invS, w * invS};
     }
 
-    constexpr Vector4 operator-() const {
+    constexpr Vec4 operator-() const {
         return {-x, -y, -z, -w};
     }
 
 
-    Vector4& operator+=(Vector4 const& v) {
+    Vec4& operator+=(Vec4 const& v) {
         x += v.x;
         y += v.y;
         z += v.z;
@@ -60,7 +67,7 @@ struct Vector4 {
         return *this;
     }
 
-    Vector4& operator-=(Vector4 const& v) {
+    Vec4& operator-=(Vec4 const& v) {
         x -= v.x;
         y -= v.y;
         z -= v.z;
@@ -68,7 +75,7 @@ struct Vector4 {
         return *this;
     }
 
-    Vector4& operator*=(Vector4 const& v) {
+    Vec4& operator*=(Vec4 const& v) {
         x *= v.x;
         y *= v.y;
         z *= v.z;
@@ -76,7 +83,7 @@ struct Vector4 {
         return *this;
     }
 
-    Vector4& operator*=(f32 s) {
+    Vec4& operator*=(f32 s) {
         x *= s;
         y *= s;
         z *= s;
@@ -84,7 +91,7 @@ struct Vector4 {
         return *this;
     }
 
-    Vector4& operator/=(f32 s) {
+    Vec4& operator/=(f32 s) {
         f32 const invS = 1.0f / s;
         x *= invS;
         y *= invS;
@@ -93,25 +100,23 @@ struct Vector4 {
         return *this;
     }
 
-    // Comparators
-
-    constexpr bool operator==(Vector4 const& v) const {
+public:
+    constexpr bool operator==(Vec4 const& v) const {
         return x == v.x && y == v.y && z == v.z && w == v.w;
     }
 
-    constexpr bool operator!=(Vector4 const& v) const {
+    constexpr bool operator!=(Vec4 const& v) const {
         return !(*this == v);
     }
 
-    // Functions
-
+public:
     [[nodiscard]] constexpr f32 LengthSquared() const {  return x * x + y * y + z * z + w * w; }
-    [[nodiscard]] constexpr f32 Length() const {  return std::sqrt(LengthSquared()); }
+    [[nodiscard]] constexpr f32 Length() const {  return Math::Sqrt(LengthSquared()); }
 
-    [[nodiscard]] Vector4 Normalized() const {
+    [[nodiscard]] Vec4 Normalized() const {
         f32 const lenSquared = LengthSquared();
-        ASSERT(lenSquared > kEpsilon * kEpsilon);
-        f32 const invLen = 1.0f / std::sqrt(lenSquared);
+        ASSERT(lenSquared > Math::kEpsilonF32 * Math::kEpsilonF32);
+        f32 const invLen = 1.0f / Math::Sqrt(lenSquared);
         return {x * invLen, y * invLen, z * invLen, w * invLen};
     }
 
@@ -119,31 +124,41 @@ struct Vector4 {
         *this = Normalized();
     }
 
-    // Static Functions
-
-    static constexpr f32 Dot(Vector4 const& a, Vector4 const& b) {
+public:
+    static constexpr f32 Dot(Vec4 const& a, Vec4 const& b) {
         return a.x * b.x + a.y * b.y + a.z * b.z;
     }
 
-     static constexpr f32 Distance(Vector4 const& a, Vector4 const& b) {
+     static constexpr f32 Distance(Vec4 const& a, Vec4 const& b) {
         return (b - a).Length();
     }
 
-    static constexpr f32 DistanceSquared(Vector4 const& a, Vector4 const& b) {
+    static constexpr f32 DistanceSquared(Vec4 const& a, Vec4 const& b) {
         return (b - a).LengthSquared();
     }
 
-    // Default Vectors
-
-    static const Vector4 Zero;
-    static const Vector4 One;
-    static const Vector4 UnitX;
-    static const Vector4 UnitY;
-    static const Vector4 UnitZ;
-    static const Vector4 UnitW;
+public:
+    static constexpr Vec4 Zero() {
+        return {0,0,0,0};
+    }
+    static constexpr Vec4 One() {
+        return {1,1,1,1};
+    }
+    static constexpr Vec4 UnitX() {
+        return {1,0,0,0};
+    }
+    static constexpr Vec4 UnitY() {
+        return {0,1,0,0};
+    }
+    static constexpr Vec4 UnitZ() {
+        return {0,0,1,0};
+    }
+    static constexpr Vec4 UnitW() {
+        return {0,0,0,1};
+    }
 };
 
-constexpr Vector4 operator*(f32 s, Vector4 const& v) {
+CORE_API constexpr Vec4 operator*(f32 s, Vec4 const& v) {
     return v * s;
 }
 
