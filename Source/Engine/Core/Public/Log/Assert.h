@@ -19,6 +19,7 @@
 
 namespace Assert {
     CORE_API void ReportAssertionFailure(std::string_view expression, std::string_view file, i32 line);
+    CORE_API void ReportAssertionFailure(std::string_view expression, std::string_view message, std::string_view file, i32 line);
 }
 
 #if BUILD_DEBUG
@@ -29,6 +30,15 @@ namespace Assert {
                 DEBUG_BREAK(); \
             } \
         } while(0);
+
+    #define ASSERTM(expression, message) \
+        do { \
+            if (!(expression)) { \
+                Assert::ReportAssertionFailure(#expression, #message, __FILE__, __LINE__); \
+                DEBUG_BREAK(); \
+            } \
+        } while(0);
 #else
     #define ASSERT(expression) ((void)0)
+    #define ASSERTM(expression) ((void)0)
 #endif
