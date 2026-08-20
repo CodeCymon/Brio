@@ -8,6 +8,10 @@ class RHI_API ICommandList {
 public:
     virtual ~ICommandList() = default;
 
+    virtual void BeginDebugLabel(const char* label) = 0;
+    virtual void EndDebugLabel() = 0;
+    virtual void InsertDebugLabel(const char* label) = 0;
+
     // virtual void ClearImage(RHITextureRef texture, ClearColor clearColor) = 0;
 
     // virtual void BeginRendering(RHITextureRef target) = 0;

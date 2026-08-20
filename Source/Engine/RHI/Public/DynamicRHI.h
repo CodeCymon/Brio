@@ -23,10 +23,10 @@ public:
     // virtual void EndFrame() = 0;
 
 
-    // virtual RHIShaderRef CreateShader(ShaderDesc const& desc) = 0;
+    // virtual RHIShaderRef CreateShader(ShaderDesc const& desc, char const* debugName) = 0;
     // virtual void DestroyShader(RHIShaderRef shader) = 0;
 
-    // virtual RHIPipelineRef CreateGraphicsPipeline(GraphicsPipelineDesc const& desc) = 0;
-    // virtual RHIPipelineRef CreateComputePipeline(ComputePipelineDesc const& desc) = 0;
+    // virtual RHIPipelineRef CreateGraphicsPipeline(GraphicsPipelineDesc const& desc, char const* debugName) = 0;
+    // virtual RHIPipelineRef CreateComputePipeline(ComputePipelineDesc const& desc, char const* debugName) = 0;
     // virtual void DestroyPipeline(RHIPipelineRef pipeline) = 0;
 };

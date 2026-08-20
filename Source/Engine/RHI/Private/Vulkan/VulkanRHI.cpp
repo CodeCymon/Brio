@@ -4,9 +4,13 @@
 
 void VulkanRHI::Initialize(NativeWindowData const &windowData) {
     instance.Initialize(true);
+    surface.Initialize(&instance, windowData);
+    device.Initialize(&instance, &surface);
 }
 
 void VulkanRHI::Shutdown() {
+    device.Shutdown();
+    surface.Shutdown();
     instance.Shutdown();
 }
 

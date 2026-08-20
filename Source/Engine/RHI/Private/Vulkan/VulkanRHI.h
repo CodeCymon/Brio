@@ -3,7 +3,9 @@
 #pragma once
 
 #include "DynamicRHI.h"
+#include "Vulkan/VulkanDevice.h"
 #include "Vulkan/VulkanInstance.h"
+#include "Vulkan/VulkanSurface.h"
 
 
 class VulkanRHI final : public IDynamicRHI {
@@ -21,7 +23,8 @@ public:
 
 private:
     VulkanInstance instance;
-    // VulkanDevice device;
+    VulkanSurface surface;
+    VulkanDevice device;
     // VulkanSwapchain swapchain;
     // StaticArray<VulkanFrameContext, kMaxFramesInFlight> frames;
 
