@@ -7,17 +7,17 @@
 #include "Log/Assert.h"
 #include "Memory/Utilities.h"
 
-template<typename ElementType, i32 numElements>
-class FixedArray {
+template<typename ElementType, i32 maxElements>
+class BoundedArray {
 private:
-    ElementType data[numElements]{};
+    ElementType data[maxElements]{};
     i32 count{};
 
 public:
-    [[nodiscard]] constexpr FixedArray() = default;
+    [[nodiscard]] constexpr BoundedArray() = default;
 
-    [[nodiscard]] constexpr FixedArray(std::initializer_list<ElementType> list) {
-        ASSERT(static_cast<i32>(list.size()) <= numElements);
+    [[nodiscard]] constexpr BoundedArray(std::initializer_list<ElementType> list) {
+        ASSERT(static_cast<i32>(list.size()) <= maxElements);
         for (auto const& element : list)
             data[count++] = element;
     }
@@ -36,7 +36,7 @@ public:
     }
 
     [[nodiscard]] constexpr i32 Capacity() const {
-        return numElements;
+        return maxElements;
     }
 
     [[nodiscard]] constexpr bool IsValidIndex(i32 index) const {
@@ -116,4 +116,4 @@ public:
 };
 
 template<typename T, typename... U>
-FixedArray(T, U...) -> FixedArray<T, 1 + sizeof...(U)>;
+BoundedArray(T, U...) -> BoundedArray<T, 1 + sizeof...(U)>;

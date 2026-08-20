@@ -21,6 +21,12 @@ public:
     , count(0)
     {}
 
+    [[nodiscard]] explicit constexpr Array(u32 initialCount) {
+        data = Allocate(initialCount);
+        capacity = initialCount;
+        count = initialCount;
+    }
+
     [[nodiscard]] Array(ElementType const* ptr, i32 numElements) {
         CopyToEmpty(ptr, numElements);
     }
