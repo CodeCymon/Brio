@@ -28,6 +28,7 @@ public:
 
 public:
     Delegate<void()> OnCloseDelegate;
+    Delegate<void(u32, u32)> OnResizeDelegate;
 
 private:
     struct GLFWwindow* handle{nullptr};

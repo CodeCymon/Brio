@@ -1,18 +1,22 @@
 // Copyright (c) Simon Kirsch 2026.
 
+#include "DynamicRHI.h"
 #include "Platform.h"
 #include "Window.h"
+#include "RHI.h"
 
-struct Engine {
-    bool running = true;
-
+class Engine {
+public:
     void Stop() {
-        running = false;
+        bRunning = false;
     }
 
-    static void Foo() {
-        LOG_INFO(LogTemp, "Hello from 'const Engine::Foo()'");
+    bool IsRunning() const {
+        return bRunning;
     }
+
+private:
+    bool bRunning {true};
 };
 
 int main() {
@@ -25,12 +29,17 @@ int main() {
         {1600, 900,"Brio Editor",true},
         mainWindow
     );
-
     mainWindow.OnCloseDelegate.BindObject(&engine, &Engine::Stop);
 
-    while (engine.running) {
+    RHI::Create(mainWindow.NativeData());
+
+    mainWindow.OnResizeDelegate.BindObject(GDynamicRHI, &IDynamicRHI::OnResize);
+
+    while (engine.IsRunning()) {
         Platform::PollEvents();
     }
+
+    RHI::Destroy();
 
     mainWindow.Close();
 

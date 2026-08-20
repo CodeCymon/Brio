@@ -15,6 +15,7 @@ include(cmake/Dependencies.cmake)
 # Engine
 add_subdirectory(Source/Engine/Core)
 add_subdirectory(Source/Engine/Platform)
+add_subdirectory(Source/Engine/RHI)
 
 # Sandbox
 add_subdirectory(Source/Sandbox)
