@@ -4,8 +4,8 @@
 
 #include "LogRHI.h"
 #include "Vulkan/VulkanCheck.h"
-#include "Vulkan/VulkanDevice.h"
-#include "Vulkan/VulkanSurface.h"
+#include "Vulkan/Bootstrapping/VulkanDevice.h"
+#include "Vulkan/Bootstrapping/VulkanSurface.h"
 
 void VulkanSwapchain::Initialize(VulkanDevice const* inDevice, VulkanSurface const* inSurface, UIntPoint const &inExtent) {
     device = inDevice;

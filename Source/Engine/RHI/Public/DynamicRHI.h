@@ -4,6 +4,8 @@
 #include "RHIAPI.h"
 #include "CoreMinimal.h"
 
+#include "RHIResources.h"
+
 struct NativeWindowData;
 
 constexpr u32 kMaxFramesInFlight = 2;
@@ -19,8 +21,8 @@ public:
 
     virtual void OnResize(u32 width, u32 height) = 0;
 
-    // virtual RHIFrameContext BeginFrame() = 0;
-    // virtual void EndFrame() = 0;
+    [[nodiscard]] virtual RHIFrameContext BeginFrame() = 0;
+    virtual void EndFrame() = 0;
 
 
     // virtual RHIShaderRef CreateShader(ShaderDesc const& desc, char const* debugName) = 0;

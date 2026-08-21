@@ -3,10 +3,15 @@
 #pragma once
 
 #include "DynamicRHI.h"
-#include "Vulkan/VulkanDevice.h"
-#include "Vulkan/VulkanInstance.h"
-#include "Vulkan/VulkanSurface.h"
-#include "Vulkan/VulkanSwapchain.h"
+
+#include "Vulkan/Bootstrapping/VulkanInstance.h"
+#include "Vulkan/Bootstrapping/VulkanSurface.h"
+#include "Vulkan/Bootstrapping/VulkanDevice.h"
+#include "Vulkan/Bootstrapping/VulkanSwapchain.h"
+#include "Vulkan/Bootstrapping/VulkanFrameSync.h"
+#include "Vulkan/Bootstrapping/VulkanFrameCmdData.h"
+
+#include "Vulkan/VulkanCommandList.h"
 
 
 class VulkanRHI final : public IDynamicRHI {
@@ -19,15 +24,18 @@ public:
 
     void OnResize(u32 width, u32 height) override;
 
-    // RHIFrameContext BeginFrame() override;
-    // void EndFrame() override;
+    [[nodiscard]] RHIFrameContext BeginFrame() override;
+    void EndFrame() override;
 
 private:
     VulkanInstance instance;
     VulkanSurface surface;
     VulkanDevice device;
     VulkanSwapchain swapchain;
-    // StaticArray<VulkanFrameContext, kMaxFramesInFlight> frames;
+    StaticArray<VulkanFrameSync, kMaxFramesInFlight> frameSyncs;
+    StaticArray<VulkanFrameCmdData, kMaxFramesInFlight> frameCmdData;
+
+    VulkanCommandList cmdList;
 
     u32 frameIndex {0};
 };

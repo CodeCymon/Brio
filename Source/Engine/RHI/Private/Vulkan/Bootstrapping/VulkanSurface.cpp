@@ -4,7 +4,7 @@
 
 #include "Window.h"
 #include "Vulkan/VulkanCheck.h"
-#include "Vulkan/VulkanInstance.h"
+#include "Vulkan/Bootstrapping/VulkanInstance.h"
 
 #if PLATFORM_LINUX
 #include <vulkan/vulkan_wayland.h>

@@ -37,6 +37,9 @@ int main() {
 
     while (engine.IsRunning()) {
         Platform::PollEvents();
+
+        RHIFrameContext frame = GDynamicRHI->BeginFrame();
+        GDynamicRHI->EndFrame();
     }
 
     RHI::Destroy();

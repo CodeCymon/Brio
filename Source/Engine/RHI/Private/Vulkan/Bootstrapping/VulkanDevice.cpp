@@ -4,15 +4,14 @@
 
 #include <cstring>
 
-#include "Vulkan/VulkanInstance.h"
-
 #if PLATFORM_MACOS
 #include <vulkan/vulkan_beta.h>
 #endif
 
 #include "LogRHI.h"
 #include "Vulkan/VulkanCheck.h"
-#include "Vulkan/VulkanSurface.h"
+#include "Vulkan/Bootstrapping/VulkanInstance.h"
+#include "Vulkan/Bootstrapping/VulkanSurface.h"
 
 void VulkanDevice::Initialize(VulkanInstance const* inInstance, VulkanSurface const* inSurface) {
     instance = inInstance;
@@ -76,6 +75,8 @@ void VulkanDevice::CreateLogicalDevice() {
     uniqueQueueFamilies.Add(graphicsQueueFamilyIndex);
     uniqueQueueFamilies.Add(computeQueueFamilyIndex);
     uniqueQueueFamilies.Add(presentQueueFamilyIndex);
+
+    ASSERTM(uniqueQueueFamilies.Size() == 1, "Concurrent/Async Queues are not implemented!");
 
     f32 priority = 1.0f;
     Array<VkDeviceQueueCreateInfo> queueCreateInfos {};

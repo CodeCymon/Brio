@@ -2,7 +2,6 @@
 
 #pragma once
 #include "RHIAPI.h"
-#include "Core/CoreTypes.h"
 
 class RHI_API ICommandList {
 public:
