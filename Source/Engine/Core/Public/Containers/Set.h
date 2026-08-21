@@ -7,14 +7,16 @@
 
 template<typename ValueType, typename HashFn = Hash<ValueType>>
 class Set {
+public:
+    using SizeType = u32;
 private:
     Array<Array<ValueType>> buckets;
-    i32 elementCount {};
+    SizeType elementCount {};
 
-    static constexpr i32 kInitialBucketCount = 8;
+    static constexpr SizeType kInitialBucketCount = 8;
 
 public:
-    [[nodiscard]] i32 Size() const {
+    [[nodiscard]] SizeType Size() const {
         return elementCount;
     }
 
@@ -44,7 +46,7 @@ public:
         if (buckets.IsEmpty())
             return false;
         Array<ValueType>& bucket = buckets[BucketForIndex(value)];
-        for (i32 i = 0; i < bucket.Size(); ++i) {
+        for (SizeType i = 0; i < bucket.Size(); ++i) {
             if (bucket[i] == value) {
                 bucket.RemoveAt(i);
                 --elementCount;
@@ -60,26 +62,26 @@ public:
         elementCount = 0;
     }
 
-    void Reserve(i32 expectedCount) {
-        i32 required = RequiredBucketCount(expectedCount);
+    void Reserve(SizeType expectedCount) {
+        SizeType required = RequiredBucketCount(expectedCount);
         if (required > buckets.Size())
             Rehash(required);
     }
 
 private:
-    [[nodiscard]] i32 BucketForIndex(ValueType const& value) const {
+    [[nodiscard]] SizeType BucketForIndex(ValueType const& value) const {
         u64 hash = HashFn{}(value);
-        return static_cast<i32>(hash & static_cast<u64>(buckets.Size() - 1));
+        return static_cast<SizeType>(hash & static_cast<u64>(buckets.Size() - 1));
     }
 
-    [[nodiscard]] static i32 RequiredBucketCount(i32 expectedCount) {
-        i32 bucketsNeeded = kInitialBucketCount;
+    [[nodiscard]] static SizeType RequiredBucketCount(SizeType expectedCount) {
+        SizeType bucketsNeeded = kInitialBucketCount;
         while (expectedCount * 4 > bucketsNeeded * 3)
             bucketsNeeded *= 2;
         return bucketsNeeded;
     }
 
-    void EnsureCapacityFor(i32 newElementCount) {
+    void EnsureCapacityFor(SizeType newElementCount) {
         if (buckets.IsEmpty()) {
             buckets.Resize(kInitialBucketCount);
             return;
@@ -88,13 +90,13 @@ private:
             Rehash(buckets.Size() * 2);
     }
 
-    void Rehash(i32 newBucketCount) {
+    void Rehash(SizeType newBucketCount) {
         Array<Array<ValueType>> newBuckets;
         newBuckets.Resize(newBucketCount);
         for (Array<ValueType>& bucket : buckets) {
             for (ValueType& value : bucket) {
                 u64 hash = HashFn{}(value);
-                i32 idx = static_cast<i32>(hash & static_cast<u64>(newBucketCount - 1));
+                SizeType idx = static_cast<SizeType>(hash & static_cast<u64>(newBucketCount - 1));
                 newBuckets[idx].Add(Move(value));
             }
         }
@@ -104,8 +106,8 @@ private:
 public:
     struct Iterator {
         Array<Array<ValueType>>* buckets;
-        i32 bucketIndex;
-        i32 indexInBucket;
+        SizeType bucketIndex;
+        SizeType indexInBucket;
 
         void SkipEmptyBuckets() {
             while (bucketIndex < buckets->Size() && indexInBucket >= (*buckets)[bucketIndex].Size()) {

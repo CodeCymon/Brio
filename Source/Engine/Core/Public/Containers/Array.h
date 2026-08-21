@@ -10,10 +10,13 @@
 
 template<typename ElementType>
 class Array {
+public:
+    using SizeType = u32;
+
 private:
     ElementType* data {nullptr};
-    i32 capacity{};
-    i32 count{};
+    SizeType capacity{};
+    SizeType count{};
 
 public:
     [[nodiscard]] constexpr Array()
@@ -27,12 +30,12 @@ public:
         count = initialCount;
     }
 
-    [[nodiscard]] Array(ElementType const* ptr, i32 numElements) {
+    [[nodiscard]] Array(ElementType const* ptr, SizeType numElements) {
         CopyToEmpty(ptr, numElements);
     }
 
     [[nodiscard]] Array(std::initializer_list<ElementType> list) {
-        CopyToEmpty(list.begin(), static_cast<i32>(list.size()));
+        CopyToEmpty(list.begin(), static_cast<SizeType>(list.size()));
     }
 
     [[nodiscard]] Array(Array const& other) {
@@ -41,7 +44,7 @@ public:
 
     Array& operator=(std::initializer_list<ElementType> list) {
         DestroyAndFree();
-        CopyToEmpty(list.begin(), static_cast<i32>(list.size()));
+        CopyToEmpty(list.begin(), static_cast<SizeType>(list.size()));
         return *this;
     }
 
@@ -89,15 +92,15 @@ public:
         return data;
     }
 
-    [[nodiscard]] i32 Size() const {
+    [[nodiscard]] SizeType Size() const {
         return count;
     }
 
-    [[nodiscard]] i32 Capacity() const {
+    [[nodiscard]] SizeType Capacity() const {
         return capacity;
     }
 
-    [[nodiscard]] bool IsValidIndex(i32 index) const {
+    [[nodiscard]] bool IsValidIndex(SizeType index) const {
         return index >= 0 && index < count;
     }
 
@@ -105,12 +108,12 @@ public:
         return count == 0;
     }
 
-    [[nodiscard]] ElementType& operator[](i32 index) {
+    [[nodiscard]] ElementType& operator[](SizeType index) {
         ASSERT(IsValidIndex(index));
         return Data()[index];
     }
 
-    [[nodiscard]] ElementType const& operator[](i32 index) const {
+    [[nodiscard]] ElementType const& operator[](SizeType index) const {
         ASSERT(IsValidIndex(index));
         return Data()[index];
     }
@@ -139,14 +142,14 @@ public:
         return *slot;
     }
 
-    void InsertAt(ElementType const& element, i32 index) {
+    void InsertAt(ElementType const& element, SizeType index) {
         ASSERT(index >= 0 && index <= count);
         ElementType copy = element;
         EnsureCapacity();
 
         if (index < count) {
             ConstructAt(data + count, MoveIfPossible(data[count-1]));
-            for (i32 i = count-1; i > index; --i)
+            for (SizeType i = count-1; i > index; --i)
                 data[i] = MoveIfPossible(data[i-1]);
             data[index] = Move(copy);
         } else {
@@ -155,9 +158,9 @@ public:
         ++count;
     }
 
-    void RemoveAt(i32 index) {
+    void RemoveAt(SizeType index) {
         ASSERT(IsValidIndex(index));
-        for (i32 i = index; i+1 < count; i++)
+        for (SizeType i = index; i+1 < count; i++)
             data[i] = MoveIfPossible(data[i + 1]);
         --count;
         Destroy(data[count]);
@@ -184,12 +187,12 @@ public:
         count = 0;
     }
 
-    void Reserve(i32 newCapacity) {
+    void Reserve(SizeType newCapacity) {
         if (capacity < newCapacity)
             Grow(newCapacity);
     }
 
-    void Resize(i32 newCount) {
+    void Resize(SizeType newCount) {
         ASSERT(newCount >= 0);
 
         if (newCount < count) {
@@ -202,14 +205,14 @@ public:
             Grow(newCount);
 
         if (newCount > count) {
-            for (i32 i = count; i < newCount; ++i)
+            for (SizeType i = count; i < newCount; ++i)
                 ConstructAt(data + i);
             count = newCount;
         }
     }
 
 private:
-    static ElementType* Allocate(i32 n) {
+    static ElementType* Allocate(SizeType n) {
         if (n == 0)
             return nullptr;
         return static_cast<ElementType*>(::operator new(static_cast<usize>(n) * sizeof(ElementType)));
@@ -228,8 +231,8 @@ private:
         element.~ElementType();
     }
 
-    void DestroyRange(i32 first, i32 last) {
-        for (i32 i = first; i < last; i++)
+    void DestroyRange(SizeType first, SizeType last) {
+        for (SizeType i = first; i < last; i++)
             Destroy(data[i]);
     }
 
@@ -241,17 +244,17 @@ private:
         capacity = 0;
     }
 
-    void CopyToEmpty(ElementType const* source, i32 numElements) {
+    void CopyToEmpty(ElementType const* source, SizeType numElements) {
         data = Allocate(numElements);
         capacity = numElements;
         count = numElements;
-        for (i32 i = 0; i < numElements; i++)
+        for (SizeType i = 0; i < numElements; i++)
             ConstructAt(data + i, source[i]);
     }
 
-    void Grow(i32 newCapacity) {
+    void Grow(SizeType newCapacity) {
         ElementType* newData = Allocate(newCapacity);
-        for (i32 i = 0; i < count; i++)
+        for (SizeType i = 0; i < count; i++)
             ConstructAt(newData + i, MoveIfPossible(data[i]));
         DestroyRange(0, count);
         Deallocate(data);

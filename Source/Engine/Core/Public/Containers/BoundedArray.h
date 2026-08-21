@@ -7,17 +7,19 @@
 #include "Log/Assert.h"
 #include "Memory/Utilities.h"
 
-template<typename ElementType, i32 maxElements>
+template<typename ElementType, u32 maxElements>
 class BoundedArray {
+public:
+    using SizeType = u32;
 private:
     ElementType data[maxElements]{};
-    i32 count{};
+    SizeType count{};
 
 public:
     [[nodiscard]] constexpr BoundedArray() = default;
 
     [[nodiscard]] constexpr BoundedArray(std::initializer_list<ElementType> list) {
-        ASSERT(static_cast<i32>(list.size()) <= maxElements);
+        ASSERT(static_cast<SizeType>(list.size()) <= maxElements);
         for (auto const& element : list)
             data[count++] = element;
     }
@@ -31,15 +33,15 @@ public:
         return data;
     }
 
-    [[nodiscard]] constexpr i32 Size() const {
+    [[nodiscard]] constexpr SizeType Size() const {
         return count;
     }
 
-    [[nodiscard]] constexpr i32 Capacity() const {
+    [[nodiscard]] constexpr SizeType Capacity() const {
         return maxElements;
     }
 
-    [[nodiscard]] constexpr bool IsValidIndex(i32 index) const {
+    [[nodiscard]] constexpr bool IsValidIndex(SizeType index) const {
         return index >= 0 && index < count;
     }
 
@@ -51,12 +53,12 @@ public:
         return count == Capacity();
     }
 
-    [[nodiscard]] constexpr ElementType& operator[](i32 index) {
+    [[nodiscard]] constexpr ElementType& operator[](SizeType index) {
         ASSERT(IsValidIndex(index));
         return data[index];
     }
 
-    [[nodiscard]] constexpr ElementType const& operator[](i32 index) const {
+    [[nodiscard]] constexpr ElementType const& operator[](SizeType index) const {
         ASSERT(IsValidIndex(index));
         return data[index];
     }
@@ -94,9 +96,9 @@ public:
         return result;
     }
 
-    constexpr void RemoveAt(i32 index) {
+    constexpr void RemoveAt(SizeType index) {
         ASSERT(IsValidIndex(index));
-        for (i32 i = index; i+1 < count; ++i)
+        for (SizeType i = index; i+1 < count; ++i)
             data[i] = MoveIfPossible(data[i+1]);
         --count;
     }

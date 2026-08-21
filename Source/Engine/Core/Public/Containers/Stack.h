@@ -6,6 +6,8 @@
 
 template<typename ElementType>
 class Stack {
+public:
+    using SizeType = typename Array<ElementType>::SizeType;
 private:
     Array<ElementType> data;
 
@@ -14,7 +16,7 @@ public:
         : data()
     {}
 
-    [[nodiscard]] Stack(ElementType const* ptr, i32 numElements)
+    [[nodiscard]] Stack(ElementType const* ptr, SizeType numElements)
         : data(ptr, numElements)
     {}
 
@@ -39,11 +41,11 @@ public:
     ~Stack() = default;
 
 public:
-    [[nodiscard]] i32 Size() const {
+    [[nodiscard]] SizeType Size() const {
         return data.Size();
     }
 
-    [[nodiscard]] i32 Capacity() const {
+    [[nodiscard]] SizeType Capacity() const {
         return data.Capacity();
     }
 
@@ -76,7 +78,7 @@ public:
         data.Clear();
     }
 
-    void Reserve(i32 capacity) {
+    void Reserve(SizeType capacity) {
         data.Reserve(capacity);
     }
 };

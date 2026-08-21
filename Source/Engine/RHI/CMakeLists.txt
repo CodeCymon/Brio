@@ -7,9 +7,11 @@ brio_add_module(
             Private/Vulkan/VulkanInstance.cpp
             Private/Vulkan/VulkanSurface.cpp
             Private/Vulkan/VulkanDevice.cpp
+            Private/Vulkan/VulkanSwapchain.cpp
         PUBLIC_LINK
             Brio::Core
         PRIVATE_LINK
             Vulkan::Vulkan
+            VMA
             Brio::Platform
 )

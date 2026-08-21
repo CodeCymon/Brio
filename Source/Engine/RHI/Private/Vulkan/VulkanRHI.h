@@ -6,6 +6,7 @@
 #include "Vulkan/VulkanDevice.h"
 #include "Vulkan/VulkanInstance.h"
 #include "Vulkan/VulkanSurface.h"
+#include "Vulkan/VulkanSwapchain.h"
 
 
 class VulkanRHI final : public IDynamicRHI {
@@ -25,7 +26,7 @@ private:
     VulkanInstance instance;
     VulkanSurface surface;
     VulkanDevice device;
-    // VulkanSwapchain swapchain;
+    VulkanSwapchain swapchain;
     // StaticArray<VulkanFrameContext, kMaxFramesInFlight> frames;
 
     u32 frameIndex {0};

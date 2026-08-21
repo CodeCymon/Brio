@@ -17,6 +17,11 @@ namespace Math {
     }
 
     template<typename T>
+    T Clamp(T x, T min, T max) noexcept {
+        return std::clamp<T>(x, min, max);
+    }
+
+    template<typename T>
     T Abs(T a) noexcept {
         return std::abs(a);
     }

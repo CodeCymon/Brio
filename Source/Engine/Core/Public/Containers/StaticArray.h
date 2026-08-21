@@ -4,23 +4,25 @@
 #include "Core/CoreTypes.h"
 #include "Log/Assert.h"
 
-template<typename ElementType, i32 numElements>
+template<typename ElementType, u32 numElements>
 class StaticArray {
+public:
+    using SizeType = u32;
 private:
     ElementType data[numElements]{};
 
 public:
     constexpr StaticArray() = default;
 
-    StaticArray(ElementType const* ptr, i32 count) {
+    constexpr StaticArray(ElementType const* ptr, SizeType count) {
         ASSERT(count > 0 && count <= numElements);
-        for (i32 i = 0; i < count; ++i)
+        for (SizeType i = 0; i < count; ++i)
             data[i] = ptr[i];
     }
 
-    StaticArray(std::initializer_list<ElementType> list) {
+    constexpr StaticArray(std::initializer_list<ElementType> list) {
         ASSERT(list.size() <= numElements);
-        for (i32 i = 0; i < list.size(); ++i)
+        for (SizeType i = 0; i < list.size(); ++i)
             data[i] = list.begin()[i];
     }
 
@@ -28,7 +30,7 @@ public:
 
     StaticArray& operator=(std::initializer_list<ElementType> list) {
         ASSERT(list.size() <= numElements);
-        for (i32 i = 0; i < list.size(); ++i)
+        for (SizeType i = 0; i < list.size(); ++i)
             data[i] = list.begin()[i];
     }
 
@@ -50,24 +52,24 @@ public:
         return data;
     }
 
-    [[nodiscard]] i32 Size() const {
+    [[nodiscard]] SizeType Size() const {
         return numElements;
     }
 
-    [[nodiscard]] i32 Capacity() const {
+    [[nodiscard]] SizeType Capacity() const {
         return numElements;
     }
 
-    [[nodiscard]] bool IsValidIndex(i32 index) const {
+    [[nodiscard]] bool IsValidIndex(SizeType index) const {
         return index >= 0 && index < numElements;
     }
 
-    [[nodiscard]] ElementType& operator[](i32 index) {
+    [[nodiscard]] ElementType& operator[](SizeType index) {
         ASSERT(IsValidIndex(index));
         return data[index];
     }
 
-    [[nodiscard]] ElementType const& operator[](i32 index) const {
+    [[nodiscard]] ElementType const& operator[](SizeType index) const {
         ASSERT(IsValidIndex(index));
         return data[index];
     }

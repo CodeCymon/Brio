@@ -8,11 +8,13 @@
 
 template<typename ElementType>
 class Queue {
+public:
+    using SizeType = u32;
 private:
     ElementType* data {nullptr};
-    i32 capacity {};
-    i32 head {};
-    i32 count {};
+    SizeType capacity {};
+    SizeType head {};
+    SizeType count {};
 
 public:
     [[nodiscard]] constexpr Queue()
@@ -65,11 +67,11 @@ public:
     }
 
 public:
-    [[nodiscard]] i32 Size() const {
+    [[nodiscard]] SizeType Size() const {
         return count;
     }
 
-    [[nodiscard]] i32 Capacity() const {
+    [[nodiscard]] SizeType Capacity() const {
         return capacity;
     }
 
@@ -124,13 +126,13 @@ public:
         count = 0;
     }
 
-    void Reserve(i32 newCapacity) {
+    void Reserve(SizeType newCapacity) {
         if (newCapacity > capacity)
             Grow(newCapacity);
     }
 
 private:
-    static ElementType* Allocate(i32 n) {
+    static ElementType* Allocate(SizeType n) {
         if (n == 0)
             return nullptr;
         return static_cast<ElementType*>(operator new(static_cast<usize>(n) * sizeof(ElementType)));
@@ -151,8 +153,8 @@ private:
 
 private:
 
-    [[nodiscard]] i32 PhysicalIndex(i32 logicalIndex) const {
-        i32 idx = head + logicalIndex;
+    [[nodiscard]] SizeType PhysicalIndex(SizeType logicalIndex) const {
+        SizeType idx = head + logicalIndex;
         if (idx >= capacity)
             idx -= capacity;
         return idx;
@@ -164,8 +166,8 @@ private:
             head = 0;
     }
 
-    void DestroyLogicalRange(i32 first, i32 last) {
-        for (i32 i = first; i < last; i++)
+    void DestroyLogicalRange(SizeType first, SizeType last) {
+        for (SizeType i = first; i < last; i++)
             Destroy(data[PhysicalIndex(i)]);
     }
 
@@ -183,13 +185,13 @@ private:
         capacity = other.count;
         head = 0;
         count = other.count;
-        for (i32 i = 0; i < other.count; i++)
+        for (SizeType i = 0; i < other.count; i++)
             ConstructAt(data + i, other.data[other.PhysicalIndex(i)]);
     }
 
-    void Grow(i32 newCapacity) {
+    void Grow(SizeType newCapacity) {
         ElementType* newData = Allocate(newCapacity);
-        for (i32 i = 0; i < count; i++)
+        for (SizeType i = 0; i < count; i++)
             ConstructAt(newData + i, MoveIfPossible(data[PhysicalIndex(i)]));
         DestroyLogicalRange(0, count);
         Deallocate(data);
