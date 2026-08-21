@@ -4,6 +4,8 @@
 
 #include <vulkan/vulkan.h>
 
+#include "CoreMinimal.h"
+
 class VulkanDevice;
 
 class VulkanFrameSync {
@@ -11,15 +13,13 @@ public:
     void Initialize(VulkanDevice const* inDevice);
     void Shutdown();
 
-    void WaitOnFence() const;
-    void ResetFence() const;
-
     [[nodiscard]] VkSemaphore GetAcquireSemaphore() const { return acquireSemaphore; }
-    [[nodiscard]] VkFence Fence() const { return fence; }
+
+    u64 timelineWaitValue {0};
 
 private:
+    /// @see https://docs.vulkan.org/guide/latest/swapchain_semaphore_reuse.html
     VkSemaphore acquireSemaphore {};
-    VkFence fence {};
 
     VulkanDevice const* device {nullptr};
 };

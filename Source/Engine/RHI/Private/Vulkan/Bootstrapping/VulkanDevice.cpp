@@ -90,50 +90,12 @@ void VulkanDevice::CreateLogicalDevice() {
         queueCreateInfos.Add(queueCreateInfo);
     }
 
-    VkPhysicalDeviceDynamicRenderingFeatures dynamicRenderingFeatures = {
-        .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_FEATURES,
-        .pNext = nullptr,
-        .dynamicRendering = VK_TRUE
-    };
-
-    VkPhysicalDeviceSynchronization2Features synchronization2Features = {
-        .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SYNCHRONIZATION_2_FEATURES,
-        .pNext = &dynamicRenderingFeatures,
-        .synchronization2 = VK_TRUE
-    };
-
-    // TODO: Descriptor indexing features
-
-    VkPhysicalDeviceBufferDeviceAddressFeatures bufferDeviceAddressFeatures = {
-        .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BUFFER_DEVICE_ADDRESS_FEATURES,
-        .pNext = &synchronization2Features,
-        .bufferDeviceAddress = VK_TRUE
-    };
-
-    VkPhysicalDeviceRayQueryFeaturesKHR rayQueryFeatures = {
-        .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_QUERY_FEATURES_KHR,
-        .pNext = &bufferDeviceAddressFeatures,
-        .rayQuery = VK_TRUE
-    };
-
-    // TODO: revisit this feature pack
-    VkPhysicalDeviceAccelerationStructureFeaturesKHR accelerationStructureFeatures = {
-        .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ACCELERATION_STRUCTURE_FEATURES_KHR,
-        .pNext = &rayQueryFeatures,
-        .accelerationStructure = VK_TRUE
-    };
-
-    VkPhysicalDeviceFeatures2 features2 = {
-        .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2,
-        .pNext = &accelerationStructureFeatures,
-        .features = {0}
-    };
-
+    DeviceFeatures features = RequiredFeatures();
     Array extensions = RequiredExtensions();
 
     const VkDeviceCreateInfo createInfo = {
         .sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,
-        .pNext = &features2,
+        .pNext = &features.features,
         .queueCreateInfoCount = static_cast<u32>(queueCreateInfos.Size()),
         .pQueueCreateInfos = queueCreateInfos.Data(),
         .enabledExtensionCount = static_cast<u32>(extensions.Size()),
@@ -205,4 +167,19 @@ Array<const char*> VulkanDevice::RequiredExtensions() {
     extensions.Add(VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME);
 #endif
     return extensions;
+}
+
+VulkanDevice::DeviceFeatures VulkanDevice::RequiredFeatures() {
+    DeviceFeatures features;
+    features.synchronization2Features.synchronization2 = VK_TRUE;
+    features.timelineSemaphoreFeatures.timelineSemaphore = VK_TRUE;
+    features.dynamicRenderingFeatures.dynamicRendering = VK_TRUE;
+
+    // TODO: descriptor indexing features
+    features.bufferDeviceAddressFeatures.bufferDeviceAddress = VK_TRUE;
+
+    features.rayQueryFeatures.rayQuery = VK_TRUE;
+    features.accelerationStructureFeatures.accelerationStructure = VK_TRUE;
+
+    return features;
 }

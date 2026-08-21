@@ -8,6 +8,7 @@
 #include "Vulkan/Bootstrapping/VulkanSurface.h"
 #include "Vulkan/Bootstrapping/VulkanDevice.h"
 #include "Vulkan/Bootstrapping/VulkanSwapchain.h"
+#include "Vulkan/Bootstrapping/VulkanTimeline.h"
 #include "Vulkan/Bootstrapping/VulkanFrameSync.h"
 #include "Vulkan/Bootstrapping/VulkanFrameCmdData.h"
 
@@ -32,6 +33,7 @@ private:
     VulkanSurface surface;
     VulkanDevice device;
     VulkanSwapchain swapchain;
+    VulkanTimeline timeline;
     StaticArray<VulkanFrameSync, kMaxFramesInFlight> frameSyncs;
     StaticArray<VulkanFrameCmdData, kMaxFramesInFlight> frameCmdData;
 

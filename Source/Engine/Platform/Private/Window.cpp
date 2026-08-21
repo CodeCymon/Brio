@@ -38,6 +38,12 @@ bool Window::Create(Config const &config, Window &window) {
         ptr->Close();
     });
 
+    glfwSetFramebufferSizeCallback(window.handle, [] (GLFWwindow* window, int width, int height) {
+        auto* ptr = static_cast<Window*>(glfwGetWindowUserPointer(window));
+        if (ptr->OnResizeDelegate.IsBound())
+            ptr->OnResizeDelegate.Execute(width, height);
+    });
+
     return true;
 }
 

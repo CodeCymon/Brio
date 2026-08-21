@@ -8,6 +8,7 @@ brio_add_module(
             Private/Vulkan/Bootstrapping/VulkanSurface.cpp
             Private/Vulkan/Bootstrapping/VulkanDevice.cpp
             Private/Vulkan/Bootstrapping/VulkanSwapchain.cpp
+            Private/Vulkan/Bootstrapping/VulkanTimeline.cpp
             Private/Vulkan/Bootstrapping/VulkanFrameSync.cpp
             Private/Vulkan/Bootstrapping/VulkanFrameCmdData.cpp
         PUBLIC_LINK
