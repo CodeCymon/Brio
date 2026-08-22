@@ -6,42 +6,48 @@
 
 
 namespace {
-    constexpr char const* GetLogLevelName(Log::Level level) noexcept {
+    constexpr char const* GetSeverityName(Log::Severity level) noexcept {
         switch (level) {
-            case Log::Level::Fatal:
+            case Log::Severity::Fatal:
                 return "Fatal";
-            case Log::Level::Error:
+            case Log::Severity::Error:
                 return "Error";
-            case Log::Level::Warning:
+            case Log::Severity::Warning:
                 return "Warning";
-            case Log::Level::Info:
+            case Log::Severity::Info:
                 return "Info";
-            case Log::Level::Verbose:
+            case Log::Severity::Verbose:
                 return "Verbose";
-            case Log::Level::Debug:
+            case Log::Severity::Debug:
                 return "Debug";
         }
 
         return "<Unknown>";
     }
 
-    constexpr char const* GetLogLevelColor(Log::Level level) noexcept {
+    constexpr char const* GetSeverityColor(Log::Severity level) noexcept {
         switch (level) {
-            case Log::Level::Fatal:
+            case Log::Severity::Fatal:
                 return "\033[4;91m";
-            case Log::Level::Error:
+            case Log::Severity::Error:
                 return "\033[1;31m";
-            case Log::Level::Warning:
+            case Log::Severity::Warning:
                 return "\033[1;33m";
-            case Log::Level::Info:
+            case Log::Severity::Info:
                 return "\033[39m";
-            case Log::Level::Verbose:
+            case Log::Severity::Verbose:
                 return "\033[2;39m";
-            case Log::Level::Debug:
+            case Log::Severity::Debug:
                 return "\033[3;36m";
         }
         return "\033[0m";
     }
+}
+
+namespace {
+    struct LogState {
+        Log::Severity minSeverity = Log::Severity::Info;
+    } State;
 }
 
 void Log::Initialize() {
@@ -52,8 +58,14 @@ void Log::Shutdown() {
     // TODO: wait on file writing queue.
 }
 
-void Log::Write_Impl(Log::Level level, std::string_view category, std::string_view message) {
-    std::string output = std::format("{}[{}] [{}] : {}\033[m\n", GetLogLevelColor(level), GetLogLevelName(level), category, message);
+void Log::SetMinSeverity(Severity severity) {
+    State.minSeverity = severity;
+}
+
+void Log::Write_Impl(Log::Severity severity, std::string_view category, std::string_view message) {
+    if (static_cast<u8>(severity) > static_cast<u8>(State.minSeverity)) return;
+
+    std::string output = std::format("{}[{}] [{}] : {}\033[m\n", GetSeverityColor(severity), GetSeverityName(severity), category, message);
     std::cout << output;
 }
 
@@ -63,4 +75,3 @@ void Log::WriteRaw_Impl(std::string_view message) {
 
 DEFINE_LOG_CATEGORY(LogCore);
 DEFINE_LOG_CATEGORY(LogTemp);
-DEFINE_LOG_CATEGORY(LogTest);

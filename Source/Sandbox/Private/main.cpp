@@ -22,6 +22,8 @@ private:
 int main() {
     Engine engine;
 
+    Log::SetMinSeverity(Log::Severity::Info);
+
     Platform::Initialize();
 
     Window mainWindow;
