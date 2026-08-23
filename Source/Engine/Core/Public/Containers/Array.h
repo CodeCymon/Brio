@@ -118,6 +118,26 @@ public:
         return Data()[index];
     }
 
+    [[nodiscard]] ElementType& Front() {
+        ASSERT(count > 0);
+        return Data()[0];
+    }
+
+    [[nodiscard]] ElementType const& Front() const {
+        ASSERT(count > 0);
+        return Data()[0];
+    }
+
+    [[nodiscard]] ElementType& Back() {
+        ASSERT(count > 0);
+        return Data()[Size() - 1];
+    }
+
+    [[nodiscard]] ElementType const& Back() const {
+        ASSERT(count > 0);
+        return Data()[Size() - 1];
+    }
+
 public:
     void Add(ElementType const& element) {
         if (count >= capacity) {
@@ -164,6 +184,23 @@ public:
             data[i] = MoveIfPossible(data[i + 1]);
         --count;
         Destroy(data[count]);
+    }
+
+    template<typename PredicateFn>
+    void RemoveIf(PredicateFn predicate) {
+        SizeType writeIndex = 0;
+        SizeType cachedCount = count;
+        for (SizeType readIndex = 0; readIndex < cachedCount; ++readIndex) {
+            if (predicate(data[readIndex]) == false) {
+                if (writeIndex != readIndex)
+                    data[writeIndex] = MoveIfPossible(data[readIndex]);
+
+                ++writeIndex;
+            }
+        }
+
+        DestroyRange(writeIndex, cachedCount);
+        count = writeIndex;
     }
 
     void Push(ElementType const& element) {
