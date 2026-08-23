@@ -1,9 +1,30 @@
 // Copyright (c) Simon Kirsch 2026.
 
 #pragma once
+#include <atomic>
+
 #include "CoreMinimal.h"
-#include "RHIResource.h"
 #include "Memory/RefCountedPtr.h"
+
+using RHITextureRef = TRefCountedPtr<class RHITexture>;
+
+
+class RHIResource {
+public:
+    virtual ~RHIResource() = default;
+    void AddRef() { ++refCount; }
+    void Release() { if (--refCount == 0) OnRefCountZero(); }
+
+    virtual void Destroy() = 0;
+
+protected:
+    RHIResource() = default;
+    virtual void OnRefCountZero() = 0;
+
+private:
+    std::atomic<u32> refCount {0};
+};
+
 
 enum class TextureDimension : u8 {
     Tex1D,
@@ -72,5 +93,3 @@ protected:
 
     RHITextureDesc desc;
 };
-
-using RHITextureRef = TRefCountedPtr<RHITexture>;

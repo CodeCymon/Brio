@@ -3,7 +3,7 @@
 #pragma once
 #include <vulkan/vulkan_core.h>
 
-#include "RHITexture.h"
+#include "RHIResources.h"
 
 class VulkanTexture;
 

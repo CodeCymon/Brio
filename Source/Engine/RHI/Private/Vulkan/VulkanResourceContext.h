@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Containers/SlabPool.h"
-#include "Vulkan/Resources/VulkanTexture.h"
+#include "Vulkan/Resources/VulkanResources.h"
 
 typedef struct VmaAllocator_T* VmaAllocator;
 class VulkanDevice;

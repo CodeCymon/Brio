@@ -1,6 +1,6 @@
 // Copyright (c) Simon Kirsch 2026.
 
-#include "VulkanTexture.h"
+#include "VulkanResources.h"
 
 #include "Vulkan/VulkanDeletionQueue.h"
 #include "Vulkan/VulkanResourceContext.h"
@@ -13,8 +13,10 @@ VulkanTexture::VulkanTexture(VulkanResourceContext* ctx, RHITextureDesc const &d
           bExternalMemory(bExternalMemory), context(ctx) {}
 
 VulkanTexture::~VulkanTexture() {
+    if (bExternalMemory) return;
+
     if (defaultView) vkDestroyImageView(context->device->LogicalDevice(), defaultView, nullptr);
-    if (!bExternalMemory && image) vmaDestroyImage(*context->allocator, image, allocation);
+    if (image) vmaDestroyImage(*context->allocator, image, allocation);
 }
 
 void VulkanTexture::Destroy() {

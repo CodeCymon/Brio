@@ -216,16 +216,17 @@ RHITextureRef VulkanRHI::CreateTexture(RHITextureDesc const &desc, char const* d
             .objectHandle = reinterpret_cast<u64>(image),
             .pObjectName = debugName
         };
+        // TODO: debug naming
         // vkSetDebugUtilsObjectNameEXT(device.LogicalDevice(), &nameInfo);
     }
-
+    // TODO: create default view
     VulkanTexture* tex = texturePool.Allocate(&resourceContext, desc, image, allocation, nullptr, false);
     return RHITextureRef{tex};
 }
 
 VulkanTexture* VulkanRHI::RegisterExternalTexture(RHITextureDesc const &desc, VkImage image,
     VkImageView defaultView) {
-    return texturePool.Allocate(&resourceContext, desc, image, nullptr, nullptr, true);
+    return texturePool.Allocate(&resourceContext, desc, image, nullptr, defaultView, true);
 }
 
 void VulkanRHI::UnregisterExternalTexture(VulkanTexture* texture) {

@@ -1,14 +1,15 @@
 // Copyright (c) Simon Kirsch 2026.
 
 #pragma once
+
 #include <vulkan/vulkan_core.h>
+#include <vma.h>
 
-#include "vma.h"
-
-#include "RHITexture.h"
+#include "RHIResources.h"
 #include "Containers/SlabPool.h"
 
 struct VulkanResourceContext;
+class VulkanTexture;
 
 class VulkanTexture final : public RHITexture {
 private:
@@ -34,3 +35,18 @@ private:
     bool bExternalMemory {false};
     VulkanResourceContext* context {};
 };
+
+
+template<class T>
+struct TVulkanResourceTraits {};
+
+template<>
+struct TVulkanResourceTraits<RHITexture> {
+    using ConcreteType = VulkanTexture;
+};
+
+
+template<typename RHIType>
+static inline TVulkanResourceTraits<RHIType>::ConcreteType* ResourceCast(RHIType* resource) {
+    return static_cast<TVulkanResourceTraits<RHIType>::ConcreteType*>(resource);
+}

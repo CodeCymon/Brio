@@ -2,7 +2,7 @@
 
 #include "VulkanCommandList.h"
 
-#include "Vulkan/Resources/VulkanTexture.h"
+#include "Vulkan/Resources/VulkanResources.h"
 
 void VulkanCommandList::BeginDebugLabel(char const* label) {}
 
@@ -11,7 +11,7 @@ void VulkanCommandList::EndDebugLabel() {}
 void VulkanCommandList::InsertDebugLabel(char const* label) {}
 
 void VulkanCommandList::ClearImage(RHITexture* texture, ClearColor clearColor) {
-    VulkanTexture* vkTexture = static_cast<VulkanTexture*>(texture);
+    VulkanTexture* vkTexture = ResourceCast(texture);
 
     VkClearColorValue color = {.float32 = {clearColor.r, clearColor.g, clearColor.b, clearColor.a}};
     VkImageSubresourceRange range = {

@@ -4,7 +4,7 @@
 #include "RHIAPI.h"
 #include "CoreMinimal.h"
 
-#include "RHITexture.h"
+#include "RHIResources.h"
 
 struct NativeWindowData;
 
