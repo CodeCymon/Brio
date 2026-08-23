@@ -1,5 +1,6 @@
 // Copyright (c) Simon Kirsch 2026.
 
+#include "CommandList.h"
 #include "DynamicRHI.h"
 #include "Platform.h"
 #include "Window.h"
@@ -41,6 +42,8 @@ int main() {
         Platform::PollEvents();
 
         RHIFrameContext frame = GDynamicRHI->BeginFrame();
+        ICommandList* cmdList = frame.cmdList;
+        cmdList->ClearImage(frame.swapchainTexture, {0,0,1,1});
         GDynamicRHI->EndFrame();
     }
 

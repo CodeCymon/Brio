@@ -1,0 +1,20 @@
+// Copyright (c) Simon Kirsch 2026.
+
+#pragma once
+
+#include "CoreMinimal.h"
+#include "Containers/SlabPool.h"
+#include "Vulkan/Resources/VulkanTexture.h"
+
+typedef struct VmaAllocator_T* VmaAllocator;
+class VulkanDevice;
+class VulkanTimeline;
+class VulkanDeletionQueue;
+
+struct VulkanResourceContext {
+    VulkanDevice* device;
+    VmaAllocator* allocator;
+    VulkanTimeline* timeline;
+    VulkanDeletionQueue* deletionQueue;
+    SlabPool<VulkanTexture>* texturePool;
+};

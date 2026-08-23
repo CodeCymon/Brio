@@ -4,17 +4,20 @@
 
 #include "LogRHI.h"
 #include "Vulkan/VulkanCheck.h"
+#include "Vulkan/VulkanExternalTextureRegistry.h"
 #include "Vulkan/Bootstrapping/VulkanDevice.h"
 #include "Vulkan/Bootstrapping/VulkanSurface.h"
 
-void VulkanSwapchain::Initialize(VulkanDevice const* inDevice, VulkanSurface const* inSurface, UIntPoint const &inExtent) {
+void VulkanSwapchain::Initialize(VulkanDevice const* inDevice, VulkanSurface const* inSurface, IVulkanExternalTextureRegistry* registry, UIntPoint const &inExtent) {
     device = inDevice;
     surface = inSurface;
+    textureRegistry = registry;
 
     InitializePersistentData();
 
     CreateSwapchain(inExtent);
     CreateSwapchainResources();
+    RebuildTextures();
 }
 
 void VulkanSwapchain::Shutdown() {
@@ -29,6 +32,7 @@ void VulkanSwapchain::Resize(UIntPoint const &newExtent) {
     DestroySwapchainResources();
     DestroySwapchain(oldSwapchain);
     CreateSwapchainResources();
+    RebuildTextures();
 }
 
 VkResult VulkanSwapchain::AcquireNextImage(VkSemaphore acquireSemaphore) {
@@ -147,6 +151,19 @@ void VulkanSwapchain::InitializePersistentData() {
 
 void VulkanSwapchain::UpdateCapabilities() {
     vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device->PhysicalDevice(), surface->Surface(), &surfaceCapabilities);
+}
+
+void VulkanSwapchain::RebuildTextures() {
+    for (VulkanTexture* texture : textures)
+        textureRegistry->UnregisterExternalTexture(texture);
+    textures.Clear();
+
+    RHITextureDesc desc = RHITextureDesc::Texture2D(PixelFormat::RGBA8_SRGB,
+                                                    {extent.width, extent.height},
+                                                    TextureUsage::ColorAttachment |
+                                                    TextureUsage::TransferDst);
+    for (u32 i = 0; i < imageCount; i++)
+        textures.Add(textureRegistry->RegisterExternalTexture(desc, images[i], views[i]));
 }
 
 VkSurfaceFormatKHR VulkanSwapchain::ChooseSurfaceFormat(Array<VkSurfaceFormatKHR> const &formats) {

@@ -1,0 +1,15 @@
+// Copyright (c) Simon Kirsch 2026.
+
+#pragma once
+#include <vulkan/vulkan_core.h>
+
+#include "RHITexture.h"
+
+class VulkanTexture;
+
+class IVulkanExternalTextureRegistry {
+public:
+    virtual ~IVulkanExternalTextureRegistry() = default;
+    virtual VulkanTexture* RegisterExternalTexture(RHITextureDesc const& desc, VkImage image, VkImageView defaultView) = 0;
+    virtual void UnregisterExternalTexture(VulkanTexture* texture) = 0;
+};

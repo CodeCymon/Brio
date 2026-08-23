@@ -11,6 +11,8 @@ brio_add_module(
             Private/Vulkan/Bootstrapping/VulkanTimeline.cpp
             Private/Vulkan/Bootstrapping/VulkanFrameSync.cpp
             Private/Vulkan/Bootstrapping/VulkanFrameCmdData.cpp
+            Private/Vulkan/Resources/VulkanTexture.cpp
+            Private/Vulkan/VulkanDeletionQueue.cpp
         PUBLIC_LINK
             Brio::Core
         PRIVATE_LINK

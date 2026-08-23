@@ -1,0 +1,35 @@
+// Copyright (c) Simon Kirsch 2026.
+
+#include "VulkanTexture.h"
+
+#include "Vulkan/VulkanDeletionQueue.h"
+#include "Vulkan/VulkanResourceContext.h"
+#include "Vulkan/Bootstrapping/VulkanDevice.h"
+#include "Vulkan/Bootstrapping/VulkanTimeline.h"
+
+VulkanTexture::VulkanTexture(VulkanResourceContext* ctx, RHITextureDesc const &desc, VkImage image,
+    VmaAllocation allocation, VkImageView defaultView, bool bExternalMemory)
+        : RHITexture(desc), image(image), defaultView(defaultView), allocation(allocation),
+          bExternalMemory(bExternalMemory), context(ctx) {}
+
+VulkanTexture::~VulkanTexture() {
+    if (defaultView) vkDestroyImageView(context->device->LogicalDevice(), defaultView, nullptr);
+    if (!bExternalMemory && image) vmaDestroyImage(*context->allocator, image, allocation);
+}
+
+void VulkanTexture::Destroy() {
+    context->texturePool->Destroy(this);
+}
+
+void VulkanTexture::OnRefCountZero() {
+    if (bExternalMemory) {
+        ASSERTM(false, "Tried to release a texture with external memory! -"
+            " do not hold an RHITextureRef to it.");
+        return;
+    }
+    context->deletionQueue->Enqueue(this, context->timeline->PendingSubmitValue());
+}
+
+
+
+

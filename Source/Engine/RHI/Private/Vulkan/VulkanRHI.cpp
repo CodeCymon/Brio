@@ -7,12 +7,21 @@
 #include "LogRHI.h"
 
 void VulkanRHI::Initialize(NativeWindowData const &windowData) {
+    resourceContext = {
+        .device = &device,
+        .allocator = &allocator,
+        .timeline = &timeline,
+        .deletionQueue = &deletionQueue,
+        .texturePool = &texturePool,
+    };
+
     instance.Initialize(true);
     surface.Initialize(&instance, windowData);
     device.Initialize(&instance, &surface);
-    swapchain.Initialize(&device, &surface, {800, 450});
+    swapchain.Initialize(&device, &surface, this, {800, 450});
 
     timeline.Initialize(&device);
+
 
     for (auto& frameSync : frameSyncs)
         frameSync.Initialize(&device);
@@ -32,6 +41,8 @@ void VulkanRHI::Initialize(NativeWindowData const &windowData) {
 
 void VulkanRHI::Shutdown() {
     WaitForIdle();
+
+    deletionQueue.FlushAll();
 
     vmaDestroyAllocator(allocator);
 
@@ -66,6 +77,7 @@ RHIFrameContext VulkanRHI::BeginFrame() {
     VulkanFrameCmdData const& cmdData = frameCmdData[frameIndex];
 
     timeline.WaitUntil(sync.timelineWaitValue);
+    deletionQueue.Flush(sync.timelineWaitValue);
 
     VkResult acquired = swapchain.AcquireNextImage(sync.GetAcquireSemaphore());
     if (acquired != VK_SUCCESS) {
@@ -75,73 +87,37 @@ RHIFrameContext VulkanRHI::BeginFrame() {
     cmdData.BeginCommandBuffer();
     cmdList.BindActiveCommandBuffer(cmdData.Cmd());
 
-    // TODO: make swapchain image available as RHITexture* so it can be used with ICommandList commands
+    // TODO: remove
     {
-        {
-            VkImageMemoryBarrier2 imageBarrier = {
-                .sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER_2,
-                .srcStageMask = VK_PIPELINE_STAGE_2_NONE,
-                .srcAccessMask = VK_ACCESS_2_NONE,
-                .dstStageMask = VK_PIPELINE_STAGE_2_TRANSFER_BIT,
-                .dstAccessMask = VK_ACCESS_2_TRANSFER_WRITE_BIT,
-                .oldLayout = VK_IMAGE_LAYOUT_UNDEFINED,
-                .newLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                .srcQueueFamilyIndex = device.GraphicsQueueFamilyIndex(),
-                .dstQueueFamilyIndex = device.GraphicsQueueFamilyIndex(),
-                .image = swapchain.Image(),
-                .subresourceRange = {
-                    .aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
-                    .levelCount = 1,
-                    .layerCount = 1,
-                }
-            };
-
-            VkDependencyInfo dependencyInfo = {
-                .sType = VK_STRUCTURE_TYPE_DEPENDENCY_INFO,
-                .imageMemoryBarrierCount = 1,
-                .pImageMemoryBarriers = &imageBarrier
-            };
-            vkCmdPipelineBarrier2(cmdData.Cmd(), &dependencyInfo);
-        }
-        VkClearColorValue color = {.float32 = {0,1,0,1}};
-        VkImageSubresourceRange range = {
-            .aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
-            .levelCount = 1,
-            .layerCount = 1,
+        VkImageMemoryBarrier2 imageBarrier = {
+            .sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER_2,
+            .srcStageMask = VK_PIPELINE_STAGE_2_NONE,
+            .srcAccessMask = VK_ACCESS_2_NONE,
+            .dstStageMask = VK_PIPELINE_STAGE_2_TRANSFER_BIT,
+            .dstAccessMask = VK_ACCESS_2_TRANSFER_WRITE_BIT,
+            .oldLayout = VK_IMAGE_LAYOUT_UNDEFINED,
+            .newLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+            .srcQueueFamilyIndex = device.GraphicsQueueFamilyIndex(),
+            .dstQueueFamilyIndex = device.GraphicsQueueFamilyIndex(),
+            .image = swapchain.Image(),
+            .subresourceRange = {
+                .aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
+                .levelCount = 1,
+                .layerCount = 1,
+            }
         };
-        vkCmdClearColorImage(cmdData.Cmd(), swapchain.Image(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, &color, 1, &range);
 
-        {
-            VkImageMemoryBarrier2 imageBarrier = {
-                .sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER_2,
-                .srcStageMask = VK_PIPELINE_STAGE_2_TRANSFER_BIT,
-                .srcAccessMask = VK_ACCESS_2_TRANSFER_WRITE_BIT,
-                .dstStageMask = VK_PIPELINE_STAGE_2_NONE,
-                .dstAccessMask = VK_ACCESS_2_NONE,
-                .oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                .newLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
-                .srcQueueFamilyIndex = device.GraphicsQueueFamilyIndex(),
-                .dstQueueFamilyIndex = device.GraphicsQueueFamilyIndex(),
-                .image = swapchain.Image(),
-                .subresourceRange = {
-                    .aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
-                    .levelCount = 1,
-                    .layerCount = 1,
-                }
-            };
-
-            VkDependencyInfo dependencyInfo = {
-                .sType = VK_STRUCTURE_TYPE_DEPENDENCY_INFO,
-                .imageMemoryBarrierCount = 1,
-                .pImageMemoryBarriers = &imageBarrier
-            };
-            vkCmdPipelineBarrier2(cmdData.Cmd(), &dependencyInfo);
-        }
+        VkDependencyInfo dependencyInfo = {
+            .sType = VK_STRUCTURE_TYPE_DEPENDENCY_INFO,
+            .imageMemoryBarrierCount = 1,
+            .pImageMemoryBarriers = &imageBarrier
+        };
+        vkCmdPipelineBarrier2(cmdData.Cmd(), &dependencyInfo);
     }
 
     return RHIFrameContext{
         .cmdList = &cmdList,
-        // TODO: access and store swapchain RHITexture* here somehow
+        .swapchainTexture = swapchain.CurrentTexture(),
         .frameIndex = frameIndex
     };
 }
@@ -149,6 +125,34 @@ RHIFrameContext VulkanRHI::BeginFrame() {
 void VulkanRHI::EndFrame() {
     VulkanFrameSync& sync = frameSyncs[frameIndex];
     VulkanFrameCmdData const& cmdData = frameCmdData[frameIndex];
+
+    // TODO: remove
+    {
+        VkImageMemoryBarrier2 imageBarrier = {
+            .sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER_2,
+            .srcStageMask = VK_PIPELINE_STAGE_2_TRANSFER_BIT,
+            .srcAccessMask = VK_ACCESS_2_TRANSFER_WRITE_BIT,
+            .dstStageMask = VK_PIPELINE_STAGE_2_NONE,
+            .dstAccessMask = VK_ACCESS_2_NONE,
+            .oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+            .newLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
+            .srcQueueFamilyIndex = device.GraphicsQueueFamilyIndex(),
+            .dstQueueFamilyIndex = device.GraphicsQueueFamilyIndex(),
+            .image = swapchain.Image(),
+            .subresourceRange = {
+                .aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
+                .levelCount = 1,
+                .layerCount = 1,
+            }
+        };
+
+        VkDependencyInfo dependencyInfo = {
+            .sType = VK_STRUCTURE_TYPE_DEPENDENCY_INFO,
+            .imageMemoryBarrierCount = 1,
+            .pImageMemoryBarriers = &imageBarrier
+        };
+        vkCmdPipelineBarrier2(cmdData.Cmd(), &dependencyInfo);
+    }
 
     cmdData.EndCommandBuffer();
 
@@ -197,4 +201,33 @@ void VulkanRHI::EndFrame() {
     }
 
     frameIndex = (frameIndex + 1) % kMaxFramesInFlight;
+}
+
+RHITextureRef VulkanRHI::CreateTexture(RHITextureDesc const &desc, char const* debugName) {
+    VkImageCreateInfo imageInfo = {/*from desc*/};
+    VmaAllocationCreateInfo allocInfo = { .usage = VMA_MEMORY_USAGE_AUTO };
+
+    VkImage image {}; VmaAllocation allocation {};
+    vmaCreateImage(allocator, &imageInfo, &allocInfo, &image, &allocation, nullptr);
+    if (debugName) {
+        VkDebugUtilsObjectNameInfoEXT nameInfo = {
+            .sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_NAME_INFO_EXT,
+            .objectType = VK_OBJECT_TYPE_IMAGE,
+            .objectHandle = reinterpret_cast<u64>(image),
+            .pObjectName = debugName
+        };
+        // vkSetDebugUtilsObjectNameEXT(device.LogicalDevice(), &nameInfo);
+    }
+
+    VulkanTexture* tex = texturePool.Allocate(&resourceContext, desc, image, allocation, nullptr, false);
+    return RHITextureRef{tex};
+}
+
+VulkanTexture* VulkanRHI::RegisterExternalTexture(RHITextureDesc const &desc, VkImage image,
+    VkImageView defaultView) {
+    return texturePool.Allocate(&resourceContext, desc, image, nullptr, nullptr, true);
+}
+
+void VulkanRHI::UnregisterExternalTexture(VulkanTexture* texture) {
+    texture->Destroy();
 }

@@ -6,6 +6,8 @@
 
 #include <vma.h>
 
+#include "VulkanExternalTextureRegistry.h"
+
 #include "Vulkan/Bootstrapping/VulkanInstance.h"
 #include "Vulkan/Bootstrapping/VulkanSurface.h"
 #include "Vulkan/Bootstrapping/VulkanDevice.h"
@@ -15,9 +17,11 @@
 #include "Vulkan/Bootstrapping/VulkanFrameCmdData.h"
 
 #include "Vulkan/VulkanCommandList.h"
+#include "Vulkan/VulkanDeletionQueue.h"
+#include "Vulkan/VulkanResourceContext.h"
 
 
-class VulkanRHI final : public IDynamicRHI {
+class VulkanRHI final : public IDynamicRHI, public IVulkanExternalTextureRegistry {
 public:
     void Initialize(NativeWindowData const &windowData) override;
 
@@ -32,6 +36,9 @@ public:
 
     [[nodiscard]] RHITextureRef CreateTexture(RHITextureDesc const &desc, char const* debugName) override;
 
+    VulkanTexture* RegisterExternalTexture(RHITextureDesc const &desc, VkImage image, VkImageView defaultView) override;
+    void UnregisterExternalTexture(VulkanTexture* texture) override;
+
 private:
     VulkanInstance instance;
     VulkanSurface surface;
@@ -44,6 +51,9 @@ private:
     VulkanCommandList cmdList;
 
     VmaAllocator allocator {};
+    VulkanDeletionQueue deletionQueue;
+    VulkanResourceContext resourceContext {};
+    SlabPool<VulkanTexture> texturePool;
 
     u32 frameIndex {0};
 };

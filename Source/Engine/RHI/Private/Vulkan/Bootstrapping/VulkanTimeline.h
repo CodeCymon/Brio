@@ -14,6 +14,7 @@ public:
     void WaitUntil(u64 value) const;
 
     [[nodiscard]] u64 NextSignalValue() { return ++counter; }
+    [[nodiscard]] u64 PendingSubmitValue() const { return counter + 1; }
     [[nodiscard]] VkSemaphore Semaphore() const { return semaphore; }
 
 private:
