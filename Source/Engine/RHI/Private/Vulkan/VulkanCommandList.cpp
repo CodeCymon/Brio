@@ -8,6 +8,8 @@ void VulkanCommandList::EndDebugLabel() {}
 
 void VulkanCommandList::InsertDebugLabel(char const* label) {}
 
+void VulkanCommandList::ClearImage(RHITexture* texture, ClearColor clearColor) {}
+
 void VulkanCommandList::BindActiveCommandBuffer(VkCommandBuffer commandBuffer) {
     cmd = commandBuffer;
 }

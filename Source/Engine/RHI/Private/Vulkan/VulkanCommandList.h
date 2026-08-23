@@ -14,6 +14,8 @@ public:
 
     void InsertDebugLabel(char const* label) override;
 
+    void ClearImage(RHITexture* texture, ClearColor clearColor) override;
+
 public:
     void BindActiveCommandBuffer(VkCommandBuffer commandBuffer);
 
