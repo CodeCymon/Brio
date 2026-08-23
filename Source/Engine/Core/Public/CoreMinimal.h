@@ -5,6 +5,8 @@
 #include "Core/CoreTypes.h"
 #include "Core/CoreMacros.h"
 
+#include "Memory/UniquePointer.h"
+
 #include "Log/Log.h"
 #include "Log/Assert.h"
 
