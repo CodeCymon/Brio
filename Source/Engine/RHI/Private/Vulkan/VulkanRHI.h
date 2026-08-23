@@ -4,6 +4,8 @@
 
 #include "DynamicRHI.h"
 
+#include <vma.h>
+
 #include "Vulkan/Bootstrapping/VulkanInstance.h"
 #include "Vulkan/Bootstrapping/VulkanSurface.h"
 #include "Vulkan/Bootstrapping/VulkanDevice.h"
@@ -28,6 +30,8 @@ public:
     [[nodiscard]] RHIFrameContext BeginFrame() override;
     void EndFrame() override;
 
+    [[nodiscard]] RHITextureRef CreateTexture(RHITextureDesc const &desc, char const* debugName) override;
+
 private:
     VulkanInstance instance;
     VulkanSurface surface;
@@ -38,6 +42,8 @@ private:
     StaticArray<VulkanFrameCmdData, kMaxFramesInFlight> frameCmdData;
 
     VulkanCommandList cmdList;
+
+    VmaAllocator allocator {};
 
     u32 frameIndex {0};
 };

@@ -4,11 +4,18 @@
 #include "RHIAPI.h"
 #include "CoreMinimal.h"
 
-#include "RHIResources.h"
+#include "RHITexture.h"
 
 struct NativeWindowData;
 
 constexpr u32 kMaxFramesInFlight = 2;
+
+struct RHIFrameContext {
+    class ICommandList* cmdList {nullptr};
+    RHITexture* swapchainTexture {};
+    u32 frameIndex {0};
+};
+
 
 class RHI_API IDynamicRHI {
 public:
@@ -24,11 +31,5 @@ public:
     [[nodiscard]] virtual RHIFrameContext BeginFrame() = 0;
     virtual void EndFrame() = 0;
 
-
-    // virtual RHIShaderRef CreateShader(ShaderDesc const& desc, char const* debugName) = 0;
-    // virtual void DestroyShader(RHIShaderRef shader) = 0;
-
-    // virtual RHIPipelineRef CreateGraphicsPipeline(GraphicsPipelineDesc const& desc, char const* debugName) = 0;
-    // virtual RHIPipelineRef CreateComputePipeline(ComputePipelineDesc const& desc, char const* debugName) = 0;
-    // virtual void DestroyPipeline(RHIPipelineRef pipeline) = 0;
+    [[nodiscard]] virtual RHITextureRef CreateTexture(RHITextureDesc const& desc, char const* debugName) = 0;
 };

@@ -19,10 +19,21 @@ void VulkanRHI::Initialize(NativeWindowData const &windowData) {
 
     for (auto& frameCmd : frameCmdData)
         frameCmd.Initialize(&device);
+
+    VmaAllocatorCreateInfo allocatorInfo = {
+        .flags = VMA_ALLOCATOR_CREATE_BUFFER_DEVICE_ADDRESS_BIT,
+        .physicalDevice = device.PhysicalDevice(),
+        .device = device.LogicalDevice(),
+        .instance = instance.Instance(),
+        .vulkanApiVersion = VK_API_VERSION_1_4,
+    };
+    vmaCreateAllocator(&allocatorInfo, &allocator);
 }
 
 void VulkanRHI::Shutdown() {
     WaitForIdle();
+
+    vmaDestroyAllocator(allocator);
 
     for (auto& frameCmd : frameCmdData)
         frameCmd.Shutdown();
@@ -64,7 +75,7 @@ RHIFrameContext VulkanRHI::BeginFrame() {
     cmdData.BeginCommandBuffer();
     cmdList.BindActiveCommandBuffer(cmdData.Cmd());
 
-    // TODO: remove
+    // TODO: make swapchain image available as RHITexture* so it can be used with ICommandList commands
     {
         {
             VkImageMemoryBarrier2 imageBarrier = {
@@ -130,6 +141,7 @@ RHIFrameContext VulkanRHI::BeginFrame() {
 
     return RHIFrameContext{
         .cmdList = &cmdList,
+        // TODO: access and store swapchain RHITexture* here somehow
         .frameIndex = frameIndex
     };
 }
