@@ -19,6 +19,8 @@ public:
 public:
     void BindActiveCommandBuffer(VkCommandBuffer commandBuffer);
 
+    void TransitionImage(RHITexture* texture, RHIResourceState srcState, RHIResourceState dstState) override;
+
 private:
     VkCommandBuffer cmd {};
 };

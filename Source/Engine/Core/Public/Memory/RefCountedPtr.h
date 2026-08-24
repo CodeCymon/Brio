@@ -48,6 +48,8 @@ public:
     T* operator->() const { return ptr; }
     T& operator*() const { return *ptr; }
 
+    operator T*() const { return ptr; }
+
     [[nodiscard]] T* Get() const { return ptr; }
 
     explicit operator bool() const { return ptr != nullptr; }

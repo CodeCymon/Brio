@@ -36,15 +36,30 @@ int main() {
 
     RHI::Create(mainWindow.NativeData());
 
+    // TODO: make OnResizeDelegate multicast
     mainWindow.OnResizeDelegate.BindObject(GDynamicRHI, &IDynamicRHI::OnResize);
 
-    while (engine.IsRunning()) {
-        Platform::PollEvents();
+    {
+        /*
+        RHITextureRef myImage = GDynamicRHI->CreateTexture(
+           RHITextureDesc::Texture2D(PixelFormat::RGBA8_SRGB, {800, 450},
+                                     TextureUsage::TransferSrc | TextureUsage::TransferDst),
+           "firstCustomTexture");
+           */
 
-        RHIFrameContext frame = GDynamicRHI->BeginFrame();
-        ICommandList* cmdList = frame.cmdList;
-        cmdList->ClearImage(frame.swapchainTexture, {0,0,1,1});
-        GDynamicRHI->EndFrame();
+        while (engine.IsRunning()) {
+            Platform::PollEvents();
+
+            RHIFrameContext frame = GDynamicRHI->BeginFrame();
+            ICommandList* cmdList = frame.cmdList;
+
+            // cmdList->ClearImage(myImage, {1,0,1,1});
+            cmdList->TransitionImage(frame.swapchainTexture, RHIResourceState::Undefined, RHIResourceState::TransferDst);
+            cmdList->ClearImage(frame.swapchainTexture, {0,0,1,1});
+            cmdList->TransitionImage(frame.swapchainTexture, RHIResourceState::TransferDst, RHIResourceState::Present);
+
+            GDynamicRHI->EndFrame();
+        }
     }
 
     RHI::Destroy();

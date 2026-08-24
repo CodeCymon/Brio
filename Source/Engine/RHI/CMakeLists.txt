@@ -2,6 +2,8 @@ brio_add_module(
         NAME RHI
         SOURCES
             Private/RHI.cpp
+            Private/Vulkan/Resources/VulkanBarrier.cpp
+            Private/Vulkan/Resources/VulkanTexture.cpp
             Private/Vulkan/VulkanRHI.cpp
             Private/Vulkan/VulkanCommandList.cpp
             Private/Vulkan/Bootstrapping/VulkanInstance.cpp
@@ -11,7 +13,6 @@ brio_add_module(
             Private/Vulkan/Bootstrapping/VulkanTimeline.cpp
             Private/Vulkan/Bootstrapping/VulkanFrameSync.cpp
             Private/Vulkan/Bootstrapping/VulkanFrameCmdData.cpp
-            Private/Vulkan/Resources/VulkanTexture.cpp
             Private/Vulkan/VulkanDeletionQueue.cpp
         PUBLIC_LINK
             Brio::Core

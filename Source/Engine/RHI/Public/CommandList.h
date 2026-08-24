@@ -6,6 +6,18 @@
 #include "CoreMinimal.h"
 #include "RHIResources.h"
 
+enum class RHIResourceState : u8 {
+    Undefined,
+    TransferSrc,
+    TransferDst,
+    ColorAttachment,
+    DepthStencilAttachment,
+    DepthStencilReadOnly,
+    ShaderReadOnly,
+    General,
+    Present,
+};
+
 struct ClearColor {
     f32 r = 0.0f, g = 0.0f, b = 0.0f, a = 1.0f;
 };
@@ -17,6 +29,8 @@ public:
     virtual void BeginDebugLabel(const char* label) = 0;
     virtual void EndDebugLabel() = 0;
     virtual void InsertDebugLabel(const char* label) = 0;
+
+    virtual void TransitionImage(RHITexture* texture, RHIResourceState srcState, RHIResourceState dstState) = 0;
 
     virtual void ClearImage(RHITexture* texture, ClearColor clearColor) = 0;
 };

@@ -87,34 +87,6 @@ RHIFrameContext VulkanRHI::BeginFrame() {
     cmdData.BeginCommandBuffer();
     cmdList.BindActiveCommandBuffer(cmdData.Cmd());
 
-    // TODO: remove
-    {
-        VkImageMemoryBarrier2 imageBarrier = {
-            .sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER_2,
-            .srcStageMask = VK_PIPELINE_STAGE_2_NONE,
-            .srcAccessMask = VK_ACCESS_2_NONE,
-            .dstStageMask = VK_PIPELINE_STAGE_2_TRANSFER_BIT,
-            .dstAccessMask = VK_ACCESS_2_TRANSFER_WRITE_BIT,
-            .oldLayout = VK_IMAGE_LAYOUT_UNDEFINED,
-            .newLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-            .srcQueueFamilyIndex = device.GraphicsQueueFamilyIndex(),
-            .dstQueueFamilyIndex = device.GraphicsQueueFamilyIndex(),
-            .image = swapchain.Image(),
-            .subresourceRange = {
-                .aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
-                .levelCount = 1,
-                .layerCount = 1,
-            }
-        };
-
-        VkDependencyInfo dependencyInfo = {
-            .sType = VK_STRUCTURE_TYPE_DEPENDENCY_INFO,
-            .imageMemoryBarrierCount = 1,
-            .pImageMemoryBarriers = &imageBarrier
-        };
-        vkCmdPipelineBarrier2(cmdData.Cmd(), &dependencyInfo);
-    }
-
     return RHIFrameContext{
         .cmdList = &cmdList,
         .swapchainTexture = swapchain.CurrentTexture(),
@@ -125,34 +97,6 @@ RHIFrameContext VulkanRHI::BeginFrame() {
 void VulkanRHI::EndFrame() {
     VulkanFrameSync& sync = frameSyncs[frameIndex];
     VulkanFrameCmdData const& cmdData = frameCmdData[frameIndex];
-
-    // TODO: remove
-    {
-        VkImageMemoryBarrier2 imageBarrier = {
-            .sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER_2,
-            .srcStageMask = VK_PIPELINE_STAGE_2_TRANSFER_BIT,
-            .srcAccessMask = VK_ACCESS_2_TRANSFER_WRITE_BIT,
-            .dstStageMask = VK_PIPELINE_STAGE_2_NONE,
-            .dstAccessMask = VK_ACCESS_2_NONE,
-            .oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-            .newLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
-            .srcQueueFamilyIndex = device.GraphicsQueueFamilyIndex(),
-            .dstQueueFamilyIndex = device.GraphicsQueueFamilyIndex(),
-            .image = swapchain.Image(),
-            .subresourceRange = {
-                .aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
-                .levelCount = 1,
-                .layerCount = 1,
-            }
-        };
-
-        VkDependencyInfo dependencyInfo = {
-            .sType = VK_STRUCTURE_TYPE_DEPENDENCY_INFO,
-            .imageMemoryBarrierCount = 1,
-            .pImageMemoryBarriers = &imageBarrier
-        };
-        vkCmdPipelineBarrier2(cmdData.Cmd(), &dependencyInfo);
-    }
 
     cmdData.EndCommandBuffer();
 
@@ -210,14 +154,7 @@ RHITextureRef VulkanRHI::CreateTexture(RHITextureDesc const &desc, char const* d
     VkImage image {}; VmaAllocation allocation {};
     vmaCreateImage(allocator, &imageInfo, &allocInfo, &image, &allocation, nullptr);
     if (debugName) {
-        VkDebugUtilsObjectNameInfoEXT nameInfo = {
-            .sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_NAME_INFO_EXT,
-            .objectType = VK_OBJECT_TYPE_IMAGE,
-            .objectHandle = reinterpret_cast<u64>(image),
-            .pObjectName = debugName
-        };
         // TODO: debug naming
-        // vkSetDebugUtilsObjectNameEXT(device.LogicalDevice(), &nameInfo);
     }
     // TODO: create default view
     VulkanTexture* tex = texturePool.Allocate(&resourceContext, desc, image, allocation, nullptr, false);
