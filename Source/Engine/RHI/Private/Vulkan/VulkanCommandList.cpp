@@ -23,6 +23,49 @@ void VulkanCommandList::ClearImage(RHITexture* texture, ClearColor clearColor) {
     vkCmdClearColorImage(cmd, vkTexture->Image(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, &color, 1, &range);
 }
 
+void VulkanCommandList::BlitImage(RHITexture* srcTexture, RHITexture* dstTexture) {
+    VulkanTexture* src = ResourceCast(srcTexture);
+    VulkanTexture* dst = ResourceCast(dstTexture);
+
+    VkImageBlit2 blit = {
+        .sType = VK_STRUCTURE_TYPE_IMAGE_BLIT_2,
+        .pNext = nullptr,
+        .srcSubresource = {
+            .aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
+            .mipLevel = 0,
+            .baseArrayLayer = 0,
+            .layerCount = 1,
+        },
+        .srcOffsets = {
+            {0,0,0},
+            {(i32)src->Desc().extent.width, (i32)src->Desc().extent.height, (i32)src->Desc().extent.depth},
+        },
+        .dstSubresource = {
+            .aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
+            .mipLevel = 0,
+            .baseArrayLayer = 0,
+            .layerCount = 1,
+        },
+        .dstOffsets = {
+            {0,0,0},
+            {(i32)dst->Desc().extent.width, (i32)dst->Desc().extent.height, (i32)dst->Desc().extent.depth},
+        },
+    };
+
+    VkBlitImageInfo2 imageInfo = {
+        .sType = VK_STRUCTURE_TYPE_BLIT_IMAGE_INFO_2,
+        .pNext = nullptr,
+        .srcImage =  src->Image(),
+        .srcImageLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+        .dstImage =  dst->Image(),
+        .dstImageLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+        .regionCount = 1,
+        .pRegions = &blit,
+        .filter = VK_FILTER_NEAREST,
+    };
+    vkCmdBlitImage2(cmd, &imageInfo);
+}
+
 void VulkanCommandList::BindActiveCommandBuffer(VkCommandBuffer commandBuffer) {
     cmd = commandBuffer;
 }

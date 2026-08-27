@@ -37,7 +37,7 @@ VulkanImageStateInfo ToVulkanImageState(RHIResourceState state) {
 VkImageAspectFlags AspectMaskFromFormat(PixelFormat format) {
     switch (format) {
         case PixelFormat::D32_FLOAT: return VK_IMAGE_ASPECT_DEPTH_BIT;
-        case PixelFormat::D24_UNORM_S8_FLOAT: return VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT;
+        case PixelFormat::D24_UNORM_S8_UINT: return VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT;
         default: return VK_IMAGE_ASPECT_COLOR_BIT;
     }
 }

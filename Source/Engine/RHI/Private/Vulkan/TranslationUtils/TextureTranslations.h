@@ -1,0 +1,16 @@
+// Copyright (c) Simon Kirsch 2026.
+
+#pragma once
+#include <vulkan/vulkan_core.h>
+
+#include "RHIResources.h"
+
+namespace ImageTranslation {
+    VkImageType ToVulkanDimensionType(TextureDimension dimension);
+    VkImageUsageFlags ToVulkanUsageFlags(TextureUsage usage);
+    VkFormat ToVulkanFormat(PixelFormat format);
+    VkSampleCountFlagBits ToVulkanSampleCount(u32 sampleCount);
+
+    VkImageCreateInfo CreateInfoFromTextureDesc(RHITextureDesc const& desc);
+};
+

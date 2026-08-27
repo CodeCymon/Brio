@@ -40,5 +40,5 @@ namespace Assert {
         } while(0);
 #else
     #define ASSERT(expression) ((void)0)
-    #define ASSERTM(expression) ((void)0)
+    #define ASSERTM(expression, message) ((void)0)
 #endif

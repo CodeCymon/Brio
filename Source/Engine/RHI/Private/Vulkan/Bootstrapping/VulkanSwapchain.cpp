@@ -64,7 +64,7 @@ void VulkanSwapchain::CreateSwapchain(UIntPoint const &inExtent, VkSwapchainKHR 
         .imageColorSpace = surfaceFormat.colorSpace,
         .imageExtent = extent,
         .imageArrayLayers = 1,
-        .imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT,
+        .imageUsage = VK_IMAGE_USAGE_TRANSFER_DST_BIT,
         .imageSharingMode = VK_SHARING_MODE_EXCLUSIVE,
         .preTransform = surfaceCapabilities.currentTransform,
         .compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR,
@@ -89,23 +89,7 @@ void VulkanSwapchain::CreateSwapchainResources() {
     vkGetSwapchainImagesKHR(device->LogicalDevice(), swapchain, &imageCount, images.Data());
 
     submitSemaphores.Resize(imageCount);
-    views.Resize(imageCount);
     for (u32 i = 0; i < imageCount; i++) {
-        VkImageViewCreateInfo viewInfo = {
-            .sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
-            .image = images[i],
-            .viewType = VK_IMAGE_VIEW_TYPE_2D,
-            .format = surfaceFormat.format,
-            .subresourceRange = {
-                .aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
-                .levelCount = 1,
-                .layerCount = 1
-            }
-        };
-
-
-        vkCreateImageView(device->LogicalDevice(), &viewInfo, nullptr, &views[i]);
-
         VkSemaphoreCreateInfo semaphoreInfo = { .sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO };
         vkCreateSemaphore(device->LogicalDevice(), &semaphoreInfo, nullptr, &submitSemaphores[i]);
     }
@@ -117,10 +101,6 @@ void VulkanSwapchain::DestroySwapchain(VkSwapchainKHR& swapchainToDestroy) {
 }
 
 void VulkanSwapchain::DestroySwapchainResources() {
-    for (auto view : views) {
-        vkDestroyImageView(device->LogicalDevice(), view, nullptr);
-    }
-
     for (auto semaphore : submitSemaphores) {
         vkDestroySemaphore(device->LogicalDevice(), semaphore, nullptr);
     }
@@ -160,10 +140,9 @@ void VulkanSwapchain::RebuildTextures() {
 
     RHITextureDesc desc = RHITextureDesc::Texture2D(PixelFormat::RGBA8_SRGB,
                                                     {extent.width, extent.height},
-                                                    TextureUsage::ColorAttachment |
                                                     TextureUsage::TransferDst);
     for (u32 i = 0; i < imageCount; i++)
-        textures.Add(textureRegistry->RegisterExternalTexture(desc, images[i], views[i]));
+        textures.Add(textureRegistry->RegisterExternalTexture(desc, images[i], nullptr));
 }
 
 VkSurfaceFormatKHR VulkanSwapchain::ChooseSurfaceFormat(Array<VkSurfaceFormatKHR> const &formats) {

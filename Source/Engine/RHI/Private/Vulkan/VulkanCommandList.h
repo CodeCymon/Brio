@@ -6,7 +6,7 @@
 
 #include "CommandList.h"
 
-class VulkanCommandList : public ICommandList {
+class VulkanCommandList final : public ICommandList {
 public:
     void BeginDebugLabel(char const* label) override;
 
@@ -14,12 +14,14 @@ public:
 
     void InsertDebugLabel(char const* label) override;
 
+    void TransitionImage(RHITexture* texture, RHIResourceState srcState, RHIResourceState dstState) override;
+
     void ClearImage(RHITexture* texture, ClearColor clearColor) override;
+
+    void BlitImage(RHITexture* srcTexture, RHITexture* dstTexture) override;
 
 public:
     void BindActiveCommandBuffer(VkCommandBuffer commandBuffer);
-
-    void TransitionImage(RHITexture* texture, RHIResourceState srcState, RHIResourceState dstState) override;
 
 private:
     VkCommandBuffer cmd {};

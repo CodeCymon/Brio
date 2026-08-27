@@ -18,8 +18,8 @@ namespace Log {
         Error,
         Warning,
         Info,
-        Verbose,
         Debug,
+        Verbose,
     };
 
     CORE_API void Initialize();

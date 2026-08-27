@@ -5,6 +5,7 @@
 #include <vulkan/vk_enum_string_helper.h>
 
 #include "LogRHI.h"
+#include "Vulkan/TranslationUtils/TextureTranslations.h"
 
 void VulkanRHI::Initialize(NativeWindowData const &windowData) {
     resourceContext = {
@@ -148,7 +149,7 @@ void VulkanRHI::EndFrame() {
 }
 
 RHITextureRef VulkanRHI::CreateTexture(RHITextureDesc const &desc, char const* debugName) {
-    VkImageCreateInfo imageInfo = {/*from desc*/};
+    VkImageCreateInfo imageInfo = ImageTranslation::CreateInfoFromTextureDesc(desc);
     VmaAllocationCreateInfo allocInfo = { .usage = VMA_MEMORY_USAGE_AUTO };
 
     VkImage image {}; VmaAllocation allocation {};

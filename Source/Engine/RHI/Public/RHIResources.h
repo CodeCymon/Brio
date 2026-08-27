@@ -30,8 +30,8 @@ enum class TextureDimension : u8 {
     Tex1D,
     Tex2D,
     Tex3D,
-    Cube,
-    Tex2DArray,
+    // Cube,
+    // Tex2DArray,
 };
 
 enum class TextureUsage : u32 {
@@ -54,7 +54,7 @@ enum class PixelFormat : u16 {
     RGBA16_FLOAT,
     RGBA32_FLOAT,
     D32_FLOAT,
-    D24_UNORM_S8_FLOAT,
+    D24_UNORM_S8_UINT,
 };
 
 struct Extent2D {

@@ -31,7 +31,6 @@ public:
     [[nodiscard]] VkFormat Format() const { return surfaceFormat.format; }
     [[nodiscard]] VkExtent2D Extent() const { return extent; }
     [[nodiscard]] VkImage Image() const { return images[imageIndex]; }
-    [[nodiscard]] VkImageView View() const { return views[imageIndex]; }
     [[nodiscard]] VulkanTexture* CurrentTexture() const { return textures[imageIndex]; }
     [[nodiscard]] VkSemaphore GetSubmitSemaphore() const { return submitSemaphores[imageIndex]; }
 
@@ -56,7 +55,6 @@ private:
     u32 imageIndex {0};
 
     Array<VkImage> images {};
-    Array<VkImageView> views {};
     VkExtent2D extent {};
 
     Array<VulkanTexture*> textures {};

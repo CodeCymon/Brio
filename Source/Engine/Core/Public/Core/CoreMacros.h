@@ -36,5 +36,8 @@
     }                                                                    \
     inline constexpr Enum& operator^=(Enum& lhs, Enum rhs) {             \
         return lhs = lhs ^ rhs;                                          \
+    } \
+    inline constexpr bool Contains(Enum bitfield, Enum bit) { \
+        return (bitfield & bit) != static_cast<Enum>(0); \
     }
 

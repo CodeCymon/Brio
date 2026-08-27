@@ -28,6 +28,7 @@ public:
 
 public:
     Delegate<void()> OnCloseDelegate;
+    // TODO: make OnResizeDelegate multicast
     Delegate<void(u32, u32)> OnResizeDelegate;
 
 private:

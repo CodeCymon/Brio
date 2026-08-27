@@ -4,6 +4,7 @@ brio_add_module(
             Private/RHI.cpp
             Private/Vulkan/Resources/VulkanBarrier.cpp
             Private/Vulkan/Resources/VulkanTexture.cpp
+            Private/Vulkan/TranslationUtils/TextureTranslations.cpp
             Private/Vulkan/VulkanRHI.cpp
             Private/Vulkan/VulkanCommandList.cpp
             Private/Vulkan/Bootstrapping/VulkanInstance.cpp
