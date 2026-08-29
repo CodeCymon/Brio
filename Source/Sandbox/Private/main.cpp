@@ -44,7 +44,7 @@ int main() {
     mainWindow.OnResizeDelegate.BindObject(GDynamicRHI, &IDynamicRHI::OnResize);
 
     // TODO: remove
-    auto shaderCompileResult = ShaderCompiler::CompileFromFile("short.slang", "CSMain", ShaderStage::Compute);
+    auto shaderCompileResult = ShaderCompiler::CompileFromFile("short.slang", "CSMain");
 
     {
         RHITextureRef myTexture = GDynamicRHI->CreateTexture(

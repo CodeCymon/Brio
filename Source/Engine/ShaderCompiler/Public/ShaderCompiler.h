@@ -14,5 +14,5 @@ namespace SHADERCOMPILER_API ShaderCompiler {
         Array<u32> byteCode;
     };
 
-    CompileResult CompileFromFile(std::string_view path, std::string_view entryPoint, ShaderStage stage);
+    CompileResult CompileFromFile(std::string_view path, std::string_view entryPoint);
 }

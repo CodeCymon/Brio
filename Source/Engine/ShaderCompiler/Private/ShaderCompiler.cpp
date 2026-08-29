@@ -39,7 +39,7 @@ void ShaderCompiler::Shutdown() {
 }
 
 ShaderCompiler::CompileResult ShaderCompiler::CompileFromFile(std::string_view path,
-    std::string_view entryPoint, ShaderStage stage) {
+    std::string_view entryPoint) {
 
     Slang::ComPtr<slang::IBlob> diagnosticsBlob;
 
