@@ -8,7 +8,7 @@ include(FetchContent)
 
 find_package(Vulkan REQUIRED)
 
-add_subdirectory(${CMAKE_SOURCE_DIR}/Source/ThirdParty/VMA)
+add_subdirectory(${CMAKE_SOURCE_DIR}/Source/ThirdParty)
 
 include(cmake/Dependencies/GLFW.cmake)
 

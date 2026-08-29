@@ -3,7 +3,7 @@
 #pragma once
 
 #include <vulkan/vulkan_core.h>
-#include <vma.h>
+#include <vk_mem_alloc.h>
 
 #include "RHIResources.h"
 #include "Containers/SlabPool.h"

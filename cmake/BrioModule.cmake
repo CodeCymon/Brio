@@ -13,12 +13,39 @@ include(GenerateExportHeader)
 #   <Module>/Private/**/*       - implementation + module-private headers
 function(brio_add_module)
     set(singleValueArgs NAME)
+    set(options INTERFACE)
     set(multiValueArgs SOURCES PUBLIC_LINK PRIVATE_LINK)
-    cmake_parse_arguments(MOD "" "${singleValueArgs}" "${multiValueArgs}" ${ARGN})
+
+    cmake_parse_arguments(
+        MOD
+        "${options}"
+        "${singleValueArgs}"
+        "${multiValueArgs}"
+        ${ARGN}
+    )
 
     if(NOT MOD_NAME)
         message(FATAL_ERROR "brio_add_module: NAME is required!")
     endif()
+
+    if(MOD_INTERFACE)
+        add_library(${MOD_NAME} INTERFACE)
+        add_library(Brio::${MOD_NAME} ALIAS ${MOD_NAME})
+
+        target_include_directories(${MOD_NAME}
+            INTERFACE
+                $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/Public>
+        )
+
+        if(MOD_PUBLIC_LINK)
+            target_link_libraries(${MOD_NAME}
+                INTERFACE
+                    ${MOD_PUBLIC_LINK}
+            )
+        endif ()
+
+        return()
+    endif ()
 
     if(NOT MOD_SOURCES)
         message(FATAL_ERROR "brio_add_module(${MOD_NAME}): SOURCES are required")

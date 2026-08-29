@@ -4,7 +4,7 @@
 
 #include "DynamicRHI.h"
 
-#include <vma.h>
+#include <vk_mem_alloc.h>
 
 #include "VulkanExternalTextureRegistry.h"
 

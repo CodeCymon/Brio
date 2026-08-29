@@ -2,6 +2,7 @@ brio_add_module(
     NAME VulkanRHI
     SOURCES
         Private/RHI.cpp
+        Private/Vma.cpp
         Private/Resources/VulkanBarrier.cpp
         Private/Resources/VulkanTexture.cpp
         Private/TranslationUtils/TextureTranslations.cpp
