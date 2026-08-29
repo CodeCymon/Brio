@@ -14,7 +14,7 @@ include(GenerateExportHeader)
 function(brio_add_module)
     set(singleValueArgs NAME)
     set(options INTERFACE)
-    set(multiValueArgs SOURCES PUBLIC_LINK PRIVATE_LINK)
+    set(multiValueArgs PUBLIC_LINK PRIVATE_LINK)
 
     cmake_parse_arguments(
         MOD
@@ -47,9 +47,15 @@ function(brio_add_module)
         return()
     endif ()
 
+    file(GLOB_RECURSE MOD_SOURCES CONFIGURE_DEPENDS
+        "${CMAKE_CURRENT_SOURCE_DIR}/Public/*.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/Private/*.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/Private/*.cpp"
+    )
+
     if(NOT MOD_SOURCES)
-        message(FATAL_ERROR "brio_add_module(${MOD_NAME}): SOURCES are required")
-    endif()
+        message(FATAL_ERROR "brio_add_module(${MOD_NAME}): no source files found! If this is intended mark the module as INTERFACE")
+    endif ()
 
     add_library(${MOD_NAME} SHARED ${MOD_SOURCES})
     add_library(Brio::${MOD_NAME} ALIAS ${MOD_NAME})
