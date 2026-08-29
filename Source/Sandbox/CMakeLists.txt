@@ -5,6 +5,7 @@ target_link_libraries(Sandbox
         Brio::Platform
         Brio::VulkanRHI
         Brio::RHI
+        Brio::ShaderCompiler
 )
 
 target_compile_definitions(Sandbox PRIVATE

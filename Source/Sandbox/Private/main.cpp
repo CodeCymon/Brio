@@ -7,6 +7,7 @@
 #include "Platform.h"
 #include "Window.h"
 #include "RHI.h"
+#include "ShaderCompiler.h"
 
 class Engine {
 public:
@@ -29,6 +30,8 @@ int main() {
 
     Platform::Initialize();
 
+    ShaderCompiler::Initialize();
+
     Window mainWindow;
     Window::Create(
         {1600, 900,"Brio Editor",true},
@@ -39,6 +42,9 @@ int main() {
     RHI::Create(mainWindow.NativeData());
 
     mainWindow.OnResizeDelegate.BindObject(GDynamicRHI, &IDynamicRHI::OnResize);
+
+    // TODO: remove
+    auto shaderCompileResult = ShaderCompiler::CompileFromFile("short.slang", "CSMain", ShaderStage::Compute);
 
     {
         RHITextureRef myTexture = GDynamicRHI->CreateTexture(
@@ -78,6 +84,8 @@ int main() {
     RHI::Destroy();
 
     mainWindow.Close();
+
+    ShaderCompiler::Shutdown();
 
     Platform::Shutdown();
 
