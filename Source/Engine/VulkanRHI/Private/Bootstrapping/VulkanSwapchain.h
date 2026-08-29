@@ -5,7 +5,7 @@
 
 #include "CoreMinimal.h"
 
-#include "Vulkan/Resources/VulkanResources.h"
+#include "Resources/VulkanResources.h"
 
 class IVulkanExternalTextureRegistry;
 class VulkanSurface;

@@ -1,7 +1,6 @@
 // Copyright (c) Simon Kirsch 2026.
 
 #pragma once
-#include "RHIAPI.h"
 
 #include "CoreMinimal.h"
 #include "RHIResources.h"
@@ -22,7 +21,7 @@ struct ClearColor {
     f32 r = 0.0f, g = 0.0f, b = 0.0f, a = 1.0f;
 };
 
-class RHI_API ICommandList {
+class ICommandList {
 public:
     virtual ~ICommandList() = default;
 

@@ -5,7 +5,7 @@
 #include <cstring>
 
 #include "CoreMinimal.h"
-#include "Vulkan/VulkanCheck.h"
+#include "VulkanCheck.h"
 
 #if PLATFORM_LINUX
 #include <vulkan/vulkan_wayland.h>
@@ -22,13 +22,13 @@ VKAPI_ATTR VkBool32 VKAPI_CALL DebugMessengerCallback(VkDebugUtilsMessageSeverit
                                                       VkDebugUtilsMessengerCallbackDataEXT const* pCallbackData,
                                                       void* pUserData) {
     if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT) {
-        LOG_ERROR(LogRHI, "{} - {}: {}", pCallbackData->messageIdNumber,
+        LOG_ERROR(LogVulkan, "{} - {}: {}", pCallbackData->messageIdNumber,
                   pCallbackData->pMessageIdName, pCallbackData->pMessage);
     } else if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT) {
-        LOG_WARNING(LogRHI, "{} - {}: {}", pCallbackData->messageIdNumber,
+        LOG_WARNING(LogVulkan, "{} - {}: {}", pCallbackData->messageIdNumber,
                     pCallbackData->pMessageIdName, pCallbackData->pMessage);
     } else {
-        LOG_INFO(LogRHI, "{} - {}: {}", pCallbackData->messageIdNumber,
+        LOG_INFO(LogVulkan, "{} - {}: {}", pCallbackData->messageIdNumber,
                  pCallbackData->pMessageIdName, pCallbackData->pMessage);
     }
 
@@ -134,13 +134,13 @@ bool VulkanInstance::HasValidationLayerSupport() {
 
     for (auto const& layer : availableLayers) {
         if (strcmp(layer.layerName, "VK_LAYER_KHRONOS_validation") == 0) {
-            LOG_INFO(LogRHI, "System supports requested validation layers.");
+            LOG_INFO(LogVulkan, "System supports requested validation layers.");
             return true;
         }
     }
 
     LOG_WARNING(
-        LogRHI,
+        LogVulkan,
         "Validation layers were requested by application, but the system does not support requested validation layers!");
     return false;
 }

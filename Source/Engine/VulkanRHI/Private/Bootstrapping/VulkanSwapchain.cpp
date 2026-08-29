@@ -2,11 +2,11 @@
 
 #include "VulkanSwapchain.h"
 
-#include "LogRHI.h"
-#include "Vulkan/VulkanCheck.h"
-#include "Vulkan/VulkanExternalTextureRegistry.h"
-#include "Vulkan/Bootstrapping/VulkanDevice.h"
-#include "Vulkan/Bootstrapping/VulkanSurface.h"
+#include "LogVulkan.h"
+#include "VulkanCheck.h"
+#include "VulkanExternalTextureRegistry.h"
+#include "Bootstrapping/VulkanDevice.h"
+#include "Bootstrapping/VulkanSurface.h"
 
 void VulkanSwapchain::Initialize(VulkanDevice const* inDevice, VulkanSurface const* inSurface, IVulkanExternalTextureRegistry* registry, UIntPoint const &inExtent) {
     device = inDevice;
@@ -125,8 +125,8 @@ void VulkanSwapchain::InitializePersistentData() {
     if (surfaceCapabilities.maxImageCount > 0 && imageCount > surfaceCapabilities.maxImageCount)
         imageCount = surfaceCapabilities.maxImageCount;
 
-    LOG_INFO(LogRHI, "Swapchain format: {}", string_VkFormat(surfaceFormat.format));
-    LOG_INFO(LogRHI, "Swapchain mode: {}", string_VkPresentModeKHR(presentMode));
+    LOG_INFO(LogVulkan, "Swapchain format: {}", string_VkFormat(surfaceFormat.format));
+    LOG_INFO(LogVulkan, "Swapchain mode: {}", string_VkPresentModeKHR(presentMode));
 }
 
 void VulkanSwapchain::UpdateCapabilities() {
@@ -160,7 +160,7 @@ VkSurfaceFormatKHR VulkanSwapchain::ChooseSurfaceFormat(Array<VkSurfaceFormatKHR
         }
     }
 
-    LOG_WARNING(LogRHI, "None of the preferred swapchain formats are supported! Falling back to first available format.");
+    LOG_WARNING(LogVulkan, "None of the preferred swapchain formats are supported! Falling back to first available format.");
     return formats[0];
 }
 
@@ -178,7 +178,7 @@ VkPresentModeKHR VulkanSwapchain::ChoosePresentMode(Array<VkPresentModeKHR> cons
         }
     }
 
-    LOG_WARNING(LogRHI, "None of the preferred present modes are supported! Falling back to VK_PRESENT_MODE_FIFO_KHR");
+    LOG_WARNING(LogVulkan, "None of the preferred present modes are supported! Falling back to VK_PRESENT_MODE_FIFO_KHR");
     return VK_PRESENT_MODE_FIFO_KHR;
 }
 

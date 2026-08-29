@@ -1,7 +1,6 @@
 // Copyright (c) Simon Kirsch 2026.
 
 #pragma once
-#include "RHIAPI.h"
 #include "CoreMinimal.h"
 
 #include "RHIResources.h"
@@ -17,7 +16,7 @@ struct RHIFrameContext {
 };
 
 
-class RHI_API IDynamicRHI {
+class IDynamicRHI {
 public:
     virtual ~IDynamicRHI() = default;
 

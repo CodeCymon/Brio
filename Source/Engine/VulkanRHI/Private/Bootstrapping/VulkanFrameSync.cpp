@@ -2,9 +2,9 @@
 
 #include "VulkanFrameSync.h"
 
-#include "LogRHI.h"
-#include "Vulkan//VulkanCheck.h"
-#include "Vulkan/Bootstrapping/VulkanDevice.h"
+#include "LogVulkan.h"
+#include "VulkanCheck.h"
+#include "Bootstrapping/VulkanDevice.h"
 
 void VulkanFrameSync::Initialize(VulkanDevice const* inDevice) {
     device = inDevice;

@@ -1,24 +1,9 @@
 brio_add_module(
-        NAME RHI
-        SOURCES
-            Private/RHI.cpp
-            Private/Vulkan/Resources/VulkanBarrier.cpp
-            Private/Vulkan/Resources/VulkanTexture.cpp
-            Private/Vulkan/TranslationUtils/TextureTranslations.cpp
-            Private/Vulkan/VulkanRHI.cpp
-            Private/Vulkan/VulkanCommandList.cpp
-            Private/Vulkan/Bootstrapping/VulkanInstance.cpp
-            Private/Vulkan/Bootstrapping/VulkanSurface.cpp
-            Private/Vulkan/Bootstrapping/VulkanDevice.cpp
-            Private/Vulkan/Bootstrapping/VulkanSwapchain.cpp
-            Private/Vulkan/Bootstrapping/VulkanTimeline.cpp
-            Private/Vulkan/Bootstrapping/VulkanFrameSync.cpp
-            Private/Vulkan/Bootstrapping/VulkanFrameCmdData.cpp
-            Private/Vulkan/VulkanDeletionQueue.cpp
-        PUBLIC_LINK
-            Brio::Core
-        PRIVATE_LINK
-            Vulkan::Vulkan
-            VMA
-            Brio::Platform
+    NAME RHI
+    SOURCES
+        Private/Empty.cpp
+    PUBLIC_LINK
+        Brio::Core
+    PRIVATE_LINK
+        Brio::Platform
 )

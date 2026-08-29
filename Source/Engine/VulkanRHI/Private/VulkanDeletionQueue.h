@@ -4,8 +4,7 @@
 
 #include "CoreMinimal.h"
 
-#include "RHIResources.h"
-
+class RHIResource;
 
 class VulkanDeletionQueue {
 public:

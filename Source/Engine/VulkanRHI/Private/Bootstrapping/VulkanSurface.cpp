@@ -3,8 +3,8 @@
 #include "VulkanSurface.h"
 
 #include "Window.h"
-#include "Vulkan/VulkanCheck.h"
-#include "Vulkan/Bootstrapping/VulkanInstance.h"
+#include "VulkanCheck.h"
+#include "Bootstrapping/VulkanInstance.h"
 
 #if PLATFORM_LINUX
 #include <vulkan/vulkan_wayland.h>

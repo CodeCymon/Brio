@@ -8,17 +8,19 @@
 
 #include "VulkanExternalTextureRegistry.h"
 
-#include "Vulkan/Bootstrapping/VulkanInstance.h"
-#include "Vulkan/Bootstrapping/VulkanSurface.h"
-#include "Vulkan/Bootstrapping/VulkanDevice.h"
-#include "Vulkan/Bootstrapping/VulkanSwapchain.h"
-#include "Vulkan/Bootstrapping/VulkanTimeline.h"
-#include "Vulkan/Bootstrapping/VulkanFrameSync.h"
-#include "Vulkan/Bootstrapping/VulkanFrameCmdData.h"
+#include "Bootstrapping/VulkanInstance.h"
+#include "Bootstrapping/VulkanSurface.h"
+#include "Bootstrapping/VulkanDevice.h"
+#include "Bootstrapping/VulkanSwapchain.h"
+#include "Bootstrapping/VulkanTimeline.h"
+#include "Bootstrapping/VulkanFrameSync.h"
+#include "Bootstrapping/VulkanFrameCmdData.h"
 
-#include "Vulkan/VulkanCommandList.h"
-#include "Vulkan/VulkanDeletionQueue.h"
-#include "Vulkan/VulkanResourceContext.h"
+#include "VulkanCommandList.h"
+#include "VulkanDeletionQueue.h"
+#include "VulkanResourceContext.h"
+
+#include "Resources/VulkanResources.h"
 
 
 class VulkanRHI final : public IDynamicRHI, public IVulkanExternalTextureRegistry {

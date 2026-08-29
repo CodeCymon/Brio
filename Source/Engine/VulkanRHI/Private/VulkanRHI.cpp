@@ -4,8 +4,8 @@
 
 #include <vulkan/vk_enum_string_helper.h>
 
-#include "LogRHI.h"
-#include "Vulkan/TranslationUtils/TextureTranslations.h"
+#include "LogVulkan.h"
+#include "TranslationUtils/TextureTranslations.h"
 
 void VulkanRHI::Initialize(NativeWindowData const &windowData) {
     resourceContext = {
@@ -70,7 +70,7 @@ void VulkanRHI::OnResize(u32 width, u32 height) {
 
     WaitForIdle();
     swapchain.Resize({width, height});
-    LOG_VERBOSE(LogRHI, "Resized swapchain to: {}x{}", width, height);
+    LOG_VERBOSE(LogVulkan, "Resized swapchain to: {}x{}", width, height);
 }
 
 RHIFrameContext VulkanRHI::BeginFrame() {
@@ -82,7 +82,7 @@ RHIFrameContext VulkanRHI::BeginFrame() {
 
     VkResult acquired = swapchain.AcquireNextImage(sync.GetAcquireSemaphore());
     if (acquired != VK_SUCCESS) {
-        LOG_WARNING(LogRHI, "Failed to acquire swapchain image: {}", string_VkResult(acquired));
+        LOG_WARNING(LogVulkan, "Failed to acquire swapchain image: {}", string_VkResult(acquired));
     }
 
     cmdData.BeginCommandBuffer();
@@ -142,7 +142,7 @@ void VulkanRHI::EndFrame() {
 
     VkResult presented = swapchain.Present();
     if (presented != VK_SUCCESS) {
-        LOG_WARNING(LogRHI, "Presenting swapchain failed: {}", string_VkResult(presented));
+        LOG_WARNING(LogVulkan, "Presenting swapchain failed: {}", string_VkResult(presented));
     }
 
     frameIndex = (frameIndex + 1) % kMaxFramesInFlight;

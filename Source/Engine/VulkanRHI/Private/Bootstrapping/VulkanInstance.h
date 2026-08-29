@@ -2,8 +2,8 @@
 
 #pragma once
 #include <vulkan/vulkan.h>
-#include "CoreMinimal.h"
 
+#include "Core/CoreMacros.h"
 
 class VulkanInstance {
 public:

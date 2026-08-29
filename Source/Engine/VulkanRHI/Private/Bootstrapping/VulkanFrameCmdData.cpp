@@ -2,8 +2,8 @@
 
 #include "VulkanFrameCmdData.h"
 
-#include "Vulkan/VulkanCheck.h"
-#include "Vulkan/Bootstrapping/VulkanDevice.h"
+#include "VulkanCheck.h"
+#include "Bootstrapping/VulkanDevice.h"
 
 void VulkanFrameCmdData::Initialize(VulkanDevice const* inDevice) {
     device = inDevice;

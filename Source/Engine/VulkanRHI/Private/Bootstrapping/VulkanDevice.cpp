@@ -8,10 +8,10 @@
 #include <vulkan/vulkan_beta.h>
 #endif
 
-#include "LogRHI.h"
-#include "Vulkan/VulkanCheck.h"
-#include "Vulkan/Bootstrapping/VulkanInstance.h"
-#include "Vulkan/Bootstrapping/VulkanSurface.h"
+#include "LogVulkan.h"
+#include "VulkanCheck.h"
+#include "Bootstrapping/VulkanInstance.h"
+#include "Bootstrapping/VulkanSurface.h"
 
 void VulkanDevice::Initialize(VulkanInstance const* inInstance, VulkanSurface const* inSurface) {
     instance = inInstance;
@@ -31,7 +31,7 @@ void VulkanDevice::PickPhysicalDevice() {
     vkEnumeratePhysicalDevices(instance->Instance(), &deviceCount, nullptr);
 
     if (deviceCount == 0) {
-        LOG_FATAL(LogRHI, "No compatible GPUs found!");
+        LOG_FATAL(LogVulkan, "No compatible GPUs found!");
     }
 
     Array<VkPhysicalDevice> devices(deviceCount);
@@ -50,7 +50,7 @@ void VulkanDevice::PickPhysicalDevice() {
             if (properties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU) {
                 physicalDevice = device;
                 vkGetPhysicalDeviceMemoryProperties(device, &memoryProperties);
-                LOG_INFO(LogRHI, "Selected GPU: {}", properties.deviceName);
+                LOG_INFO(LogVulkan, "Selected GPU: {}", properties.deviceName);
                 return;
             }
 
@@ -63,11 +63,11 @@ void VulkanDevice::PickPhysicalDevice() {
         VkPhysicalDeviceProperties properties {};
         vkGetPhysicalDeviceProperties(fallbackPhysicalDevice, &properties);
         vkGetPhysicalDeviceMemoryProperties(fallbackPhysicalDevice, &memoryProperties);
-        LOG_INFO(LogRHI, "Selected fallback-GPU: {}", properties.deviceName);
+        LOG_INFO(LogVulkan, "Selected fallback-GPU: {}", properties.deviceName);
         return;
     }
 
-    LOG_FATAL(LogRHI, "Found {} GPUs but none met the requirements.", deviceCount);
+    LOG_FATAL(LogVulkan, "Found {} GPUs but none met the requirements.", deviceCount);
 }
 
 void VulkanDevice::CreateLogicalDevice() {

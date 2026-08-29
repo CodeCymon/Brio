@@ -2,8 +2,8 @@
 
 #include "VulkanCommandList.h"
 
-#include "Vulkan/Resources/VulkanBarrier.h"
-#include "Vulkan/Resources/VulkanResources.h"
+#include "Resources/VulkanBarrier.h"
+#include "Resources/VulkanResources.h"
 
 void VulkanCommandList::BeginDebugLabel(char const* label) {}
 

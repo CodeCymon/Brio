@@ -2,6 +2,8 @@
 
 #include "VulkanDeletionQueue.h"
 
+#include "RHIResources.h"
+
 void VulkanDeletionQueue::Enqueue(RHIResource* resource, u64 readyAtTimelineValue) {
     pending.Add({resource, readyAtTimelineValue});
 }

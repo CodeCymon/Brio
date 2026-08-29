@@ -2,10 +2,10 @@
 
 #include "VulkanResources.h"
 
-#include "Vulkan/VulkanDeletionQueue.h"
-#include "Vulkan/VulkanResourceContext.h"
-#include "Vulkan/Bootstrapping/VulkanDevice.h"
-#include "Vulkan/Bootstrapping/VulkanTimeline.h"
+#include "VulkanDeletionQueue.h"
+#include "VulkanResourceContext.h"
+#include "Bootstrapping/VulkanDevice.h"
+#include "Bootstrapping/VulkanTimeline.h"
 
 VulkanTexture::VulkanTexture(VulkanResourceContext* ctx, RHITextureDesc const &desc, VkImage image,
     VmaAllocation allocation, VkImageView defaultView, bool bExternalMemory)

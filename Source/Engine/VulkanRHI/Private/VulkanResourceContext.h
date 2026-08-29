@@ -2,9 +2,8 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
 #include "Containers/SlabPool.h"
-#include "Vulkan/Resources/VulkanResources.h"
+#include "Resources/VulkanResources.h"
 
 typedef struct VmaAllocator_T* VmaAllocator;
 class VulkanDevice;

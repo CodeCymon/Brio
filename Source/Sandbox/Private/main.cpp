@@ -14,7 +14,7 @@ public:
         bRunning = false;
     }
 
-    bool IsRunning() const {
+    [[nodiscard]] bool IsRunning() const {
         return bRunning;
     }
 
@@ -72,7 +72,7 @@ int main() {
             ++frameCount;
         }
 
-        LOG_INFO(LogTemp, "Average MS per frame: {}", (static_cast<f64>(totalNS) / frameCount) / 1000000.0 );
+        LOG_INFO(LogTemp, "Average MS per frame was: {}", (static_cast<f64>(totalNS) / frameCount) / 1000000.0 );
     }
 
     RHI::Destroy();

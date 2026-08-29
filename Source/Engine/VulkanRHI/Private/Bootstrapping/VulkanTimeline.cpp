@@ -3,7 +3,7 @@
 #include "VulkanTimeline.h"
 
 #include "VulkanDevice.h"
-#include "Vulkan/VulkanCheck.h"
+#include "VulkanCheck.h"
 
 void VulkanTimeline::Initialize(VulkanDevice const* inDevice) {
     device = inDevice;
