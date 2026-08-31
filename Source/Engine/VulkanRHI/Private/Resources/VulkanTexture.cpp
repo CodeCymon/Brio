@@ -2,7 +2,7 @@
 
 #include "VulkanResources.h"
 
-#include "VulkanDeletionQueue.h"
+#include "Bootstrapping/VulkanDeletionQueue.h"
 #include "VulkanResourceContext.h"
 #include "Bootstrapping/VulkanDevice.h"
 #include "Bootstrapping/VulkanTimeline.h"

@@ -3,7 +3,7 @@
 #pragma once
 
 #include "Containers/SlabPool.h"
-#include "Resources/VulkanResources.h"
+#include "VulkanResources.h"
 
 typedef struct VmaAllocator_T* VmaAllocator;
 class VulkanDevice;

@@ -15,10 +15,10 @@
 #include "Bootstrapping/VulkanTimeline.h"
 #include "Bootstrapping/VulkanFrameSync.h"
 #include "Bootstrapping/VulkanFrameCmdData.h"
+#include "Bootstrapping/VulkanDeletionQueue.h"
 
 #include "VulkanCommandList.h"
-#include "VulkanDeletionQueue.h"
-#include "VulkanResourceContext.h"
+#include "Resources/VulkanResourceContext.h"
 
 #include "Resources/VulkanResources.h"
 
