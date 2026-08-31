@@ -27,8 +27,13 @@ public:
 
     virtual void OnResize(u32 width, u32 height) = 0;
 
-    [[nodiscard]] virtual RHIFrameContext BeginFrame() = 0;
+    virtual RHIFrameContext BeginFrame() = 0;
     virtual void EndFrame() = 0;
 
-    [[nodiscard]] virtual RHITextureRef CreateTexture(RHITextureDesc const& desc, char const* debugName) = 0;
+    virtual RHITextureRef CreateTexture(RHITextureDesc const& desc, char const* debugName) = 0;
+
+    virtual RHIVertexShaderRef CreateVertexShader(RHIShaderDesc const& desc) = 0;
+
+    virtual RHIPixelShaderRef CreatePixelShader(RHIShaderDesc const& desc) = 0;
+
 };
