@@ -11,4 +11,3 @@ struct VulkanImageStateInfo {
 };
 
 [[nodiscard]] VulkanImageStateInfo ToVulkanImageState(RHIResourceState state);
-[[nodiscard]] VkImageAspectFlags AspectMaskFromFormat(PixelFormat format);
