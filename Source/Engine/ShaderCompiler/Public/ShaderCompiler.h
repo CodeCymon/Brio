@@ -12,6 +12,7 @@ namespace SHADERCOMPILER_API ShaderCompiler {
 
     struct CompileResult {
         Array<u32> byteCode;
+        bool bSuccess;
     };
 
     CompileResult CompileFromFile(std::string_view path, std::string_view entryPoint);

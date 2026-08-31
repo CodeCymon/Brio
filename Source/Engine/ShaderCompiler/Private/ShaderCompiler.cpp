@@ -64,18 +64,21 @@ ShaderCompiler::CompileResult ShaderCompiler::CompileFromFile(std::string_view p
     );
     if (SLANG_FAILED(result)) {
         LOG_ERROR(LogShaderCompiler, "{}", (const char*)diagnosticsBlob->getBufferPointer());
+        return {.bSuccess = false};
     }
 
     Slang::ComPtr<slang::IComponentType> linkedProgram;
     result = composedProgram->link(linkedProgram.writeRef(), diagnosticsBlob.writeRef());
     if (SLANG_FAILED(result)) {
         LOG_ERROR(LogShaderCompiler, "{}", (const char*)diagnosticsBlob->getBufferPointer());
+        return {.bSuccess = false};
     }
 
     Slang::ComPtr<slang::IBlob> spirvCode;
     result = linkedProgram->getEntryPointCode(0, 0, spirvCode.writeRef(), diagnosticsBlob.writeRef());
     if (SLANG_FAILED(result)) {
         LOG_ERROR(LogShaderCompiler, "{}", (const char*)diagnosticsBlob->getBufferPointer());
+        return {.bSuccess = false};
     }
 
     const void* data = spirvCode->getBufferPointer();
@@ -86,9 +89,10 @@ ShaderCompiler::CompileResult ShaderCompiler::CompileFromFile(std::string_view p
     const auto* spirvData = static_cast<const u32*>(data);
     u32 wordCount = byteSize / sizeof(u32);
 
-    LOG_INFO(LogShaderCompiler, "Compiled {} bytes ({} SPIR-V words)", byteSize, wordCount);
+    LOG_INFO(LogShaderCompiler, "Compiled {} with {} bytes ({} SPIR-V words)", path, byteSize, wordCount);
 
     return {
-        .byteCode = Array{spirvData, wordCount}
+        .byteCode = Array{spirvData, wordCount},
+        .bSuccess = true
     };
 }
