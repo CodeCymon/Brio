@@ -3,6 +3,7 @@
 #pragma once
 #include "CoreMinimal.h"
 
+#include "RHI.h"
 #include "RHIResources.h"
 
 struct NativeWindowData;
@@ -37,3 +38,23 @@ public:
     virtual RHIPixelShaderRef CreatePixelShader(RHIShaderDesc const& desc) = 0;
 
 };
+
+inline RHIFrameContext RHIBeginFrame() {
+    return GDynamicRHI->BeginFrame();
+}
+
+inline void RHIEndFrame() {
+    GDynamicRHI->EndFrame();
+}
+
+inline RHITextureRef RHICreateTexture(RHITextureDesc const &desc, char const* debugName) {
+    return GDynamicRHI->CreateTexture(desc, debugName);
+}
+
+inline RHIVertexShaderRef RHICreateVertexShader(RHIShaderDesc const &desc) {
+    return GDynamicRHI->CreateVertexShader(desc);
+}
+
+inline RHIPixelShaderRef RHICreatePixelShader(RHIShaderDesc const &desc) {
+    return GDynamicRHI->CreatePixelShader(desc);
+}
