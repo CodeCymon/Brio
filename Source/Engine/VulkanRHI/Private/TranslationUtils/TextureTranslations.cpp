@@ -59,7 +59,7 @@ VkFormat ImageTranslation::ToVulkanFormat(PixelFormat format) {
     return VK_FORMAT_UNDEFINED;
 }
 
-VkImageAspectFlags ImageTranslation::ToImageAspectFlags(PixelFormat format) {
+VkImageAspectFlags ImageTranslation::ToVulkanImageAspectFlags(PixelFormat format) {
     switch (format) {
         case PixelFormat::D32_FLOAT: return VK_IMAGE_ASPECT_DEPTH_BIT;
         case PixelFormat::D24_UNORM_S8_UINT: return VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT;

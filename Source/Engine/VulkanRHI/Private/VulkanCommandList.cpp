@@ -4,6 +4,7 @@
 
 #include "Resources/VulkanBarrier.h"
 #include "Resources/VulkanResources.h"
+#include "TranslationUtils/TextureTranslations.h"
 
 void VulkanCommandList::BeginDebugLabel(char const* label) {}
 
@@ -84,7 +85,7 @@ void VulkanCommandList::TransitionImage(RHITexture* texture, RHIResourceState sr
         .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
         .image = vkTexture->Image(),
         .subresourceRange = {
-            .aspectMask = AspectMaskFromFormat(vkTexture->Desc().format),
+            .aspectMask = ImageTranslation::ToVulkanImageAspectFlags(vkTexture->Desc().format),
             .levelCount = VK_REMAINING_MIP_LEVELS,
             .layerCount = VK_REMAINING_ARRAY_LAYERS,
         }

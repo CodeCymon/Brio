@@ -9,7 +9,7 @@ namespace ImageTranslation {
     VkImageType ToVulkanDimensionType(TextureDimension dimension);
     VkImageUsageFlags ToVulkanUsageFlags(TextureUsage usage);
     VkFormat ToVulkanFormat(PixelFormat format);
-    VkImageAspectFlags ToImageAspectFlags(PixelFormat format);
+    VkImageAspectFlags ToVulkanImageAspectFlags(PixelFormat format);
     VkSampleCountFlagBits ToVulkanSampleCount(u32 sampleCount);
 
     VkImageCreateInfo CreateInfoFromTextureDesc(RHITextureDesc const& desc);
