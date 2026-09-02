@@ -13,7 +13,8 @@ public:
         if (ptr) ptr->AddRef();
     }
 
-    TRefCountedPtr(TRefCountedPtr const& o) : ptr(o.ptr) {
+    TRefCountedPtr(TRefCountedPtr const& o) {
+        ptr = o.ptr;
         if (ptr) ptr->AddRef();
     }
 
