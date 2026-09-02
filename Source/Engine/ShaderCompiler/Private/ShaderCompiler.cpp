@@ -89,7 +89,7 @@ ShaderCompiler::CompileResult ShaderCompiler::CompileFromFile(std::string_view p
     const auto* spirvData = static_cast<const u32*>(data);
     u32 wordCount = byteSize / sizeof(u32);
 
-    LOG_INFO(LogShaderCompiler, "Compiled {} with {} bytes ({} SPIR-V words)", path, byteSize, wordCount);
+    LOG_INFO(LogShaderCompiler, "Compiled '{}::{}' with {} bytes ({} SPIR-V words)", path, entryPoint, byteSize, wordCount);
 
     return {
         .byteCode = Array{spirvData, wordCount},
