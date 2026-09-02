@@ -2,24 +2,7 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
 #include "RHIResources.h"
-
-enum class RHIResourceState : u8 {
-    Undefined,
-    TransferSrc,
-    TransferDst,
-    ColorAttachment,
-    DepthStencilAttachment,
-    DepthStencilReadOnly,
-    ShaderReadOnly,
-    General,
-    Present,
-};
-
-struct ClearColor {
-    f32 r = 0.0f, g = 0.0f, b = 0.0f, a = 1.0f;
-};
 
 class ICommandList {
 public:
