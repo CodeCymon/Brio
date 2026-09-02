@@ -1,23 +1,41 @@
 // Copyright (c) Simon Kirsch 2026.
 
-#include "VulkanDeletionQueue.h"
+#include "VulkanDevice.h"
+#include "Bootstrapping/VulkanTimeline.h"
 
-#include "RHIResources.h"
+VulkanDeferredDeletionQueue::VulkanDeferredDeletionQueue(VulkanDevice& device, VulkanTimeline const& timeline)
+    : device(device), timeline(timeline) {}
 
-void VulkanDeletionQueue::Enqueue(RHIResource* resource, u64 readyAtTimelineValue) {
-    pending.Add({resource, readyAtTimelineValue});
-}
+void VulkanDeferredDeletionQueue::Flush(u64 completedTimelineValue) {
+    for (auto& entry : pendingResources) {
+        if (entry.readyAt > completedTimelineValue) continue;
+        DestroyEntry(entry);
+    }
 
-void VulkanDeletionQueue::Flush(u64 completedTimelineValue) {
-    pending.RemoveIf([&](Entry const& e) {
-        if (e.readyAt > completedTimelineValue) return false;
-        e.resource->Destroy();
-        return true;
+    pendingResources.RemoveIf([&](ResourceEntry const& e) {
+       return e.readyAt <= completedTimelineValue;
     });
 }
 
-void VulkanDeletionQueue::FlushAll() {
-    for (auto& entry : pending)
-        entry.resource->Destroy();
-    pending.Clear();
+void VulkanDeferredDeletionQueue::FlushAll() {
+    for (auto& entry : pendingResources) {
+        DestroyEntry(entry);
+    }
+    pendingResources.Clear();
+}
+
+void VulkanDeferredDeletionQueue::EnqueueResource(Type type, u64 handle, VmaAllocation allocation) {
+    pendingResources.Add({type, handle, allocation, timeline.PendingSubmitValue()});
+}
+
+void VulkanDeferredDeletionQueue::DestroyEntry(ResourceEntry const &entry) const {
+    switch (entry.type) {
+        case Type::Image:
+            vmaDestroyImage(device.Allocator(), reinterpret_cast<VkImage>(entry.handle), entry.allocation);
+            break;
+        case Type::ShaderModule:
+            vkDestroyShaderModule(device.LogicalDevice(), reinterpret_cast<VkShaderModule>(entry.handle), nullptr);
+            break;
+        default: ASSERT(false);
+    }
 }

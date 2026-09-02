@@ -13,15 +13,28 @@
 #include "Bootstrapping/VulkanInstance.h"
 #include "Bootstrapping/VulkanSurface.h"
 
+VulkanDevice::VulkanDevice(VulkanTimeline const& timeline) : deferredDeletionQueue(*this, timeline) {}
+
 void VulkanDevice::Initialize(VulkanInstance const* inInstance, VulkanSurface const* inSurface) {
     instance = inInstance;
     surface = inSurface;
 
     PickPhysicalDevice();
     CreateLogicalDevice();
+
+    VmaAllocatorCreateInfo allocatorInfo = {
+        .flags = VMA_ALLOCATOR_CREATE_BUFFER_DEVICE_ADDRESS_BIT,
+        .physicalDevice = physicalDevice,
+        .device = logicalDevice,
+        .instance = instance->Instance(),
+        .vulkanApiVersion = VK_API_VERSION_1_4,
+    };
+    vmaCreateAllocator(&allocatorInfo, &allocator);
 }
 
 void VulkanDevice::Shutdown() {
+    vmaDestroyAllocator(allocator);
+
     vkDestroyDevice(logicalDevice, nullptr);
     logicalDevice = nullptr;
 }
@@ -90,7 +103,7 @@ void VulkanDevice::CreateLogicalDevice() {
         queueCreateInfos.Add(queueCreateInfo);
     }
 
-    DeviceFeatures features = RequiredFeatures();
+    VulkanDeviceFeatures features = RequiredFeatures();
     Array extensions = RequiredExtensions();
 
     const VkDeviceCreateInfo createInfo = {
@@ -169,17 +182,14 @@ Array<const char*> VulkanDevice::RequiredExtensions() {
     return extensions;
 }
 
-VulkanDevice::DeviceFeatures VulkanDevice::RequiredFeatures() {
-    DeviceFeatures features;
-    features.synchronization2Features.synchronization2 = VK_TRUE;
-    features.timelineSemaphoreFeatures.timelineSemaphore = VK_TRUE;
-    features.dynamicRenderingFeatures.dynamicRendering = VK_TRUE;
+VulkanDeviceFeatures VulkanDevice::RequiredFeatures() {
+    VulkanDeviceFeatures features {};
+    features.features13.synchronization2 = VK_TRUE;
+    features.features13.dynamicRendering = VK_TRUE;
+    features.features12.timelineSemaphore = VK_TRUE;
 
-    // TODO: descriptor indexing features
-    features.bufferDeviceAddressFeatures.bufferDeviceAddress = VK_TRUE;
-
-    features.rayQueryFeatures.rayQuery = VK_TRUE;
-    features.accelerationStructureFeatures.accelerationStructure = VK_TRUE;
+    features.features12.descriptorIndexing = VK_TRUE;
+    features.features12.bufferDeviceAddress = VK_TRUE;
 
     return features;
 }

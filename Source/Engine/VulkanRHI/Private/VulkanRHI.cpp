@@ -8,14 +8,6 @@
 #include "TranslationUtils/TextureTranslations.h"
 
 void VulkanRHI::Initialize(NativeWindowData const &windowData) {
-    resourceContext = {
-        .device = &device,
-        .allocator = &allocator,
-        .timeline = &timeline,
-        .deletionQueue = &deletionQueue,
-        .texturePool = &texturePool,
-    };
-
     instance.Initialize(true);
     surface.Initialize(&instance, windowData);
     device.Initialize(&instance, &surface);
@@ -29,23 +21,12 @@ void VulkanRHI::Initialize(NativeWindowData const &windowData) {
 
     for (auto& frameCmd : frameCmdData)
         frameCmd.Initialize(&device);
-
-    VmaAllocatorCreateInfo allocatorInfo = {
-        .flags = VMA_ALLOCATOR_CREATE_BUFFER_DEVICE_ADDRESS_BIT,
-        .physicalDevice = device.PhysicalDevice(),
-        .device = device.LogicalDevice(),
-        .instance = instance.Instance(),
-        .vulkanApiVersion = VK_API_VERSION_1_4,
-    };
-    vmaCreateAllocator(&allocatorInfo, &allocator);
 }
 
 void VulkanRHI::Shutdown() {
     WaitForIdle();
 
-    deletionQueue.FlushAll();
-
-    vmaDestroyAllocator(allocator);
+    device.DeferredDeletionQueue().FlushAll();
 
     for (auto& frameCmd : frameCmdData)
         frameCmd.Shutdown();
@@ -78,7 +59,7 @@ RHIFrameContext VulkanRHI::BeginFrame() {
     VulkanFrameCmdData const& cmdData = frameCmdData[frameIndex];
 
     timeline.WaitUntil(sync.timelineWaitValue);
-    deletionQueue.Flush(sync.timelineWaitValue);
+    device.DeferredDeletionQueue().Flush(sync.timelineWaitValue);
 
     VkResult acquired = swapchain.AcquireNextImage(sync.GetAcquireSemaphore());
     if (acquired != VK_SUCCESS) {
@@ -146,27 +127,4 @@ void VulkanRHI::EndFrame() {
     }
 
     frameIndex = (frameIndex + 1) % kMaxFramesInFlight;
-}
-
-RHITextureRef VulkanRHI::CreateTexture(RHITextureDesc const &desc, char const* debugName) {
-    VkImageCreateInfo imageInfo = ImageTranslation::CreateInfoFromTextureDesc(desc);
-    VmaAllocationCreateInfo allocInfo = { .usage = VMA_MEMORY_USAGE_AUTO };
-
-    VkImage image {}; VmaAllocation allocation {};
-    vmaCreateImage(allocator, &imageInfo, &allocInfo, &image, &allocation, nullptr);
-    if (debugName) {
-        // TODO: debug naming
-    }
-    // TODO: create default view
-    VulkanTexture* tex = texturePool.Allocate(&resourceContext, desc, image, allocation, nullptr, false);
-    return RHITextureRef{tex};
-}
-
-VulkanTexture* VulkanRHI::RegisterExternalTexture(RHITextureDesc const &desc, VkImage image,
-    VkImageView defaultView) {
-    return texturePool.Allocate(&resourceContext, desc, image, nullptr, defaultView, true);
-}
-
-void VulkanRHI::UnregisterExternalTexture(VulkanTexture* texture) {
-    texture->Destroy();
 }

@@ -2,7 +2,6 @@
 
 #include "VulkanCommandList.h"
 
-#include "Resources/VulkanBarrier.h"
 #include "Resources/VulkanResources.h"
 #include "TranslationUtils/TextureTranslations.h"
 
@@ -73,8 +72,8 @@ void VulkanCommandList::BindActiveCommandBuffer(VkCommandBuffer commandBuffer) {
 
 void VulkanCommandList::TransitionImage(RHITexture* texture, RHIResourceState srcState, RHIResourceState dstState) {
     auto* vkTexture = ResourceCast(texture);
-    VulkanImageStateInfo src = ToVulkanImageState(srcState);
-    VulkanImageStateInfo dst = ToVulkanImageState(dstState);
+    VulkanImageStateInfo src = ImageTranslation::ToVulkanImageState(srcState);
+    VulkanImageStateInfo dst = ImageTranslation::ToVulkanImageState(dstState);
 
     VkImageMemoryBarrier2 imageBarrier = {
         .sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER_2,

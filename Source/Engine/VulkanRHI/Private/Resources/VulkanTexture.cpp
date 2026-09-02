@@ -1,37 +1,35 @@
 // Copyright (c) Simon Kirsch 2026.
 
 #include "VulkanResources.h"
-
-#include "Bootstrapping/VulkanDeletionQueue.h"
-#include "VulkanResourceContext.h"
+#include "VulkanRHI.h"
 #include "Bootstrapping/VulkanDevice.h"
-#include "Bootstrapping/VulkanTimeline.h"
-
-VulkanTexture::VulkanTexture(VulkanResourceContext* ctx, RHITextureDesc const &desc, VkImage image,
-    VmaAllocation allocation, VkImageView defaultView, bool bExternalMemory)
-        : RHITexture(desc), image(image), defaultView(defaultView), allocation(allocation),
-          bExternalMemory(bExternalMemory), context(ctx) {}
+#include "TranslationUtils/TextureTranslations.h"
 
 VulkanTexture::~VulkanTexture() {
-    if (bExternalMemory) return;
-
-    if (defaultView) vkDestroyImageView(context->device->LogicalDevice(), defaultView, nullptr);
-    if (image) vmaDestroyImage(*context->allocator, image, allocation);
+    if (!bExternalMemory)
+        device->DeferredDeletionQueue().Enqueue(VulkanDeferredDeletionQueue::Type::Image, image, allocation);
 }
 
-void VulkanTexture::Destroy() {
-    context->texturePool->Destroy(this);
+VulkanTexture::VulkanTexture(VulkanDevice* device, RHITextureDesc const &desc, VkImage image,
+                             VmaAllocation allocation, bool bExternalMemory)
+    : RHITexture(desc), image(image), allocation(allocation), bExternalMemory(bExternalMemory),
+      device(device) {}
+
+RHITextureRef VulkanRHI::CreateTexture(RHITextureDesc const &desc, char const* debugName) {
+    VkImageCreateInfo imageInfo = ImageTranslation::CreateInfoFromTextureDesc(desc);
+    VmaAllocationCreateInfo allocInfo = { .usage = VMA_MEMORY_USAGE_AUTO };
+
+    VkImage image {}; VmaAllocation allocation {};
+    vmaCreateImage(device.Allocator(), &imageInfo, &allocInfo, &image, &allocation, nullptr);
+    // TODO: debug naming
+    auto* tex = new VulkanTexture{&device, desc, image, allocation, false};
+    return RHITextureRef{tex};
 }
 
-void VulkanTexture::OnRefCountZero() {
-    if (bExternalMemory) {
-        ASSERTM(false, "Tried to release a texture with external memory! -"
-            " do not hold an RHITextureRef to it.");
-        return;
-    }
-    context->deletionQueue->Enqueue(this, context->timeline->PendingSubmitValue());
+VulkanTexture* VulkanRHI::RegisterExternalTexture(RHITextureDesc const &desc, VkImage image) {
+    return new VulkanTexture{&device, desc, image, nullptr, true};
 }
 
-
-
-
+void VulkanRHI::UnregisterExternalTexture(VulkanTexture* texture) {
+    delete texture;
+}

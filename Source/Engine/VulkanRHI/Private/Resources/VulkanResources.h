@@ -8,33 +8,58 @@
 #include "RHIResources.h"
 #include "Containers/SlabPool.h"
 
-struct VulkanResourceContext;
-class VulkanTexture;
+class VulkanDevice;
 
 class VulkanTexture final : public RHITexture {
-private:
-    friend class SlabPool<VulkanTexture>;
-
-    VulkanTexture(VulkanResourceContext* ctx, RHITextureDesc const &desc, VkImage image,
-                  VmaAllocation allocation, VkImageView defaultView, bool bExternalMemory);
-
 public:
     ~VulkanTexture() override;
-    void Destroy() override;
 
     [[nodiscard]] VkImage Image() const { return image; }
-    [[nodiscard]] VkImageView DefaultView() const { return defaultView; }
 
-protected:
-    void OnRefCountZero() override;
+private:
+    VulkanTexture(VulkanDevice* device, RHITextureDesc const &desc, VkImage image,
+                  VmaAllocation allocation, bool bExternalMemory);
+
+    friend class VulkanRHI;
 
 private:
     VkImage image {};
-    VkImageView defaultView {};
     VmaAllocation allocation {};
     bool bExternalMemory {false};
-    VulkanResourceContext* context {};
+    VulkanDevice* device {};
 };
+
+
+class VulkanShaderResource {
+public:
+    virtual ~VulkanShaderResource();
+
+protected:
+    VulkanShaderResource(VulkanDevice* device, VkShaderModule module);
+
+    VkShaderModule module;
+    VulkanDevice* device;
+};
+
+template<class RHIShaderType>
+class TVulkanShaderBase final : public RHIShaderType, public VulkanShaderResource {
+private:
+    TVulkanShaderBase(VulkanDevice* device, VkShaderModule module)
+        : RHIShaderType(), VulkanShaderResource(device, module) {}
+
+    friend class VulkanShaderFactory;
+};
+
+using VulkanVertexShader = TVulkanShaderBase<RHIVertexShader>;
+using VulkanPixelShader = TVulkanShaderBase<RHIPixelShader>;
+using VulkanComputeShader = TVulkanShaderBase<RHIComputeShader>;
+
+class VulkanShaderFactory {
+public:
+    template<typename VulkanShaderType>
+    VulkanShaderType* CreateShader(Array<u32> const& byteCode, VulkanDevice* device);
+};
+
 
 
 template<class T>
@@ -45,8 +70,24 @@ struct TVulkanResourceTraits<RHITexture> {
     using ConcreteType = VulkanTexture;
 };
 
+template<>
+struct TVulkanResourceTraits<RHIVertexShader> {
+    using ConcreteType = VulkanVertexShader;
+};
+
+template<>
+struct TVulkanResourceTraits<RHIPixelShader> {
+    using ConcreteType = VulkanPixelShader;
+};
+
+template<>
+struct TVulkanResourceTraits<RHIComputeShader> {
+    using ConcreteType = VulkanComputeShader;
+};
+
+
 
 template<typename RHIType>
-static inline TVulkanResourceTraits<RHIType>::ConcreteType* ResourceCast(RHIType* resource) {
+static TVulkanResourceTraits<RHIType>::ConcreteType* ResourceCast(RHIType* resource) {
     return static_cast<TVulkanResourceTraits<RHIType>::ConcreteType*>(resource);
 }

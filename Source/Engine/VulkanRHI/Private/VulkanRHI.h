@@ -4,8 +4,6 @@
 
 #include "DynamicRHI.h"
 
-#include <vk_mem_alloc.h>
-
 #include "VulkanExternalTextureRegistry.h"
 
 #include "Bootstrapping/VulkanInstance.h"
@@ -15,16 +13,16 @@
 #include "Bootstrapping/VulkanTimeline.h"
 #include "Bootstrapping/VulkanFrameSync.h"
 #include "Bootstrapping/VulkanFrameCmdData.h"
-#include "Bootstrapping/VulkanDeletionQueue.h"
 
 #include "VulkanCommandList.h"
-#include "Resources/VulkanResourceContext.h"
 
 #include "Resources/VulkanResources.h"
 
 
 class VulkanRHI final : public IDynamicRHI, public IVulkanExternalTextureRegistry {
 public:
+    VulkanRHI() : device(timeline) {}
+
     void Initialize(NativeWindowData const &windowData) override;
 
     void Shutdown() override;
@@ -39,7 +37,7 @@ public:
     [[nodiscard]] RHITextureRef CreateTexture(RHITextureDesc const &desc, char const* debugName) override;
 
     // ~ IVulkanExternalTextureRegistry Begin
-    VulkanTexture* RegisterExternalTexture(RHITextureDesc const &desc, VkImage image, VkImageView defaultView) override;
+    VulkanTexture* RegisterExternalTexture(RHITextureDesc const &desc, VkImage image) override;
     void UnregisterExternalTexture(VulkanTexture* texture) override;
     // ~ IVulkanExternalTextureRegistry End
 
@@ -57,11 +55,6 @@ private:
     StaticArray<VulkanFrameCmdData, kMaxFramesInFlight> frameCmdData;
 
     VulkanCommandList cmdList;
-
-    VmaAllocator allocator {};
-    VulkanDeletionQueue deletionQueue;
-    VulkanResourceContext resourceContext {};
-    SlabPool<VulkanTexture> texturePool;
-
+    
     u32 frameIndex {0};
 };

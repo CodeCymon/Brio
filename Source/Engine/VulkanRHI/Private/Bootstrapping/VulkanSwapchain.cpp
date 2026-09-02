@@ -142,7 +142,7 @@ void VulkanSwapchain::RebuildTextures() {
                                                     {extent.width, extent.height},
                                                     TextureUsage::TransferDst);
     for (u32 i = 0; i < imageCount; i++)
-        textures.Add(textureRegistry->RegisterExternalTexture(desc, images[i], nullptr));
+        textures.Add(textureRegistry->RegisterExternalTexture(desc, images[i]));
 }
 
 VkSurfaceFormatKHR VulkanSwapchain::ChooseSurfaceFormat(Array<VkSurfaceFormatKHR> const &formats) {

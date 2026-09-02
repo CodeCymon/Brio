@@ -14,15 +14,19 @@ using RHIComputeShaderRef = TRefCountedPtr<class RHIComputeShader>;
 
 class RHIResource {
 public:
-    virtual ~RHIResource() = default;
-    void AddRef() { ++refCount; }
-    void Release() { if (--refCount == 0) OnRefCountZero(); }
+    RHIResource() = default;
 
-    virtual void Destroy() = 0;
+    void AddRef() {
+        refCount.fetch_add(1, std::memory_order_acquire);
+    }
+    void Release() {
+        u32 prevRefs = refCount.fetch_sub(1, std::memory_order_release);
+        if ((prevRefs - 1) == 0)
+            delete this;
+    }
 
 protected:
-    RHIResource() = default;
-    virtual void OnRefCountZero() = 0;
+    virtual ~RHIResource() = default;
 
 private:
     std::atomic<u32> refCount {0};
