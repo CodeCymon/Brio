@@ -3,7 +3,6 @@ brio_add_module(
 
     PUBLIC_LINK
         Brio::Core
-        Brio::RHI
 
     PRIVATE_LINK
         slang::slang
