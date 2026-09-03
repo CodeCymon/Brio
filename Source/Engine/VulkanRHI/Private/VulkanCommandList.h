@@ -17,6 +17,11 @@ public:
     void ClearImage(RHITexture* texture, ClearColor clearColor) override;
     void BlitImage(RHITexture* srcTexture, RHITexture* dstTexture) override;
 
+    void BindPipeline(RHIGraphicsPipeline* pipeline) override;
+
+    void BeginRendering(RHITexture* colorTarget) override;
+    void EndRendering() override;
+
 public:
     void BindActiveCommandBuffer(VkCommandBuffer commandBuffer);
 

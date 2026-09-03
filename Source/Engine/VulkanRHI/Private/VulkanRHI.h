@@ -37,13 +37,15 @@ public:
     [[nodiscard]] RHITextureRef CreateTexture(RHITextureDesc const &desc, char const* debugName) override;
 
     // ~ IVulkanExternalTextureRegistry Begin
-    VulkanTexture* RegisterExternalTexture(RHITextureDesc const &desc, VkImage image) override;
+    VulkanTexture* RegisterExternalTexture(RHITextureDesc const &desc, VkImage image, VkImageView defaultView) override;
     void UnregisterExternalTexture(VulkanTexture* texture) override;
     // ~ IVulkanExternalTextureRegistry End
 
     RHIVertexShaderRef CreateVertexShader(RHIShaderDesc const &desc) override;
 
     RHIPixelShaderRef CreatePixelShader(RHIShaderDesc const &desc) override;
+
+    RHIGraphicsPipelineRef CreateGraphicsPipeline(RHIGraphicsPipelineDesc const &desc) override;
 
 private:
     VulkanInstance instance;

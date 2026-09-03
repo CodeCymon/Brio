@@ -92,6 +92,55 @@ void VulkanCommandList::BlitImage(RHITexture* srcTexture, RHITexture* dstTexture
     vkCmdBlitImage2(cmd, &imageInfo);
 }
 
+void VulkanCommandList::BindPipeline(RHIGraphicsPipeline* pipeline) {
+    VulkanGraphicsPipeline* vkPipeline = ResourceCast(pipeline);
+    vkCmdBindPipeline(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, vkPipeline->Pipeline());
+}
+
+void VulkanCommandList::BeginRendering(RHITexture* colorTarget) {
+    VulkanTexture* texture = ResourceCast(colorTarget);
+
+    VkRenderingAttachmentInfo attachmentInfo {
+        .sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO,
+        .imageView = texture->DefaultView(),
+        .imageLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+        .loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR,
+        .storeOp = VK_ATTACHMENT_STORE_OP_STORE,
+        .clearValue = {.color = {0,0,0,1}}
+    };
+
+    VkRenderingInfo renderingInfo {
+        .sType = VK_STRUCTURE_TYPE_RENDERING_INFO,
+        .renderArea = {{0,0}, {colorTarget->Desc().extent.width, colorTarget->Desc().extent.height}},
+        .layerCount = 1,
+        .colorAttachmentCount = 1,
+        .pColorAttachments = &attachmentInfo
+    };
+    vkCmdBeginRendering(cmd, &renderingInfo);
+
+    // TODO: move out of here
+    VkViewport viewport {
+        .x = 0, .y = 0,
+        .width = (float)colorTarget->Desc().extent.width,
+        .height = (float)colorTarget->Desc().extent.height,
+        .minDepth = 0.0f,
+        .maxDepth = 1.0f
+    };
+    vkCmdSetViewport(cmd, 0, 1, &viewport);
+
+    VkRect2D scissor {
+        {.x = 0, .y = 0},
+        {.width = colorTarget->Desc().extent.width, .height = colorTarget->Desc().extent.height},
+    };
+    vkCmdSetScissor(cmd, 0, 1, &scissor);
+
+    vkCmdDraw(cmd, 3, 1, 0, 0);
+}
+
+void VulkanCommandList::EndRendering() {
+    vkCmdEndRendering(cmd);
+}
+
 void VulkanCommandList::BindActiveCommandBuffer(VkCommandBuffer commandBuffer) {
     cmd = commandBuffer;
 }

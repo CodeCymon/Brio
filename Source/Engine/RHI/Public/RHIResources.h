@@ -13,6 +13,8 @@ using RHIVertexShaderRef = TRefCountedPtr<class RHIVertexShader>;
 using RHIPixelShaderRef = TRefCountedPtr<class RHIPixelShader>;
 using RHIComputeShaderRef = TRefCountedPtr<class RHIComputeShader>;
 
+using RHIGraphicsPipelineRef = TRefCountedPtr<class RHIGraphicsPipeline>;
+
 class RHIResource {
 public:
     RHIResource() = default;
@@ -75,7 +77,7 @@ public:
     RHIShader() = delete;
     explicit RHIShader(ShaderStage stage) : stage(stage) {}
 
-    [[nodiscard]] ShaderStage GetShaderStage() const { return stage; }
+    [[nodiscard]] ShaderStage Stage() const { return stage; }
 
 private:
     ShaderStage stage;
@@ -94,4 +96,27 @@ public:
 class RHIComputeShader : public RHIShader {
 public:
     RHIComputeShader() : RHIShader(ShaderStage::Compute) {}
+};
+
+
+
+struct RHIGraphicsPipelineDesc {
+    RHIVertexShader* vertexShader;
+    RHIPixelShader* pixelShader;
+
+    RHIRasterState raster;
+    RHIBlendState blend;
+
+    PixelFormat colorFormat;
+    PixelFormat depthFormat;
+};
+
+class RHIGraphicsPipeline : public RHIResource {
+public:
+    [[nodiscard]] RHIGraphicsPipelineDesc const& Desc() const { return desc; }
+
+protected:
+    explicit RHIGraphicsPipeline(RHIGraphicsPipelineDesc const& inDesc) : desc(inDesc) {}
+
+    RHIGraphicsPipelineDesc desc;
 };

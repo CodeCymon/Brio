@@ -64,3 +64,32 @@ enum class RHIResourceState : u8 {
 struct ClearColor {
     f32 r = 0.0f, g = 0.0f, b = 0.0f, a = 1.0f;
 };
+
+
+
+enum class FillMode : u8 {
+    Solid,
+    Wireframe,
+};
+
+enum class CullMode : u8 {
+    None,
+    Front,
+    Back,
+};
+
+enum class BlendMode : u8 {
+    Opaque,
+    Additive,
+    AlphaBlend,
+};
+
+struct RHIRasterState {
+    FillMode fillMode;
+    CullMode cullMode;
+    bool bClampDepth;
+};
+
+struct RHIBlendState {
+    BlendMode blendMode;
+};

@@ -37,6 +37,8 @@ public:
 
     virtual RHIPixelShaderRef CreatePixelShader(RHIShaderDesc const& desc) = 0;
 
+    virtual RHIGraphicsPipelineRef CreateGraphicsPipeline(RHIGraphicsPipelineDesc const& desc) = 0;
+
 };
 
 inline RHIFrameContext RHIBeginFrame() {
@@ -57,4 +59,8 @@ inline RHIVertexShaderRef RHICreateVertexShader(RHIShaderDesc const &desc) {
 
 inline RHIPixelShaderRef RHICreatePixelShader(RHIShaderDesc const &desc) {
     return GDynamicRHI->CreatePixelShader(desc);
+}
+
+inline RHIGraphicsPipelineRef RHICreateGraphicsPipeline(RHIGraphicsPipelineDesc const& desc) {
+    return GDynamicRHI->CreateGraphicsPipeline(desc);
 }

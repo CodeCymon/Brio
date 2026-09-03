@@ -17,4 +17,9 @@ public:
     virtual void ClearImage(RHITexture* texture, ClearColor clearColor) = 0;
 
     virtual void BlitImage(RHITexture* srcTexture, RHITexture* dstTexture) = 0;
+
+    virtual void BindPipeline(RHIGraphicsPipeline* pipeline) = 0;
+
+    virtual void BeginRendering(RHITexture* colorTarget) = 0;
+    virtual void EndRendering() = 0;
 };

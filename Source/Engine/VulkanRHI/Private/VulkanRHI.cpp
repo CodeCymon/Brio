@@ -7,8 +7,14 @@
 #include "LogVulkan.h"
 #include "TranslationUtils/TextureTranslations.h"
 
+#if BUILD_DEBUG
+static constexpr bool bUseValidation = true;
+#else
+static constexpr bool bUseValidation = false;
+#endif
+
 void VulkanRHI::Initialize(NativeWindowData const &windowData) {
-    instance.Initialize(true);
+    instance.Initialize(bUseValidation);
     surface.Initialize(&instance, windowData);
     device.Initialize(&instance, &surface);
     swapchain.Initialize(&device, &surface, this, {800, 450});

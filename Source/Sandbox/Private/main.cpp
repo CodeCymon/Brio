@@ -43,14 +43,28 @@ int main() {
 
     mainWindow.OnResizeDelegate.BindObject(GDynamicRHI, &IDynamicRHI::OnResize);
 
-    // TODO: remove
-    auto shaderCompileResult = ShaderCompiler::CompileFromFile("short.slang", "CSMain");
-
     {
-        RHITextureRef myTexture = GDynamicRHI->CreateTexture(
-           RHITextureDesc::Texture2D(PixelFormat::RGBA8_SRGB, {800, 450},
-                                     TextureUsage::TransferSrc | TextureUsage::TransferDst),
-           "firstCustomTexture");
+        auto vertexCompileResult = ShaderCompiler::CompileFromFile("triangle.slang", "VSMain");
+        RHIVertexShaderRef vertexShader = RHICreateVertexShader({vertexCompileResult.byteCode});
+
+        auto pixelCompileResult = ShaderCompiler::CompileFromFile("triangle.slang", "PSMain");
+        RHIPixelShaderRef pixelShader = RHICreatePixelShader({pixelCompileResult.byteCode});
+
+        RHIGraphicsPipelineDesc triDesc {
+            .vertexShader = vertexShader,
+            .pixelShader = pixelShader,
+            .raster = {
+                .fillMode = FillMode::Solid,
+                .cullMode = CullMode::None,
+                .bClampDepth = false,
+            },
+            .blend = {
+                .blendMode = BlendMode::Opaque
+            },
+            .colorFormat = PixelFormat::RGBA8_SRGB
+        };
+        RHIGraphicsPipelineRef trianglePipeline = RHICreateGraphicsPipeline(triDesc);
+
 
         u64 totalNS = 0;
         u64 frameCount = 0;
@@ -59,18 +73,18 @@ int main() {
 
             Platform::PollEvents();
 
-            RHIFrameContext frame = GDynamicRHI->BeginFrame();
-            ICommandList* cmdList = frame.cmdList;
+            RHIFrameContext frame = RHIBeginFrame();
+            ICommandList& cmdList = *frame.cmdList;
 
-            cmdList->TransitionImage(myTexture, RHIResourceState::Undefined, RHIResourceState::TransferDst);
-            cmdList->ClearImage(myTexture, {0,0,1,1});
-            cmdList->TransitionImage(myTexture, RHIResourceState::TransferDst, RHIResourceState::TransferSrc);
+            cmdList.TransitionImage(frame.swapchainTexture, RHIResourceState::Undefined, RHIResourceState::ColorAttachment);
 
-            cmdList->TransitionImage(frame.swapchainTexture, RHIResourceState::Undefined, RHIResourceState::TransferDst);
-            cmdList->BlitImage(myTexture, frame.swapchainTexture);
-            cmdList->TransitionImage(frame.swapchainTexture, RHIResourceState::TransferDst, RHIResourceState::Present);
+            cmdList.BindPipeline(trianglePipeline);
+            cmdList.BeginRendering(frame.swapchainTexture);
+            cmdList.EndRendering();
 
-            GDynamicRHI->EndFrame();
+            cmdList.TransitionImage(frame.swapchainTexture, RHIResourceState::ColorAttachment, RHIResourceState::Present);
+
+            RHIEndFrame();
 
             auto end = std::chrono::high_resolution_clock::now();
             auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start);

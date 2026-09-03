@@ -35,6 +35,8 @@ class VulkanShaderResource {
 public:
     virtual ~VulkanShaderResource();
 
+    [[nodiscard]] VkShaderModule Module() const { return module; }
+
 protected:
     VulkanShaderResource(VulkanDevice* device, VkShaderModule module);
 
@@ -62,6 +64,27 @@ public:
 };
 
 
+class VulkanGraphicsPipeline final : public RHIGraphicsPipeline {
+public:
+    ~VulkanGraphicsPipeline() override;
+
+    [[nodiscard]] VkPipeline Pipeline() const { return pipeline; }
+    [[nodiscard]] VkPipelineLayout Layout() const { return layout; }
+
+private:
+    VulkanGraphicsPipeline(VulkanDevice* device, RHIGraphicsPipelineDesc const &inDesc,
+                           VkPipeline pipeline, VkPipelineLayout layout)
+        : RHIGraphicsPipeline(inDesc), pipeline(pipeline), layout(layout), device(device) {}
+
+    friend class VulkanRHI;
+
+private:
+    VkPipeline pipeline;
+    VkPipelineLayout layout;
+    VulkanDevice* device;
+};
+
+
 
 template<class T>
 struct TVulkanResourceTraits {};
@@ -86,6 +109,10 @@ struct TVulkanResourceTraits<RHIComputeShader> {
     using ConcreteType = VulkanComputeShader;
 };
 
+template<>
+struct TVulkanResourceTraits<RHIGraphicsPipeline> {
+    using ConcreteType = VulkanGraphicsPipeline;
+};
 
 
 template<typename RHIType>

@@ -41,6 +41,8 @@ public:
         Image,
         ImageView,
         ShaderModule,
+        Pipeline,
+        PipelineLayout,
     };
 
 private:

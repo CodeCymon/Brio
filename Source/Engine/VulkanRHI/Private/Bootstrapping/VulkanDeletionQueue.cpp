@@ -39,6 +39,12 @@ void VulkanDeferredDeletionQueue::DestroyEntry(ResourceEntry const &entry) const
         case Type::ShaderModule:
             vkDestroyShaderModule(device.LogicalDevice(), reinterpret_cast<VkShaderModule>(entry.handle), nullptr);
             break;
+        case Type::Pipeline:
+            vkDestroyPipeline(device.LogicalDevice(), reinterpret_cast<VkPipeline>(entry.handle), nullptr);
+            break;
+        case Type::PipelineLayout:
+            vkDestroyPipelineLayout(device.LogicalDevice(), reinterpret_cast<VkPipelineLayout>(entry.handle), nullptr);
+            break;
         default: ASSERT(false);
     }
 }
