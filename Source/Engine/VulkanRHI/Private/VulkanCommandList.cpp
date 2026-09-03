@@ -5,11 +5,37 @@
 #include "Resources/VulkanResources.h"
 #include "TranslationUtils/TextureTranslations.h"
 
-void VulkanCommandList::BeginDebugLabel(char const* label) {}
+void VulkanCommandList::BeginDebugLabel(char const* label) { ASSERT(false); }
 
-void VulkanCommandList::EndDebugLabel() {}
+void VulkanCommandList::EndDebugLabel() { ASSERT(false); }
 
-void VulkanCommandList::InsertDebugLabel(char const* label) {}
+void VulkanCommandList::InsertDebugLabel(char const* label) { ASSERT(false); }
+
+void VulkanCommandList::TransitionImage(RHITexture* texture, RHIResourceState srcState, RHIResourceState dstState) {
+    auto* vkTexture = ResourceCast(texture);
+    VulkanImageStateInfo src = ImageTranslation::ToVulkanImageState(srcState);
+    VulkanImageStateInfo dst = ImageTranslation::ToVulkanImageState(dstState);
+
+    VkImageMemoryBarrier2 imageBarrier = {
+        .sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER_2,
+        .srcStageMask = src.stage, .srcAccessMask = src.access,
+        .dstStageMask = dst.stage, .dstAccessMask = dst.access,
+        .oldLayout = src.layout, .newLayout = dst.layout,
+        .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+        .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+        .image = vkTexture->Image(),
+        .subresourceRange = {
+            .aspectMask = ImageTranslation::ToVulkanImageAspectFlags(vkTexture->Desc().format),
+            .levelCount = VK_REMAINING_MIP_LEVELS,
+            .layerCount = VK_REMAINING_ARRAY_LAYERS,
+        }
+    };
+    VkDependencyInfo dependencyInfo = {
+        .sType = VK_STRUCTURE_TYPE_DEPENDENCY_INFO,
+        .imageMemoryBarrierCount = 1, .pImageMemoryBarriers = &imageBarrier,
+    };
+    vkCmdPipelineBarrier2(cmd, &dependencyInfo);
+}
 
 void VulkanCommandList::ClearImage(RHITexture* texture, ClearColor clearColor) {
     VulkanTexture* vkTexture = ResourceCast(texture);
@@ -68,30 +94,4 @@ void VulkanCommandList::BlitImage(RHITexture* srcTexture, RHITexture* dstTexture
 
 void VulkanCommandList::BindActiveCommandBuffer(VkCommandBuffer commandBuffer) {
     cmd = commandBuffer;
-}
-
-void VulkanCommandList::TransitionImage(RHITexture* texture, RHIResourceState srcState, RHIResourceState dstState) {
-    auto* vkTexture = ResourceCast(texture);
-    VulkanImageStateInfo src = ImageTranslation::ToVulkanImageState(srcState);
-    VulkanImageStateInfo dst = ImageTranslation::ToVulkanImageState(dstState);
-
-    VkImageMemoryBarrier2 imageBarrier = {
-        .sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER_2,
-        .srcStageMask = src.stage, .srcAccessMask = src.access,
-        .dstStageMask = dst.stage, .dstAccessMask = dst.access,
-        .oldLayout = src.layout, .newLayout = dst.layout,
-        .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
-        .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
-        .image = vkTexture->Image(),
-        .subresourceRange = {
-            .aspectMask = ImageTranslation::ToVulkanImageAspectFlags(vkTexture->Desc().format),
-            .levelCount = VK_REMAINING_MIP_LEVELS,
-            .layerCount = VK_REMAINING_ARRAY_LAYERS,
-        }
-    };
-    VkDependencyInfo dependencyInfo = {
-        .sType = VK_STRUCTURE_TYPE_DEPENDENCY_INFO,
-        .imageMemoryBarrierCount = 1, .pImageMemoryBarriers = &imageBarrier,
-    };
-    vkCmdPipelineBarrier2(cmd, &dependencyInfo);
 }

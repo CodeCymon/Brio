@@ -39,6 +39,10 @@ void VulkanDevice::Shutdown() {
     logicalDevice = nullptr;
 }
 
+bool VulkanDevice::IsDebugEnabled() const {
+    return instance->IsValidationEnabled();
+}
+
 void VulkanDevice::PickPhysicalDevice() {
     u32 deviceCount = 0;
     vkEnumeratePhysicalDevices(instance->Instance(), &deviceCount, nullptr);

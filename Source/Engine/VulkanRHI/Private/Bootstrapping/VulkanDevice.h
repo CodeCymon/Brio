@@ -103,6 +103,8 @@ public:
     VmaAllocator Allocator() const { return allocator; }
     VulkanShaderFactory& ShaderFactory() { return shaderFactory; }
 
+    bool IsDebugEnabled() const;
+
 private:
     void PickPhysicalDevice();
     void CreateLogicalDevice();

@@ -55,6 +55,7 @@ private:
     u32 imageIndex {0};
 
     Array<VkImage> images {};
+    Array<VkImageView> views {};
     VkExtent2D extent {};
 
     Array<VulkanTexture*> textures {};

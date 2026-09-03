@@ -10,6 +10,6 @@ class VulkanTexture;
 class IVulkanExternalTextureRegistry {
 public:
     virtual ~IVulkanExternalTextureRegistry() = default;
-    virtual VulkanTexture* RegisterExternalTexture(RHITextureDesc const& desc, VkImage image) = 0;
+    virtual VulkanTexture* RegisterExternalTexture(RHITextureDesc const& desc, VkImage image, VkImageView defaultView) = 0;
     virtual void UnregisterExternalTexture(VulkanTexture* texture) = 0;
 };

@@ -2,6 +2,7 @@
 
 #pragma once
 #include "Core/CoreTypes.h"
+#include "Core/CoreMacros.h"
 
 enum class TextureDimension : u8 {
     Tex1D,

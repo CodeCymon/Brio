@@ -6,7 +6,6 @@
 #include <vk_mem_alloc.h>
 
 #include "RHIResources.h"
-#include "Containers/SlabPool.h"
 
 class VulkanDevice;
 
@@ -15,18 +14,20 @@ public:
     ~VulkanTexture() override;
 
     [[nodiscard]] VkImage Image() const { return image; }
+    [[nodiscard]] VkImageView DefaultView() const { return defaultView; }
 
 private:
-    VulkanTexture(VulkanDevice* device, RHITextureDesc const &desc, VkImage image,
+    VulkanTexture(VulkanDevice* device, RHITextureDesc const &desc, VkImage image, VkImageView view,
                   VmaAllocation allocation, bool bExternalMemory);
 
     friend class VulkanRHI;
 
 private:
-    VkImage image {};
-    VmaAllocation allocation {};
-    bool bExternalMemory {false};
-    VulkanDevice* device {};
+    VkImage image;
+    VkImageView defaultView;
+    VmaAllocation allocation;
+    bool bExternalMemory;
+    VulkanDevice* device;
 };
 
 

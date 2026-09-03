@@ -8,6 +8,7 @@
 #include "Memory/RefCountedPtr.h"
 
 using RHITextureRef = TRefCountedPtr<class RHITexture>;
+
 using RHIVertexShaderRef = TRefCountedPtr<class RHIVertexShader>;
 using RHIPixelShaderRef = TRefCountedPtr<class RHIPixelShader>;
 using RHIComputeShaderRef = TRefCountedPtr<class RHIComputeShader>;

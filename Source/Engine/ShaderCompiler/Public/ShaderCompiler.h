@@ -4,7 +4,6 @@
 #include "ShaderCompilerAPI.h"
 
 #include "CoreMinimal.h"
-#include "RHIDefinitions.h"
 
 namespace SHADERCOMPILER_API ShaderCompiler {
     void Initialize();
