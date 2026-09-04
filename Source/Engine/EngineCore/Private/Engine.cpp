@@ -52,7 +52,7 @@ void Engine::Run() const {
         .blend = {
             .blendMode = BlendMode::Opaque
         },
-        .colorFormat = PixelFormat::RGBA8_SRGB
+        .colorFormat = PixelFormat::RGBA8_SRGB // hardcoded as (preferred) swapchain format
     };
     RHIGraphicsPipelineRef trianglePipeline = RHICreateGraphicsPipeline(triDesc);
     // TODO: ~ remove end
@@ -68,6 +68,9 @@ void Engine::Run() const {
 
         cmdList.BindPipeline(trianglePipeline);
         cmdList.BeginRendering(frame.backBuffer);
+        cmdList.SetViewport({0,0}, frame.backBuffer->Desc().extent);
+        cmdList.SetScissor({0,0}, frame.backBuffer->Desc().extent);
+        cmdList.Draw(3,1,0,0);
         cmdList.EndRendering();
 
         cmdList.TransitionImage(frame.backBuffer, RHIResourceState::ColorAttachment, RHIResourceState::Present);

@@ -129,7 +129,7 @@ VkImageCreateInfo ImageTranslation::CreateInfoFromTextureDesc(RHITextureDesc con
         .flags = 0,
         .imageType = ToVulkanDimensionType(desc.dimension),
         .format = ToVulkanFormat(desc.format),
-        .extent = {desc.extent.width, desc.extent.height, desc.extent.depth},
+        .extent = {desc.extent.x, desc.extent.y, desc.extent.z},
         .mipLevels = desc.mipLevels,
         .arrayLayers = desc.arrayLayers,
         .samples = ToVulkanSampleCount(desc.sampleCount),

@@ -4,6 +4,7 @@
 #include "Core/CoreTypes.h"
 #include "Log/Assert.h"
 #include "Math/Math.h"
+#include "Math/IntPoint.h"
 
 // 2-Component floating point vector
 struct CORE_API Vec2 {
@@ -15,6 +16,14 @@ public:
     constexpr explicit Vec2(f32 s) : x(s), y(s) {}
 
     constexpr Vec2(f32 x_, f32 y_) : x(x_), y(y_) {}
+
+    constexpr Vec2(UIntPoint const& p) : x(p.x), y(p.y) {}
+
+    constexpr Vec2(IntPoint const& p) : x(p.x), y(p.y) {}
+
+    constexpr Vec2(IntVec const& p) : x(p.x), y(p.y) {}
+
+    constexpr Vec2(UIntVec const& p) : x(p.x), y(p.y) {}
 
 public:
     constexpr f32& operator[](i32 i) {

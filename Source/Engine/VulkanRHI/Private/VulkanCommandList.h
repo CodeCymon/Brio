@@ -22,6 +22,11 @@ public:
     void BeginRendering(RHITexture* colorTarget) override;
     void EndRendering() override;
 
+    void SetViewport(Vec2 offset, Vec2 size) override;
+    void SetScissor(IntPoint offset, UIntPoint size) override;
+
+    void Draw(u32 vertexCount, u32 instanceCount, u32 firstVertex, u32 firstInstance) override;
+
 public:
     void BindActiveCommandBuffer(VkCommandBuffer commandBuffer);
 

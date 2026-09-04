@@ -40,17 +40,17 @@ private:
 struct RHITextureDesc {
     TextureDimension dimension = TextureDimension::Tex2D;
     PixelFormat format = PixelFormat::Unknown;
-    Extent3D extent;
+    UIntVec extent;
     u32 mipLevels = 1;
     u32 arrayLayers = 1;
     u32 sampleCount = 1;
     TextureUsage usage = TextureUsage::None;
 
-    static RHITextureDesc Texture2D(PixelFormat format, Extent2D extent, TextureUsage usage) {
+    static RHITextureDesc Texture2D(PixelFormat format, UIntPoint extent, TextureUsage usage) {
         RHITextureDesc desc;
         desc.dimension = TextureDimension::Tex2D;
         desc.format = format;
-        desc.extent = {extent.width, extent.height, 1};
+        desc.extent = {extent.x, extent.y, 1};
         desc.usage = usage;
         return desc;
     }

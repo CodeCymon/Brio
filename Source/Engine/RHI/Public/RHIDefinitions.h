@@ -35,13 +35,6 @@ enum class PixelFormat : u16 {
     D24_UNORM_S8_UINT,
 };
 
-struct Extent2D {
-    u32 width = 1, height = 1;
-};
-
-struct Extent3D {
-    u32 width = 1, height = 1, depth = 1;
-};
 
 enum class ShaderStage : u8 {
     Vertex,

@@ -64,7 +64,7 @@ void VulkanCommandList::BlitImage(RHITexture* srcTexture, RHITexture* dstTexture
         },
         .srcOffsets = {
             {0,0,0},
-            {(i32)src->Desc().extent.width, (i32)src->Desc().extent.height, (i32)src->Desc().extent.depth},
+            {(i32)src->Desc().extent.x, (i32)src->Desc().extent.y, (i32)src->Desc().extent.z},
         },
         .dstSubresource = {
             .aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
@@ -74,7 +74,7 @@ void VulkanCommandList::BlitImage(RHITexture* srcTexture, RHITexture* dstTexture
         },
         .dstOffsets = {
             {0,0,0},
-            {(i32)dst->Desc().extent.width, (i32)dst->Desc().extent.height, (i32)dst->Desc().extent.depth},
+            {(i32)dst->Desc().extent.x, (i32)dst->Desc().extent.y, (i32)dst->Desc().extent.z},
         },
     };
 
@@ -111,30 +111,34 @@ void VulkanCommandList::BeginRendering(RHITexture* colorTarget) {
 
     VkRenderingInfo renderingInfo {
         .sType = VK_STRUCTURE_TYPE_RENDERING_INFO,
-        .renderArea = {{0,0}, {colorTarget->Desc().extent.width, colorTarget->Desc().extent.height}},
+        .renderArea = {{0,0}, {colorTarget->Desc().extent.x, colorTarget->Desc().extent.y}},
         .layerCount = 1,
         .colorAttachmentCount = 1,
         .pColorAttachments = &attachmentInfo
     };
     vkCmdBeginRendering(cmd, &renderingInfo);
+}
 
-    // TODO: move out of here
+void VulkanCommandList::SetViewport(Vec2 offset, Vec2 size) {
     VkViewport viewport {
-        .x = 0, .y = 0,
-        .width = (float)colorTarget->Desc().extent.width,
-        .height = (float)colorTarget->Desc().extent.height,
+        .x = offset.x, .y = offset.y,
+        .width = size.x, .height = size.y,
         .minDepth = 0.0f,
         .maxDepth = 1.0f
     };
     vkCmdSetViewport(cmd, 0, 1, &viewport);
+}
 
+void VulkanCommandList::SetScissor(IntPoint offset, UIntPoint size) {
     VkRect2D scissor {
-        {.x = 0, .y = 0},
-        {.width = colorTarget->Desc().extent.width, .height = colorTarget->Desc().extent.height},
-    };
+            {.x = offset.x, .y = offset.y,},
+            {.width = size.x, .height = size.y},
+        };
     vkCmdSetScissor(cmd, 0, 1, &scissor);
+}
 
-    vkCmdDraw(cmd, 3, 1, 0, 0);
+void VulkanCommandList::Draw(u32 vertexCount, u32 instanceCount, u32 firstVertex, u32 firstInstance) {
+    vkCmdDraw(cmd, vertexCount, instanceCount, firstVertex, firstInstance);
 }
 
 void VulkanCommandList::EndRendering() {
