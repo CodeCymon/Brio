@@ -6,13 +6,14 @@
 #include "RHI.h"
 #include "RHIResources.h"
 
+class ICommandList;
 struct NativeWindowData;
 
 constexpr u32 kMaxFramesInFlight = 2;
 
 struct RHIFrameContext {
-    class ICommandList* cmdList {nullptr};
-    RHITexture* swapchainTexture {};
+    ICommandList* cmdList {nullptr};
+    RHITexture* backBuffer {};
     u32 frameIndex {0};
 };
 
@@ -21,7 +22,7 @@ class IDynamicRHI {
 public:
     virtual ~IDynamicRHI() = default;
 
-    virtual void Initialize(NativeWindowData const& windowData) = 0;
+    virtual void Initialize(NativeWindowData const& windowData, UIntPoint const& initialExtent) = 0;
     virtual void Shutdown() = 0;
 
     virtual void WaitForIdle() = 0;

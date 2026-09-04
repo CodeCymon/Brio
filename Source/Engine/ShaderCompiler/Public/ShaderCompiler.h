@@ -6,7 +6,7 @@
 #include "CoreMinimal.h"
 
 namespace SHADERCOMPILER_API ShaderCompiler {
-    void Initialize();
+    bool Initialize();
     void Shutdown();
 
     struct CompileResult {

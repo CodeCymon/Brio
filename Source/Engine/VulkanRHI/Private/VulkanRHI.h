@@ -23,7 +23,7 @@ class VulkanRHI final : public IDynamicRHI, public IVulkanExternalTextureRegistr
 public:
     VulkanRHI() : device(timeline) {}
 
-    void Initialize(NativeWindowData const &windowData) override;
+    void Initialize(NativeWindowData const &windowData, UIntPoint const& initialExtent) override;
 
     void Shutdown() override;
 

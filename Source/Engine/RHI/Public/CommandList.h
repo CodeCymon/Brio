@@ -2,7 +2,10 @@
 
 #pragma once
 
-#include "RHIResources.h"
+#include "RHIDefinitions.h"
+
+class RHIGraphicsPipeline;
+class RHITexture;
 
 class ICommandList {
 public:

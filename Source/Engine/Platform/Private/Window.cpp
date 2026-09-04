@@ -44,6 +44,8 @@ bool Window::Create(Config const &config, Window &window) {
             ptr->OnResizeDelegate.Execute(width, height);
     });
 
+    window.extent = {config.width, config.height};
+
     return true;
 }
 

@@ -7,9 +7,10 @@
 
 VULKANRHI_API IDynamicRHI* GDynamicRHI {nullptr};
 
-VULKANRHI_API void RHI::Create(NativeWindowData const &windowData) {
+VULKANRHI_API bool RHI::Create(NativeWindowData const &windowData, UIntPoint const& initialExtent) {
     GDynamicRHI = new VulkanRHI();
-    GDynamicRHI->Initialize(windowData);
+    GDynamicRHI->Initialize(windowData, initialExtent);
+    return true;
 }
 
 VULKANRHI_API void RHI::Destroy() {

@@ -50,8 +50,9 @@ namespace {
     } State;
 }
 
-void Log::Initialize() {
+bool Log::Initialize() {
     // TODO: init file writing.
+    return true;
 }
 
 void Log::Shutdown() {

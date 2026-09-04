@@ -2,12 +2,13 @@
 
 #pragma once
 
+struct UIntPoint;
 struct NativeWindowData;
 class IDynamicRHI;
 
 extern IDynamicRHI* GDynamicRHI;
 
 namespace RHI {
-    void Create(NativeWindowData const& windowData);
+    bool Create(NativeWindowData const& windowData, UIntPoint const& initialExtent);
     void Destroy();
 }

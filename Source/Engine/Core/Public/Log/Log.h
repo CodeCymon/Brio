@@ -22,7 +22,7 @@ namespace Log {
         Verbose,
     };
 
-    CORE_API void Initialize();
+    CORE_API bool Initialize();
     CORE_API void Shutdown();
 
     CORE_API void SetMinSeverity(Severity severity);

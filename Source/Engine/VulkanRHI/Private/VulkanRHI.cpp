@@ -13,11 +13,11 @@ static constexpr bool bUseValidation = true;
 static constexpr bool bUseValidation = false;
 #endif
 
-void VulkanRHI::Initialize(NativeWindowData const &windowData) {
+void VulkanRHI::Initialize(NativeWindowData const &windowData, UIntPoint const& initialExtent) {
     instance.Initialize(bUseValidation);
     surface.Initialize(&instance, windowData);
     device.Initialize(&instance, &surface);
-    swapchain.Initialize(&device, &surface, this, {800, 450});
+    swapchain.Initialize(&device, &surface, this, initialExtent);
 
     timeline.Initialize(&device);
 
@@ -77,7 +77,7 @@ RHIFrameContext VulkanRHI::BeginFrame() {
 
     return RHIFrameContext{
         .cmdList = &cmdList,
-        .swapchainTexture = swapchain.CurrentTexture(),
+        .backBuffer = swapchain.CurrentTexture(),
         .frameIndex = frameIndex
     };
 }

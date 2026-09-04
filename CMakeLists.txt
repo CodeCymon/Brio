@@ -18,6 +18,7 @@ add_subdirectory(Source/Engine/Platform)
 add_subdirectory(Source/Engine/VulkanRHI)
 add_subdirectory(Source/Engine/RHI)
 add_subdirectory(Source/Engine/ShaderCompiler)
+add_subdirectory(Source/Engine/EngineCore)
 
 # Sandbox
 add_subdirectory(Source/Sandbox)

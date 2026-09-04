@@ -4,6 +4,7 @@
 #include "PlatformAPI.h"
 #include "Core/CoreTypes.h"
 #include "Delegates/SinglecastDelegate.h"
+#include "Math/IntPoint.h"
 
 struct NativeWindowData {
     union {
@@ -25,6 +26,7 @@ public:
 
 public:
     [[nodiscard]] NativeWindowData NativeData() const;
+    [[nodiscard]] UIntPoint Extent() const { return extent; }
 
 public:
     Delegate<void()> OnCloseDelegate;
@@ -33,4 +35,5 @@ public:
 
 private:
     struct GLFWwindow* handle{nullptr};
+    UIntPoint extent;
 };

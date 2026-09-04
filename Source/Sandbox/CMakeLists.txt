@@ -1,11 +1,7 @@
 add_executable(Sandbox Private/main.cpp)
 target_link_libraries(Sandbox
-        PRIVATE
-        Brio::Core
-        Brio::Platform
-        Brio::VulkanRHI
-        Brio::RHI
-        Brio::ShaderCompiler
+    PRIVATE
+        Brio::EngineCore
 )
 
 target_compile_definitions(Sandbox PRIVATE

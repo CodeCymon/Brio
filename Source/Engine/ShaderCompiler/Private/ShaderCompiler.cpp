@@ -13,7 +13,7 @@ namespace {
     Slang::ComPtr<slang::ISession> gSession;
 }
 
-void ShaderCompiler::Initialize() {
+bool ShaderCompiler::Initialize() {
     slang::createGlobalSession(gGlobalSession.writeRef());
 
     slang::TargetDesc targetDesc = {};
@@ -31,6 +31,7 @@ void ShaderCompiler::Initialize() {
     sessionDesc.searchPaths = searchPaths;
 
     gGlobalSession->createSession(sessionDesc, gSession.writeRef());
+    return true;
 }
 
 void ShaderCompiler::Shutdown() {
