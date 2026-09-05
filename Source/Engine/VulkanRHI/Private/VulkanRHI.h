@@ -15,12 +15,13 @@
 #include "Bootstrapping/VulkanFrameCmdData.h"
 
 #include "VulkanCommandList.h"
+#include "VulkanImmediateSubmitContext.h"
 #include "Containers/StaticArray.h"
 
 
 class VulkanRHI final : public IDynamicRHI, public IVulkanExternalTextureRegistry {
 public:
-    VulkanRHI() : device(timeline) {}
+    VulkanRHI();
 
     void Initialize(NativeWindowData const &windowData, UIntPoint const& initialExtent) override;
 
@@ -56,11 +57,13 @@ private:
     VulkanSurface surface;
     VulkanDevice device;
     VulkanSwapchain swapchain;
+
     VulkanTimeline timeline;
     StaticArray<VulkanFrameSync, kMaxFramesInFlight> frameSyncs;
     StaticArray<VulkanFrameCmdData, kMaxFramesInFlight> frameCmdData;
-
     VulkanCommandList cmdList;
-    
+
+    VulkanImmediateSubmitContext immediateSubmitContext;
+
     u32 frameIndex {0};
 };

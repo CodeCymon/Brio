@@ -54,17 +54,19 @@ void Engine::Run() const {
           Vertex{{1, 1,  0},0, {0,0,1}}
     };
 
-    RHIMappedBufferRef stagingBuffer = RHICreateMappedBuffer({3 * sizeof(Vertex), BufferUsage::TransferSrc|BufferUsage::ShaderAddressable}, nullptr);
-    std::memcpy(stagingBuffer->MappedPointer(), vertices, 3 * sizeof(Vertex));
-    /*RHIBufferRef triangleBuffer = RHICreateBuffer({3 * sizeof(Vertex), BufferUsage::ShaderAddressable|BufferUsage::UniformBuffer}, nullptr);
-    RHIImmediateSubmit([&](ICommandList& cmdList) {
-       cmdList.CopyBuffer(stagingBuffer, triangleBuffer, sizeof(vertices), 0, 0);
-    });*/
+    RHIBufferRef triangleBuffer = RHICreateBuffer({3 * sizeof(Vertex), BufferUsage::TransferDst|BufferUsage::ShaderAddressable}, "vertexBuffer");
+    {
+        RHIMappedBufferRef stagingBuffer = RHICreateMappedBuffer({3 * sizeof(Vertex), BufferUsage::TransferSrc}, "vertexStagingBuffer");
+        std::memcpy(stagingBuffer->MappedPointer(), vertices, 3 * sizeof(Vertex));
+        RHIImmediateSubmit([&](ICommandList& cmdList) {
+           cmdList.CopyBuffer(stagingBuffer->Buffer(), triangleBuffer, sizeof(vertices), 0, 0);
+        });
+    }
 
     struct PushConstants {
         u64 bufferAddress;
     } constants;
-    constants.bufferAddress = stagingBuffer->GetGpuAddress();
+    constants.bufferAddress = triangleBuffer->GetGpuAddress();
 
     RHIGraphicsPipelineDesc triDesc {
         .vertexShader = vertexShader,

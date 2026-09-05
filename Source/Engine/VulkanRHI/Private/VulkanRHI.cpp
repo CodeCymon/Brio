@@ -13,6 +13,8 @@ static constexpr bool bUseValidation = true;
 static constexpr bool bUseValidation = false;
 #endif
 
+VulkanRHI::VulkanRHI() :device(timeline), immediateSubmitContext(device) {}
+
 void VulkanRHI::Initialize(NativeWindowData const &windowData, UIntPoint const& initialExtent) {
     instance.Initialize(bUseValidation);
     surface.Initialize(&instance, windowData);
@@ -27,10 +29,14 @@ void VulkanRHI::Initialize(NativeWindowData const &windowData, UIntPoint const& 
 
     for (auto& frameCmd : frameCmdData)
         frameCmd.Initialize(&device);
+
+    immediateSubmitContext.Initialize();
 }
 
 void VulkanRHI::Shutdown() {
     WaitForIdle();
+
+    immediateSubmitContext.Shutdown();
 
     device.DeferredDeletionQueue().FlushAll();
 
@@ -136,5 +142,30 @@ void VulkanRHI::EndFrame() {
 }
 
 void VulkanRHI::ImmediateSubmit(Function<void(ICommandList &)> const &fn) {
-    ASSERT(false);
+    vkResetCommandPool(device.LogicalDevice(), immediateSubmitContext.Pool(), 0);
+
+    VkCommandBuffer immCmd = immediateSubmitContext.Cmd();
+
+    VkCommandBufferBeginInfo beginInfo {
+        .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
+        .flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT
+    };
+    vkBeginCommandBuffer(immCmd, &beginInfo);
+
+    VulkanCommandList immediateList {};
+    immediateList.BindActiveCommandBuffer(immCmd);
+
+    fn(immediateList);
+
+    vkEndCommandBuffer(immCmd);
+
+    VkSubmitInfo submitInfo {
+        .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
+        .commandBufferCount = 1,
+        .pCommandBuffers = &immCmd,
+    };
+    vkQueueSubmit(device.GraphicsQueue(), 1, &submitInfo, immediateSubmitContext.Fence());
+    VkFence fence = immediateSubmitContext.Fence();
+    vkWaitForFences(device.LogicalDevice(), 1, &fence, VK_TRUE, UINT64_MAX);
+    vkResetFences(device.LogicalDevice(), 1, &fence);
 }

@@ -15,14 +15,6 @@ VulkanBuffer::VulkanBuffer(VulkanDevice* device, RHIBufferDesc const &desc, VkBu
     VmaAllocation allocation, u64 gpuAddress)
         : RHIBuffer(desc, gpuAddress), buffer(buffer), allocation(allocation), device(device) {}
 
-VulkanMappedBuffer::~VulkanMappedBuffer() {
-    device->DeferredDeletionQueue().Enqueue(VulkanDeferredDeletionQueue::Type::Buffer, buffer, allocation);
-}
-
-VulkanMappedBuffer::VulkanMappedBuffer(VulkanDevice* device, RHIBufferDesc const &desc,
-                                       VkBuffer buffer, VmaAllocation allocation, u64 gpuAddress,
-                                       void* ptr)
-    : RHIMappedBuffer(desc, gpuAddress, ptr), buffer(buffer), allocation(allocation), device(device) {}
 
 RHIBufferRef VulkanRHI::CreateBuffer(RHIBufferDesc const &desc, char const* debugName) {
     VkBufferCreateInfo bufferInfo = BufferTranslation::CreateInfoFromDesc(desc);
@@ -56,12 +48,13 @@ RHIMappedBufferRef VulkanRHI::CreateMappedBuffer(RHIBufferDesc const& desc, char
 
     if (debugName) device.SetObjectDebugName(VK_OBJECT_TYPE_BUFFER, (u64)buffer, debugName);
 
-    void* ptr = allocationInfo.pMappedData;
     u64 address = 0;
     if (Contains(desc.usage,BufferUsage::ShaderAddressable)) {
         VkBufferDeviceAddressInfo addressInfo {.sType = VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO, .buffer = buffer};
         address = vkGetBufferDeviceAddress(device.LogicalDevice(), &addressInfo);
     }
 
-    return new VulkanMappedBuffer{&device, desc, buffer, allocation, address, ptr};
+    RHIBufferRef rhiBuffer = new VulkanBuffer{&device, desc, buffer, allocation, address};
+
+    return new VulkanMappedBuffer{Move(rhiBuffer), allocationInfo.pMappedData};
 }

@@ -93,8 +93,10 @@ public:
     [[nodiscard]] RHIBufferDesc const& Desc() const { return desc; }
     [[nodiscard]] BufferUsage Usage() const { return desc.usage; }
     [[nodiscard]] u64 Size() const { return desc.size; }
-
-    [[nodiscard]] u64 GetGpuAddress() const { return gpuAddress; }
+    [[nodiscard]] u64 GetGpuAddress() const {
+        ASSERT(Contains(desc.usage, BufferUsage::ShaderAddressable));
+        return gpuAddress;
+    }
 
 protected:
     explicit RHIBuffer(RHIBufferDesc const& inDesc, u64 inAddress) : desc(inDesc), gpuAddress(inAddress) {}
@@ -104,15 +106,22 @@ private:
     u64 gpuAddress;
 };
 
-class RHIMappedBuffer : public RHIBuffer {
+class RHIMappedBuffer : public RHIResource {
 public:
-    [[nodiscard]] void* MappedPointer() const { return mappedPointer; }
+    RHIBuffer* Buffer() const { return buffer.Get(); }
+    void* MappedPointer() const { return mappedPointer; }
+
+    RHIBufferDesc const& Desc() const { return buffer->Desc(); }
+    BufferUsage Usage() const { return buffer->Desc().usage; }
+    u64 Size() const { return buffer->Desc().size; }
+    u64 GetGpuAddress() const { return buffer->GetGpuAddress(); }
 
 protected:
-    explicit RHIMappedBuffer(RHIBufferDesc const& inDesc, u64 inAddress, void* inPtr)
-        : RHIBuffer(inDesc, inAddress), mappedPointer(inPtr) {}
+    explicit RHIMappedBuffer(RHIBufferRef inBuffer, void* inPtr)
+        : buffer(Move(inBuffer)), mappedPointer(inPtr) {}
 
 private:
+    RHIBufferRef buffer;
     void* mappedPointer;
 };
 

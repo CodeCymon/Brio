@@ -34,11 +34,15 @@ private:
     VulkanDevice* device;
 };
 
+//  -   -   -   -   -   -   -
+//  Buffers
+//  -   -   -   -   -   -   -
+
 class VulkanBuffer final : public RHIBuffer {
 public:
     ~VulkanBuffer() override;
 
-    [[nodiscard]] VkBuffer Buffer() const { return buffer; }
+    VkBuffer Buffer() const { return buffer; }
 
 private:
     VulkanBuffer(VulkanDevice* device, RHIBufferDesc const &desc, VkBuffer buffer,
@@ -52,22 +56,15 @@ private:
     VulkanDevice* device;
 };
 
-class VulkanMappedBuffer final : public RHIMappedBuffer{
+class VulkanMappedBuffer final : public RHIMappedBuffer {
 public:
-    ~VulkanMappedBuffer() override;
-
-    [[nodiscard]] VkBuffer Buffer() const { return buffer; }
+    ~VulkanMappedBuffer() override = default;
 
 private:
-    VulkanMappedBuffer(VulkanDevice* device, RHIBufferDesc const &desc, VkBuffer buffer,
-                       VmaAllocation allocation, u64 gpuAddress, void* ptr);
+    VulkanMappedBuffer(RHIBufferRef inBuffer, void* inPtr)
+        : RHIMappedBuffer(Move(inBuffer), inPtr) {}
 
     friend class VulkanRHI;
-
-private:
-    VkBuffer buffer;
-    VmaAllocation allocation;
-    VulkanDevice* device;
 };
 
 //  -   -   -   -   -   -   -
@@ -138,6 +135,11 @@ struct TVulkanResourceTraits {};
 template<>
 struct TVulkanResourceTraits<RHITexture> {
     using ConcreteType = VulkanTexture;
+};
+
+template<>
+struct TVulkanResourceTraits<RHIBuffer> {
+    using ConcreteType = VulkanBuffer;
 };
 
 template<>

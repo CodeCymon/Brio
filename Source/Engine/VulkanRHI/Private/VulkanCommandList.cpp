@@ -150,7 +150,15 @@ void VulkanCommandList::Draw(u32 vertexCount, u32 instanceCount, u32 firstVertex
 
 void VulkanCommandList::CopyBuffer(RHIBuffer* srcBuffer, RHIBuffer* dstBuffer, u64 size,
     u64 srcOffset, u64 dstOffset) {
-    ASSERT(false);
+    VulkanBuffer* src = ResourceCast(srcBuffer);
+    VulkanBuffer* dst = ResourceCast(dstBuffer);
+
+    VkBufferCopy copyRegion {
+        .srcOffset = srcOffset,
+        .dstOffset = dstOffset,
+        .size = size,
+    };
+    vkCmdCopyBuffer(cmd, src->Buffer(), dst->Buffer(), 1, &copyRegion);
 }
 
 void VulkanCommandList::EndRendering() {
