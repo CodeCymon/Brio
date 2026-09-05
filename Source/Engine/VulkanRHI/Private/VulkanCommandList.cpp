@@ -98,6 +98,12 @@ void VulkanCommandList::BindPipeline(RHIGraphicsPipeline* pipeline) {
     vkCmdBindPipeline(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, vkPipeline->Pipeline());
 }
 
+void VulkanCommandList::PushConstants(RHIGraphicsPipeline* pipeline, ShaderStage stages, u64 offset, u64 size, const void* data) {
+    VulkanGraphicsPipeline* vkPipeline = ResourceCast(pipeline);
+    VkShaderStageFlags vkStages = ShaderTranslations::ToVulkanShaderStages(stages);
+    vkCmdPushConstants(cmd, vkPipeline->Layout(), vkStages, offset, size, data);
+}
+
 void VulkanCommandList::BeginRendering(RHITexture* colorTarget) {
     VulkanTexture* texture = ResourceCast(colorTarget);
 

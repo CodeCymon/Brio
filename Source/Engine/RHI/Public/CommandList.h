@@ -25,6 +25,8 @@ public:
 
     virtual void BindPipeline(RHIGraphicsPipeline* pipeline) = 0;
 
+    virtual void PushConstants(RHIGraphicsPipeline* pipeline, ShaderStage stages, u64 offset, u64 size, const void* data) = 0;
+
     virtual void BeginRendering(RHITexture* colorTarget) = 0;
     virtual void EndRendering() = 0;
 

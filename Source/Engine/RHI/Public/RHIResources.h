@@ -8,7 +8,7 @@
 #include "Math/IntPoint.h"
 
 #include "RHIDefinitions.h"
-#include "Memory/RefCountedPtr.h"
+#include "RHIResources.h"
 
 using RHITextureRef = TRefCountedPtr<class RHITexture>;
 
@@ -72,6 +72,7 @@ public:
 protected:
     explicit RHITexture(RHITextureDesc const& inDesc) : desc(inDesc) {}
 
+private:
     RHITextureDesc desc;
 };
 
@@ -83,7 +84,6 @@ struct RHIShaderDesc {
 
 class RHIShader : public RHIResource {
 public:
-    RHIShader() = delete;
     explicit RHIShader(ShaderStage stage) : stage(stage) {}
 
     [[nodiscard]] ShaderStage Stage() const { return stage; }
@@ -117,6 +117,9 @@ struct RHIGraphicsPipelineDesc {
 
     RHIRasterState raster;
     RHIBlendState blend;
+
+    u32 pushConstantSize;
+    u32 pushConstantOffset;
 
     PixelFormat colorFormat;
     PixelFormat depthFormat;

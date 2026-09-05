@@ -4,6 +4,10 @@
 #include "Core/CoreTypes.h"
 #include "Core/CoreMacros.h"
 
+struct ClearColor {
+    f32 r = 0.0f, g = 0.0f, b = 0.0f, a = 1.0f;
+};
+
 enum class TextureDimension : u8 {
     Tex1D,
     Tex2D,
@@ -37,10 +41,12 @@ enum class PixelFormat : u16 {
 
 
 enum class ShaderStage : u8 {
-    Vertex,
-    Pixel,
-    Compute,
+    None = 0,
+    Vertex = 1<<0,
+    Pixel = 1<<1,
+    Compute = 1<<2,
 };
+ENABLE_ENUM_BITWISE_OPERATORS(ShaderStage);
 
 enum class RHIResourceState : u8 {
     Undefined,
@@ -53,11 +59,6 @@ enum class RHIResourceState : u8 {
     General,
     Present,
 };
-
-struct ClearColor {
-    f32 r = 0.0f, g = 0.0f, b = 0.0f, a = 1.0f;
-};
-
 
 
 enum class FillMode : u8 {

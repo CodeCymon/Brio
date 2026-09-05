@@ -14,10 +14,17 @@ VulkanGraphicsPipeline::~VulkanGraphicsPipeline() {
 
 RHIGraphicsPipelineRef VulkanRHI::CreateGraphicsPipeline(RHIGraphicsPipelineDesc const &desc) {
 
+    VkPushConstantRange pushConstantRange {
+        .stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
+        .offset = desc.pushConstantOffset,
+        .size = desc.pushConstantSize,
+    };
+
     VkPipelineLayoutCreateInfo layoutInfo {
         .sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO,
         .setLayoutCount = 0,
-        .pushConstantRangeCount = 0
+        .pushConstantRangeCount = 1,
+        .pPushConstantRanges = &pushConstantRange
     };
     VkPipelineLayout layout;
     VkResult layoutResult = vkCreatePipelineLayout(device.LogicalDevice(), &layoutInfo, nullptr, &layout);

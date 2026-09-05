@@ -19,6 +19,8 @@ public:
 
     void BindPipeline(RHIGraphicsPipeline* pipeline) override;
 
+    void PushConstants(RHIGraphicsPipeline* pipeline, ShaderStage stages, u64 offset, u64 size, const void* data) override;
+
     void BeginRendering(RHITexture* colorTarget) override;
     void EndRendering() override;
 
