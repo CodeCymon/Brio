@@ -1,7 +1,7 @@
 // Copyright (c) Simon Kirsch 2026.
 
 #pragma once
-#include "CoreMinimal.h"
+#include "Core/Function.h"
 
 #include "RHI.h"
 #include "RHIResources.h"

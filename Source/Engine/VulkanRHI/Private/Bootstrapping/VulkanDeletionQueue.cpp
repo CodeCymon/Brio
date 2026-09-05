@@ -1,5 +1,6 @@
 // Copyright (c) Simon Kirsch 2026.
 
+#include <vk_mem_alloc.h>
 #include "VulkanDevice.h"
 #include "Bootstrapping/VulkanTimeline.h"
 

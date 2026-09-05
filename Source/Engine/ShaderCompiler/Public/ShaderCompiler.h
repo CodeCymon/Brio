@@ -3,7 +3,7 @@
 #pragma once
 #include "ShaderCompilerAPI.h"
 
-#include "CoreMinimal.h"
+#include "Containers/Array.h"
 
 namespace SHADERCOMPILER_API ShaderCompiler {
     bool Initialize();

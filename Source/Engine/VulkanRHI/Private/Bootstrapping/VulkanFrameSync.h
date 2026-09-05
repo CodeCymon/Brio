@@ -4,8 +4,7 @@
 
 #include <vulkan/vulkan.h>
 
-#include "CoreMinimal.h"
-
+#include "Core/CoreTypes.h"
 class VulkanDevice;
 
 class VulkanFrameSync {

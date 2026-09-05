@@ -1,5 +1,7 @@
 // Copyright (c) Simon Kirsch 2026.
 
+#include <vk_mem_alloc.h>
+
 #include "VulkanCheck.h"
 #include "VulkanResources.h"
 #include "VulkanRHI.h"
@@ -19,7 +21,7 @@ VulkanTexture::VulkanTexture(VulkanDevice* device, RHITextureDesc const &desc, V
       bExternalMemory(bExternalMemory), device(device) {}
 
 RHITextureRef VulkanRHI::CreateTexture(RHITextureDesc const &desc, char const* debugName) {
-    VkImageCreateInfo imageInfo = ImageTranslation::CreateInfoFromTextureDesc(desc);
+    VkImageCreateInfo imageInfo = ImageTranslation::CreateInfoFromDesc(desc);
     VmaAllocationCreateInfo allocInfo = { .usage = VMA_MEMORY_USAGE_AUTO };
 
     VkImage image {}; VmaAllocation allocation {};
@@ -62,8 +64,7 @@ RHITextureRef VulkanRHI::CreateTexture(RHITextureDesc const &desc, char const* d
         reinterpret_cast<PFN_vkSetDebugUtilsObjectNameEXT>(vkGetDeviceProcAddr(device.LogicalDevice(), "vkSetDebugUtilsObjectNameEXT"))(device.LogicalDevice(), &viewName);
     }
 
-    auto* tex = new VulkanTexture{&device, desc, image, view, allocation, false};
-    return RHITextureRef{tex};
+    return new VulkanTexture{&device, desc, image, view, allocation, false};
 }
 
 VulkanTexture* VulkanRHI::RegisterExternalTexture(RHITextureDesc const &desc, VkImage image, VkImageView defaultView) {

@@ -4,6 +4,10 @@
 
 #include <cstring>
 
+#include <vk_mem_alloc.h>
+
+#include "Containers/Set.h"
+
 #if PLATFORM_MACOS
 #include <vulkan/vulkan_beta.h>
 #endif
@@ -21,6 +25,8 @@ void VulkanDevice::Initialize(VulkanInstance const* inInstance, VulkanSurface co
 
     PickPhysicalDevice();
     CreateLogicalDevice();
+
+    loader.LoadFunctions(logicalDevice);
 
     VmaAllocatorCreateInfo allocatorInfo = {
         .flags = VMA_ALLOCATOR_CREATE_BUFFER_DEVICE_ADDRESS_BIT,
@@ -41,6 +47,18 @@ void VulkanDevice::Shutdown() {
 
 bool VulkanDevice::IsDebugEnabled() const {
     return instance->IsValidationEnabled();
+}
+
+void VulkanDevice::SetObjectDebugName(VkObjectType type, u64 handle, const char* name) {
+    if (IsDebugEnabled() == false) return;
+
+    VkDebugUtilsObjectNameInfoEXT nameInfo {
+        .sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_NAME_INFO_EXT,
+        .objectType = type,
+        .objectHandle = handle,
+        .pObjectName = name
+    };
+    loader.SetDebugUtilsObjectNameEXT(logicalDevice, &nameInfo);
 }
 
 void VulkanDevice::PickPhysicalDevice() {
@@ -194,6 +212,8 @@ VulkanDeviceFeatures VulkanDevice::RequiredFeatures() {
 
     features.features12.descriptorIndexing = VK_TRUE;
     features.features12.bufferDeviceAddress = VK_TRUE;
+
+    features.features.features.shaderInt64 = VK_TRUE;
 
     return features;
 }

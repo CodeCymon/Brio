@@ -7,6 +7,9 @@
 #include "VulkanExternalTextureRegistry.h"
 #include "Bootstrapping/VulkanDevice.h"
 #include "Bootstrapping/VulkanSurface.h"
+#include "Containers/Set.h"
+#include "Containers/StaticArray.h"
+#include "Math/Math.h"
 
 void VulkanSwapchain::Initialize(VulkanDevice const* inDevice, VulkanSurface const* inSurface, IVulkanExternalTextureRegistry* registry, UIntPoint const &inExtent) {
     device = inDevice;

@@ -4,8 +4,8 @@
 
 #include <cstring>
 
-#include "CoreMinimal.h"
 #include "VulkanCheck.h"
+#include "Containers/Array.h"
 
 #if PLATFORM_LINUX
 #include <vulkan/vulkan_wayland.h>

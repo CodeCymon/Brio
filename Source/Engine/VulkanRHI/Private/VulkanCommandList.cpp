@@ -3,6 +3,7 @@
 #include "VulkanCommandList.h"
 
 #include "Resources/VulkanResources.h"
+#include "TranslationUtils/ShaderTranslations.h"
 #include "TranslationUtils/TextureTranslations.h"
 
 void VulkanCommandList::BeginDebugLabel(char const* label) { ASSERT(false); }

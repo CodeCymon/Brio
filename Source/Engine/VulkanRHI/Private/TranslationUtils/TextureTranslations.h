@@ -21,6 +21,6 @@ namespace ImageTranslation {
 
     VulkanImageStateInfo ToVulkanImageState(RHIResourceState state);
 
-    VkImageCreateInfo CreateInfoFromTextureDesc(RHITextureDesc const& desc);
+    VkImageCreateInfo CreateInfoFromDesc(RHITextureDesc const& desc);
 };
 

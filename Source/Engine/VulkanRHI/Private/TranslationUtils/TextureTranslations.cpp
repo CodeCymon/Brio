@@ -122,7 +122,7 @@ VulkanImageStateInfo ImageTranslation::ToVulkanImageState(RHIResourceState state
     return {};
 }
 
-VkImageCreateInfo ImageTranslation::CreateInfoFromTextureDesc(RHITextureDesc const &desc) {
+VkImageCreateInfo ImageTranslation::CreateInfoFromDesc(RHITextureDesc const &desc) {
     VkImageCreateInfo createInfo = {
         .sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,
         .pNext = nullptr,

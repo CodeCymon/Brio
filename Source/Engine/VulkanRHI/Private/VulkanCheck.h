@@ -4,8 +4,6 @@
 
 #include <vulkan/vk_enum_string_helper.h>
 
-#include "CoreMinimal.h"
-
 #include "LogVulkan.h"
 
 #if BUILD_DEBUG

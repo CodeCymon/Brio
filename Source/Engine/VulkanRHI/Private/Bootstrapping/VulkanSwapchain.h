@@ -3,7 +3,8 @@
 #pragma once
 #include <vulkan/vulkan.h>
 
-#include "CoreMinimal.h"
+#include "Core/CoreTypes.h"
+#include "Containers/Array.h"
 
 #include "Resources/VulkanResources.h"
 

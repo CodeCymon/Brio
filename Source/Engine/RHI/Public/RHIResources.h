@@ -3,7 +3,10 @@
 #pragma once
 #include <atomic>
 
-#include "CoreMinimal.h"
+#include "Containers/Array.h"
+#include "Memory/RefCountedPtr.h"
+#include "Math/IntPoint.h"
+
 #include "RHIDefinitions.h"
 #include "Memory/RefCountedPtr.h"
 
@@ -14,6 +17,10 @@ using RHIPixelShaderRef = TRefCountedPtr<class RHIPixelShader>;
 using RHIComputeShaderRef = TRefCountedPtr<class RHIComputeShader>;
 
 using RHIGraphicsPipelineRef = TRefCountedPtr<class RHIGraphicsPipeline>;
+
+//  -   -   -   -   -   -   -
+//  Base Resource
+//  -   -   -   -   -   -   -
 
 class RHIResource {
 public:
@@ -35,7 +42,9 @@ private:
     std::atomic<u32> refCount {0};
 };
 
-
+//  -   -   -   -   -   -   -
+//  Textures
+//  -   -   -   -   -   -   -
 
 struct RHITextureDesc {
     TextureDimension dimension = TextureDimension::Tex2D;
@@ -98,7 +107,9 @@ public:
     RHIComputeShader() : RHIShader(ShaderStage::Compute) {}
 };
 
-
+//  -   -   -   -   -   -   -
+//  Pipelines
+//  -   -   -   -   -   -   -
 
 struct RHIGraphicsPipelineDesc {
     RHIVertexShader* vertexShader;

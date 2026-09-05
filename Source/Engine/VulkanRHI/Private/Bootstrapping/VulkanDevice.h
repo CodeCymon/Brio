@@ -2,9 +2,8 @@
 
 #pragma once
 #include <vulkan/vulkan.h>
-#include <vk_mem_alloc.h>
 
-#include "CoreMinimal.h"
+#include "Bootstrapping/VulkanLoader.h"
 #include "Bootstrapping/VulkanTimeline.h"
 #include "Resources/VulkanResources.h"
 
@@ -102,8 +101,11 @@ public:
     [[nodiscard]] u32 PresentQueueFamilyIndex() const { return presentQueueFamilyIndex; }
 
     VulkanDeferredDeletionQueue& DeferredDeletionQueue() { return deferredDeletionQueue; }
-    VmaAllocator Allocator() const { return allocator; }
+    struct VmaAllocator_T* Allocator() const { return allocator; }
     VulkanShaderFactory& ShaderFactory() { return shaderFactory; }
+
+    VulkanLoader& Loader() { return loader; }
+    void SetObjectDebugName(VkObjectType type, u64 handle, const char* name);
 
     bool IsDebugEnabled() const;
 
@@ -129,9 +131,11 @@ private:
     VkQueue presentQueue {};
     u32 presentQueueFamilyIndex {};
 
-    VmaAllocator allocator {};
+    struct VmaAllocator_T* allocator{};
     VulkanDeferredDeletionQueue deferredDeletionQueue;
     VulkanShaderFactory shaderFactory {};
+
+    VulkanLoader loader {};
 
     VulkanInstance const* instance {nullptr};
     VulkanSurface const* surface {nullptr};

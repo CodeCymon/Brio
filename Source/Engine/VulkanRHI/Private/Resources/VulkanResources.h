@@ -3,11 +3,15 @@
 #pragma once
 
 #include <vulkan/vulkan_core.h>
-#include <vk_mem_alloc.h>
 
 #include "RHIResources.h"
 
 class VulkanDevice;
+typedef struct VmaAllocation_T* VmaAllocation;
+
+//  -   -   -   -   -   -   -
+//  Textures
+//  -   -   -   -   -   -   -
 
 class VulkanTexture final : public RHITexture {
 public:
@@ -63,6 +67,9 @@ public:
     VulkanShaderType* CreateShader(Array<u32> const& byteCode, VulkanDevice* device);
 };
 
+//  -   -   -   -   -   -   -
+//  Pipelines
+//  -   -   -   -   -   -   -
 
 class VulkanGraphicsPipeline final : public RHIGraphicsPipeline {
 public:

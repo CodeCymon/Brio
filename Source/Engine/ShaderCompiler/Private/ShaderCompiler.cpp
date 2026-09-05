@@ -6,6 +6,9 @@
 #include <slang-com-ptr.h>
 #include <slang-com-helper.h>
 
+#include "Containers/StaticArray.h"
+#include "Log/Log.h"
+
 DEFINE_LOG_CATEGORY_STATIC(LogShaderCompiler);
 
 namespace {

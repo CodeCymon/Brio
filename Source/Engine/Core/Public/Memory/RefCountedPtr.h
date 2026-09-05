@@ -7,9 +7,9 @@ template<typename T>
 class TRefCountedPtr {
 public:
     TRefCountedPtr() = default;
-    explicit TRefCountedPtr(std::nullptr_t) {}
+    TRefCountedPtr(std::nullptr_t) {}
 
-    explicit TRefCountedPtr(T* inPtr) : ptr(inPtr) {
+    TRefCountedPtr(T* inPtr) : ptr(inPtr) {
         if (ptr) ptr->AddRef();
     }
 

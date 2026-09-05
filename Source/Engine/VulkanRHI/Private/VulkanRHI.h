@@ -15,8 +15,7 @@
 #include "Bootstrapping/VulkanFrameCmdData.h"
 
 #include "VulkanCommandList.h"
-
-#include "Resources/VulkanResources.h"
+#include "Containers/StaticArray.h"
 
 
 class VulkanRHI final : public IDynamicRHI, public IVulkanExternalTextureRegistry {
