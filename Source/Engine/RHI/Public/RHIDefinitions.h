@@ -39,6 +39,17 @@ enum class PixelFormat : u16 {
     D24_UNORM_S8_UINT,
 };
 
+enum class BufferUsage : u32 {
+    None = 0,
+    TransferSrc = 1<<0,
+    TransferDst = 1<<1,
+    UniformBuffer = 1<<2,
+    StorageBuffer = 1<<3,
+    IndexBuffer = 1<<4,
+    ShaderAddressable = 1<<5,
+};
+ENABLE_ENUM_BITWISE_OPERATORS(BufferUsage);
+
 
 enum class ShaderStage : u8 {
     None = 0,

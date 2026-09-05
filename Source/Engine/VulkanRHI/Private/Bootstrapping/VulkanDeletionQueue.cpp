@@ -37,6 +37,9 @@ void VulkanDeferredDeletionQueue::DestroyEntry(ResourceEntry const &entry) const
         case Type::ImageView:
             vkDestroyImageView(device.LogicalDevice(), reinterpret_cast<VkImageView>(entry.handle), nullptr);
             break;
+        case Type::Buffer:
+            vmaDestroyBuffer(device.Allocator(), reinterpret_cast<VkBuffer>(entry.handle), entry.allocation);
+            break;
         case Type::ShaderModule:
             vkDestroyShaderModule(device.LogicalDevice(), reinterpret_cast<VkShaderModule>(entry.handle), nullptr);
             break;

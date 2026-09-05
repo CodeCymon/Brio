@@ -6,6 +6,7 @@
 #include "Math/Vector2.h"
 #include "Math/IntPoint.h"
 
+class RHIBuffer;
 class RHIGraphicsPipeline;
 class RHITexture;
 
@@ -34,4 +35,6 @@ public:
     virtual void SetScissor(IntPoint offset, UIntPoint size) = 0;
 
     virtual void Draw(u32 vertexCount, u32 instanceCount, u32 firstVertex, u32 firstInstance) = 0;
+
+    virtual void CopyBuffer(RHIBuffer* srcBuffer, RHIBuffer* dstBuffer, u64 size, u64 srcOffset, u64 dstOffset) = 0;
 };

@@ -30,10 +30,15 @@ public:
 
     void OnResize(u32 width, u32 height) override;
 
-    [[nodiscard]] RHIFrameContext BeginFrame() override;
+    RHIFrameContext BeginFrame() override;
     void EndFrame() override;
 
-    [[nodiscard]] RHITextureRef CreateTexture(RHITextureDesc const &desc, char const* debugName) override;
+    void ImmediateSubmit(Function<void(ICommandList &)> const &fn) override;
+
+    RHITextureRef CreateTexture(RHITextureDesc const &desc, char const* debugName) override;
+
+    RHIBufferRef CreateBuffer(RHIBufferDesc const &desc, char const* debugName) override;
+    RHIMappedBufferRef CreateMappedBuffer(RHIBufferDesc const& desc, char const* debugName) override;
 
     // ~ IVulkanExternalTextureRegistry Begin
     VulkanTexture* RegisterExternalTexture(RHITextureDesc const &desc, VkImage image, VkImageView defaultView) override;

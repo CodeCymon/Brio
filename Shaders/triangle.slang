@@ -1,13 +1,16 @@
-static const float3 pos[3] = {
-    float3( 0, -1, 0),
-    float3(-1, 1, 0),
-    float3( 1, 1, 0)
+
+struct PushConstants {
+    uint64_t bufferAddress;
 };
 
-static const float3 col[3] = {
-    float3(1,0,0),
-    float3(0,1,0),
-    float3(0,0,1)
+[push_constant]
+PushConstants pc;
+
+struct Vertex {
+    float3 position;
+    float padding;
+    float3 color;
+    float padding2;
 };
 
 struct VertexOut {
@@ -17,9 +20,12 @@ struct VertexOut {
 
 [shader("vertex")]
 VertexOut VSMain(uint vertexID : SV_VulkanVertexID) {
+    Vertex* vertices = (Vertex*)pc.bufferAddress;
+    Vertex v = vertices[vertexID];
+
     VertexOut out;
-    out.position = float4(pos[vertexID], 1.0);
-    out.color = float4(col[vertexID], 1.0);
+    out.position = float4(v.position, 1.0);
+    out.color = float4(v.color, 1.0);
 
     return out;
 }

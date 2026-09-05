@@ -39,6 +39,7 @@ public:
     enum class Type : u32 {
         Image,
         ImageView,
+        Buffer,
         ShaderModule,
         Pipeline,
         PipelineLayout,

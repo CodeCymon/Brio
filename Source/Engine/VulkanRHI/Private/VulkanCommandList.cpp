@@ -148,6 +148,11 @@ void VulkanCommandList::Draw(u32 vertexCount, u32 instanceCount, u32 firstVertex
     vkCmdDraw(cmd, vertexCount, instanceCount, firstVertex, firstInstance);
 }
 
+void VulkanCommandList::CopyBuffer(RHIBuffer* srcBuffer, RHIBuffer* dstBuffer, u64 size,
+    u64 srcOffset, u64 dstOffset) {
+    ASSERT(false);
+}
+
 void VulkanCommandList::EndRendering() {
     vkCmdEndRendering(cmd);
 }

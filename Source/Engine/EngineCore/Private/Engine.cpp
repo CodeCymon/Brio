@@ -7,6 +7,7 @@
 #include "Platform.h"
 #include "RHI.h"
 #include "ShaderCompiler.h"
+#include "Math/Vector3.h"
 
 bool Engine::Initialize() {
     if (Log::Initialize() == false)
@@ -41,6 +42,30 @@ void Engine::Run() const {
     auto pixelCompileResult = ShaderCompiler::CompileFromFile("triangle.slang", "PSMain");
     RHIPixelShaderRef pixelShader = RHICreatePixelShader({pixelCompileResult.byteCode});
 
+    struct Vertex {
+        Vec3 position;
+        float padding;
+        Vec3 color;
+        float padding2;
+    };
+    Vertex vertices[3] = {
+        Vertex{{0, -1, 0},0, {1,0,0}},
+          Vertex{{-1, 1,  0},0, {0,1,0}},
+          Vertex{{1, 1,  0},0, {0,0,1}}
+    };
+
+    RHIMappedBufferRef stagingBuffer = RHICreateMappedBuffer({3 * sizeof(Vertex), BufferUsage::TransferSrc|BufferUsage::ShaderAddressable}, nullptr);
+    std::memcpy(stagingBuffer->MappedPointer(), vertices, 3 * sizeof(Vertex));
+    /*RHIBufferRef triangleBuffer = RHICreateBuffer({3 * sizeof(Vertex), BufferUsage::ShaderAddressable|BufferUsage::UniformBuffer}, nullptr);
+    RHIImmediateSubmit([&](ICommandList& cmdList) {
+       cmdList.CopyBuffer(stagingBuffer, triangleBuffer, sizeof(vertices), 0, 0);
+    });*/
+
+    struct PushConstants {
+        u64 bufferAddress;
+    } constants;
+    constants.bufferAddress = stagingBuffer->GetGpuAddress();
+
     RHIGraphicsPipelineDesc triDesc {
         .vertexShader = vertexShader,
         .pixelShader = pixelShader,
@@ -52,6 +77,8 @@ void Engine::Run() const {
         .blend = {
             .blendMode = BlendMode::Opaque
         },
+        .pushConstantSize = sizeof(PushConstants),
+        .pushConstantOffset = 0,
         .colorFormat = PixelFormat::RGBA8_SRGB // hardcoded as (preferred) swapchain format
     };
     RHIGraphicsPipelineRef trianglePipeline = RHICreateGraphicsPipeline(triDesc);
@@ -67,6 +94,7 @@ void Engine::Run() const {
         cmdList.TransitionImage(frame.backBuffer, RHIResourceState::Undefined, RHIResourceState::ColorAttachment);
 
         cmdList.BindPipeline(trianglePipeline);
+        cmdList.PushConstants(trianglePipeline, ShaderStage::Vertex|ShaderStage::Pixel, 0, sizeof(PushConstants), &constants);
         cmdList.BeginRendering(frame.backBuffer);
         cmdList.SetViewport({0,0}, frame.backBuffer->Desc().extent);
         cmdList.SetScissor({0,0}, frame.backBuffer->Desc().extent);

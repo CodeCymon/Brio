@@ -34,6 +34,45 @@ private:
     VulkanDevice* device;
 };
 
+class VulkanBuffer final : public RHIBuffer {
+public:
+    ~VulkanBuffer() override;
+
+    [[nodiscard]] VkBuffer Buffer() const { return buffer; }
+
+private:
+    VulkanBuffer(VulkanDevice* device, RHIBufferDesc const &desc, VkBuffer buffer,
+                 VmaAllocation allocation, u64 gpuAddress);
+
+    friend class VulkanRHI;
+
+private:
+    VkBuffer buffer;
+    VmaAllocation allocation;
+    VulkanDevice* device;
+};
+
+class VulkanMappedBuffer final : public RHIMappedBuffer{
+public:
+    ~VulkanMappedBuffer() override;
+
+    [[nodiscard]] VkBuffer Buffer() const { return buffer; }
+
+private:
+    VulkanMappedBuffer(VulkanDevice* device, RHIBufferDesc const &desc, VkBuffer buffer,
+                       VmaAllocation allocation, u64 gpuAddress, void* ptr);
+
+    friend class VulkanRHI;
+
+private:
+    VkBuffer buffer;
+    VmaAllocation allocation;
+    VulkanDevice* device;
+};
+
+//  -   -   -   -   -   -   -
+//  Shaders
+//  -   -   -   -   -   -   -
 
 class VulkanShaderResource {
 public:

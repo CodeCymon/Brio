@@ -29,6 +29,8 @@ public:
 
     void Draw(u32 vertexCount, u32 instanceCount, u32 firstVertex, u32 firstInstance) override;
 
+    void CopyBuffer(RHIBuffer* srcBuffer, RHIBuffer* dstBuffer, u64 size, u64 srcOffset, u64 dstOffset) override;
+
 public:
     void BindActiveCommandBuffer(VkCommandBuffer commandBuffer);
 

@@ -134,3 +134,7 @@ void VulkanRHI::EndFrame() {
 
     frameIndex = (frameIndex + 1) % kMaxFramesInFlight;
 }
+
+void VulkanRHI::ImmediateSubmit(Function<void(ICommandList &)> const &fn) {
+    ASSERT(false);
+}

@@ -32,14 +32,18 @@ public:
     virtual RHIFrameContext BeginFrame() = 0;
     virtual void EndFrame() = 0;
 
+    virtual void ImmediateSubmit(Function<void(ICommandList&)> const& fn) = 0;
+
     virtual RHITextureRef CreateTexture(RHITextureDesc const& desc, char const* debugName) = 0;
+
+    virtual RHIBufferRef CreateBuffer(RHIBufferDesc const& desc, char const* debugName) = 0;
+    virtual RHIMappedBufferRef CreateMappedBuffer(RHIBufferDesc const& desc, char const* debugName) = 0;
 
     virtual RHIVertexShaderRef CreateVertexShader(RHIShaderDesc const& desc) = 0;
 
     virtual RHIPixelShaderRef CreatePixelShader(RHIShaderDesc const& desc) = 0;
 
     virtual RHIGraphicsPipelineRef CreateGraphicsPipeline(RHIGraphicsPipelineDesc const& desc) = 0;
-
 };
 
 inline RHIFrameContext RHIBeginFrame() {
@@ -50,15 +54,27 @@ inline void RHIEndFrame() {
     GDynamicRHI->EndFrame();
 }
 
-inline RHITextureRef RHICreateTexture(RHITextureDesc const &desc, char const* debugName) {
+inline void RHIImmediateSubmit(Function<void(ICommandList&)> const& fn) {
+    GDynamicRHI->ImmediateSubmit(fn);
+}
+
+inline RHITextureRef RHICreateTexture(RHITextureDesc const& desc, char const* debugName) {
     return GDynamicRHI->CreateTexture(desc, debugName);
 }
 
-inline RHIVertexShaderRef RHICreateVertexShader(RHIShaderDesc const &desc) {
+inline RHIBufferRef RHICreateBuffer(RHIBufferDesc const& desc, char const* debugName) {
+    return GDynamicRHI->CreateBuffer(desc, debugName);
+}
+
+inline RHIMappedBufferRef RHICreateMappedBuffer(RHIBufferDesc const& desc, char const* debugName) {
+    return GDynamicRHI->CreateMappedBuffer(desc, debugName);
+}
+
+inline RHIVertexShaderRef RHICreateVertexShader(RHIShaderDesc const& desc) {
     return GDynamicRHI->CreateVertexShader(desc);
 }
 
-inline RHIPixelShaderRef RHICreatePixelShader(RHIShaderDesc const &desc) {
+inline RHIPixelShaderRef RHICreatePixelShader(RHIShaderDesc const& desc) {
     return GDynamicRHI->CreatePixelShader(desc);
 }
 

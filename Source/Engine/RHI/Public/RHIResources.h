@@ -12,6 +12,9 @@
 
 using RHITextureRef = TRefCountedPtr<class RHITexture>;
 
+using RHIBufferRef = TRefCountedPtr<class RHIBuffer>;
+using RHIMappedBufferRef = TRefCountedPtr<class RHIMappedBuffer>;
+
 using RHIVertexShaderRef = TRefCountedPtr<class RHIVertexShader>;
 using RHIPixelShaderRef = TRefCountedPtr<class RHIPixelShader>;
 using RHIComputeShaderRef = TRefCountedPtr<class RHIComputeShader>;
@@ -76,7 +79,46 @@ private:
     RHITextureDesc desc;
 };
 
+//  -   -   -   -   -   -   -
+//  Buffers
+//  -   -   -   -   -   -   -
 
+struct RHIBufferDesc {
+    u64 size;
+    BufferUsage usage = BufferUsage::None;
+};
+
+class RHIBuffer : public RHIResource {
+public:
+    [[nodiscard]] RHIBufferDesc const& Desc() const { return desc; }
+    [[nodiscard]] BufferUsage Usage() const { return desc.usage; }
+    [[nodiscard]] u64 Size() const { return desc.size; }
+
+    [[nodiscard]] u64 GetGpuAddress() const { return gpuAddress; }
+
+protected:
+    explicit RHIBuffer(RHIBufferDesc const& inDesc, u64 inAddress) : desc(inDesc), gpuAddress(inAddress) {}
+
+private:
+    RHIBufferDesc desc;
+    u64 gpuAddress;
+};
+
+class RHIMappedBuffer : public RHIBuffer {
+public:
+    [[nodiscard]] void* MappedPointer() const { return mappedPointer; }
+
+protected:
+    explicit RHIMappedBuffer(RHIBufferDesc const& inDesc, u64 inAddress, void* inPtr)
+        : RHIBuffer(inDesc, inAddress), mappedPointer(inPtr) {}
+
+private:
+    void* mappedPointer;
+};
+
+//  -   -   -   -   -   -   -
+//  Shaders
+//  -   -   -   -   -   -   -
 
 struct RHIShaderDesc {
     Array<u32> codeBytes;
