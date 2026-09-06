@@ -10,7 +10,7 @@
 #include "ShaderCompiler.h"
 #include "Math/Vector3.h"
 
-DEFINE_GLOBAL_SHADER(VisualizeUVPS, "VisualizeUV.slang", "PSMain", ShaderStage::Pixel);
+DEFINE_GLOBAL_SHADER(SphereTracerPS, "SphereTracer.slang", "PSMain", ShaderStage::Pixel);
 
 bool Engine::Initialize() {
     if (Log::Initialize() == false)
@@ -38,8 +38,12 @@ bool Engine::Initialize() {
 }
 
 void Engine::Run() {
-    ShaderMapRef<VisualizeUVPS> pixelShader = globalShaderMap.Get<VisualizeUVPS>();
-    RHIGraphicsPipelineRef trianglePipeline = PixelShaderUtils::CreateFullscreenPipeline(&globalShaderMap, pixelShader.Get(), 0, 0, PixelFormat::RGBA8_SRGB);
+    struct SphereTracingConstants {
+        f32 aspectRatio = 1.0f;
+    };
+    SphereTracingConstants sphereTracingConstants;
+    ShaderMapRef<SphereTracerPS> tracingShader = globalShaderMap.Get<SphereTracerPS>();
+    RHIGraphicsPipelineRef sphereTracingPipeline = PixelShaderUtils::CreateFullscreenPipeline(&globalShaderMap, tracingShader.Get(), 0, sizeof(SphereTracingConstants), PixelFormat::RGBA8_SRGB);
 
     while (IsRunning()) {
         Platform::PollEvents();
@@ -53,7 +57,8 @@ void Engine::Run() {
         cmdList.SetViewport({0,0}, frame.backBuffer->Desc().extent);
         cmdList.SetScissor({0,0}, frame.backBuffer->Desc().extent);
 
-        PixelShaderUtils::DrawFullscreenTriangle(cmdList, trianglePipeline, nullptr);
+        sphereTracingConstants.aspectRatio = (f32)frame.backBuffer->Desc().extent.x / (f32)frame.backBuffer->Desc().extent.y;
+        PixelShaderUtils::DrawFullscreenTriangle(cmdList, sphereTracingPipeline, &sphereTracingConstants);
 
         cmdList.EndRendering();
 

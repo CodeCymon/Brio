@@ -31,7 +31,7 @@ namespace PixelShaderUtils {
     void DrawFullscreenTriangle(ICommandList& cmdList, RHIGraphicsPipeline* pipeline, const void* pushConstantData) {
         cmdList.BindPipeline(pipeline);
         if (pipeline->Desc().pushConstantSize > 0 && pushConstantData)
-            cmdList.PushConstants(pipeline, ShaderStage::Pixel, pipeline->Desc().pushConstantOffset, pipeline->Desc().pushConstantSize, pushConstantData);
+            cmdList.PushConstants(pipeline, ShaderStage::Pixel|ShaderStage::Vertex, pipeline->Desc().pushConstantOffset, pipeline->Desc().pushConstantSize, pushConstantData);
         cmdList.Draw(3,1,0,0);
     }
 }
