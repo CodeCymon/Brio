@@ -2,6 +2,7 @@
 
 #include "ShaderCompiler.h"
 
+#include <filesystem>
 #include <slang.h>
 #include <slang-com-ptr.h>
 #include <slang-com-helper.h>
@@ -45,6 +46,12 @@ void ShaderCompiler::Shutdown() {
 ShaderCompiler::CompileResult ShaderCompiler::CompileFromFile(std::string_view path,
     std::string_view entryPoint) {
 
+    std::filesystem::path truePath(std::string(DEFAULT_SHADER_DIRECTORY) + std::string(path));
+    if (exists(truePath) == false) {
+        LOG_ERROR(LogShaderCompiler, "File/Path: {} not found", truePath.c_str());
+        ASSERT(false);
+    }
+
     Slang::ComPtr<slang::IBlob> diagnosticsBlob;
 
     Slang::ComPtr<slang::IModule> module;
@@ -52,12 +59,14 @@ ShaderCompiler::CompileResult ShaderCompiler::CompileFromFile(std::string_view p
 
     if (diagnosticsBlob) {
         LOG_ERROR(LogShaderCompiler, "{}", (const char*)diagnosticsBlob->getBufferPointer());
+        ASSERT(false);
     }
 
     Slang::ComPtr<slang::IEntryPoint> slangEntryPoint;
     module->findEntryPointByName(entryPoint.data(), slangEntryPoint.writeRef());
     if (!slangEntryPoint) {
         LOG_ERROR(LogShaderCompiler, "Entry point: {} not found", entryPoint.data());
+        ASSERT(false);
     }
 
     StaticArray<slang::IComponentType*, 2> componentTypes = { module, slangEntryPoint };
@@ -68,21 +77,21 @@ ShaderCompiler::CompileResult ShaderCompiler::CompileFromFile(std::string_view p
     );
     if (SLANG_FAILED(result)) {
         LOG_ERROR(LogShaderCompiler, "{}", (const char*)diagnosticsBlob->getBufferPointer());
-        return {.bSuccess = false};
+        ASSERT(false);
     }
 
     Slang::ComPtr<slang::IComponentType> linkedProgram;
     result = composedProgram->link(linkedProgram.writeRef(), diagnosticsBlob.writeRef());
     if (SLANG_FAILED(result)) {
         LOG_ERROR(LogShaderCompiler, "{}", (const char*)diagnosticsBlob->getBufferPointer());
-        return {.bSuccess = false};
+        ASSERT(false);
     }
 
     Slang::ComPtr<slang::IBlob> spirvCode;
     result = linkedProgram->getEntryPointCode(0, 0, spirvCode.writeRef(), diagnosticsBlob.writeRef());
     if (SLANG_FAILED(result)) {
         LOG_ERROR(LogShaderCompiler, "{}", (const char*)diagnosticsBlob->getBufferPointer());
-        return {.bSuccess = false};
+        ASSERT(false);
     }
 
     const void* data = spirvCode->getBufferPointer();
