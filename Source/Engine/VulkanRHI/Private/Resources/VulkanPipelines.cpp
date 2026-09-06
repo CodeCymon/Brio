@@ -23,9 +23,12 @@ RHIGraphicsPipelineRef VulkanRHI::CreateGraphicsPipeline(RHIGraphicsPipelineDesc
     VkPipelineLayoutCreateInfo layoutInfo {
         .sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO,
         .setLayoutCount = 0,
-        .pushConstantRangeCount = 1,
-        .pPushConstantRanges = &pushConstantRange
     };
+    if (desc.pushConstantSize > 0) {
+        layoutInfo.pushConstantRangeCount = 1;
+        layoutInfo.pPushConstantRanges = &pushConstantRange;
+    }
+
     VkPipelineLayout layout;
     VkResult layoutResult = vkCreatePipelineLayout(device.LogicalDevice(), &layoutInfo, nullptr, &layout);
     VK_CHECK(layoutResult);
