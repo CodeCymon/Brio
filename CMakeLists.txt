@@ -19,6 +19,7 @@ add_subdirectory(Source/Engine/VulkanRHI)
 add_subdirectory(Source/Engine/RHI)
 add_subdirectory(Source/Engine/ShaderCompiler)
 add_subdirectory(Source/Engine/EngineCore)
+add_subdirectory(Source/Engine/RenderCore)
 
 # Sandbox
 add_subdirectory(Source/Sandbox)

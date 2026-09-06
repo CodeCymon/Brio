@@ -7,7 +7,7 @@
 #include "RHIResources.h"
 
 namespace PixelShaderUtils {
-    RHIGraphicsPipelineRef CreateFullscreenPipeline(GlobalShaderMap* globalShaderMap, RHIPixelShader* pixelShader, u32 pushConstantOffset, u32 pushConstantSize, PixelFormat pixelFormat, BlendMode blendMode = BlendMode::Opaque) {
+    RHIGraphicsPipelineRef CreateFullscreenPipeline(GlobalShaderMap* globalShaderMap, RHIPixelShader* pixelShader, u32 pushConstantOffset, u32 pushConstantSize, PixelFormat pixelFormat, BlendMode blendMode) {
         auto vertexShader = globalShaderMap->Get<FullscreenTriangleVS>();
         RHIGraphicsPipelineDesc desc {
             .vertexShader = vertexShader.Get(),

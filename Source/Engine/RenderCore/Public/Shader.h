@@ -1,9 +1,13 @@
 // Copyright (c) Simon Kirsch 2026.
 
 #pragma once
+
 #include "RHIDefinitions.h"
 #include "RHIResources.h"
+#include "DynamicRHI.h"
+
 #include "ShaderCompiler.h"
+
 #include "Containers/Map.h"
 
 template<ShaderStage stage>

@@ -2,6 +2,7 @@
 
 #pragma once
 #include "EngineCoreAPI.h"
+#include "Shader.h"
 #include "Window.h"
 
 class ENGINECORE_API Engine {
@@ -10,7 +11,7 @@ public:
 
     bool Initialize();
 
-    void Run() const;
+    void Run();
 
     void Shutdown();
 
@@ -24,4 +25,6 @@ private:
 private:
     Window mainWindow;
     bool bRunning {false};
+
+    GlobalShaderMap globalShaderMap;
 };
